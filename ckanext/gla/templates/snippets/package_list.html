@@ -14,8 +14,10 @@
     
     
     {% block package_list %}
+    {% asset "gla/gla-search_result_logging" %}
         {% if packages %}
             {% block package_list_inner %}
+            {% set is_search = h.is_search_results_page(request) %}
             {% if h.show_favourite_datasets(g.userobj, request) %}
                 {% set favourites = h.get_followed_datasets(g.userobj, request) %}
                 {% if favourites %}
@@ -23,12 +25,18 @@
                 {% endif %}
             {% endif %}
             {% set nonfavourites = h.remove_favourites(g.userobj, request, packages) %}
-                <ul class="{{ list_class or 'dataset-list list-unstyled' }}">
+                <ul class="{{ list_class or 'dataset-list list-unstyled' }}" data-module="gla_search_result_logging">
                     {% for package in nonfavourites %}
-                        {% snippet 'snippets/package_item.html', package=package, item_class=item_class, hide_resources=hide_resources %}
+                        {% snippet
+                        'snippets/package_item.html',
+                        package=package,
+                        item_class=item_class,
+                        hide_resources=hide_resources,
+                        is_search_result=is_search,
+                        result_index=loop.index
+                        %}
                     {% endfor %}
                 </ul>
             {% endblock %}
         {% endif %}
     {% endblock %}
-    

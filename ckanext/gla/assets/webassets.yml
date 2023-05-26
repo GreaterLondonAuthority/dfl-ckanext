@@ -20,3 +20,10 @@ gla-accordion:
   extra:
     preload:
       - base/main
+
+gla-search_result_logging:
+  contents:
+    - search_result_logging.js
+  extra:
+    preload:
+      - base/main
