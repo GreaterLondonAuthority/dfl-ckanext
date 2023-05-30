@@ -1,7 +1,12 @@
-const accordionHeadings = document.querySelectorAll('.accordion__heading');
+"use strict";
 
-accordionHeadings.forEach(accordionHeading => {
-    accordionHeading.addEventListener('click', () => {
-        accordionHeading.parentElement.classList.toggle('active');
-    });
+ckan.module('gla_accordion', function ($) {
+    return {
+        initialize: function () {
+            $.proxyAll(this, /_on/);
+            $(this.el[0]).click(function () {
+                this.classList.toggle('active');
+            })
+        }
+    };
 });
