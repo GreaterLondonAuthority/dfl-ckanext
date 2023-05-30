@@ -42,7 +42,7 @@ def debug(context, data_dict={}):
     except Exception as e:
         raise common.SearchError(e.args)
 
-logfile = "search_logs.csv"
+logfile = "/srv/app/search_logs.csv"
 
 def _result_index(page, index_in_page):
     page_idx = 0 if _empty_or_none(page) else int(page) - 1
@@ -59,3 +59,18 @@ def log_selected_result(context, data_dict={}):
             csv.writer(f).writerow(headers)
     with open(logfile, "a") as f:
         csv.writer(f).writerow([data_to_log[k] for k in headers])
+
+@toolkit.side_effect_free
+def get_logs(context, data_dict={}):
+    user = toolkit.get_action('user_show')(context, {})
+    if not user['sysadmin']:
+        raise toolkit.NotAuthorized()
+    if not exists(logfile.strip()):
+        return "no log file found"
+    with open(logfile, 'r') as f:
+        contents = f.read()
+    headers = [
+        ('Content-Type', 'text/csv'),
+        ('Content-Disposition', 'attachment; filename="search_logs.csv"')
+    ]
+    return contents.encode('utf-8'), 200, headers

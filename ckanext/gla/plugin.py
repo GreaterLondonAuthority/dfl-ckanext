@@ -49,7 +49,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     # IActions
     def get_actions(self):
         return {"debug_dataset_search": search.debug,
-                "log_chosen_search_result": search.log_selected_result}
+                "log_chosen_search_result": search.log_selected_result,
+                "search_logs": search.get_logs}
 
     # IDatasetForm
     # Follows https://docs.ckan.org/en/2.10/extensions/adding-custom-fields.html
