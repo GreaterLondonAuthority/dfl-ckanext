@@ -1,0 +1,30 @@
+{% extends "page-search.html" %}
+
+{% block breadcrumb_content %}
+<li class="active">{{ h.nav_link(_('Following'), '/dataset/favourites') }}</li>
+{% endblock %}
+
+{% block primary_content %}
+<section class="module">
+    <div class="">
+        {% if unregistered %}
+        {{_('You need to register an account before you can follow datasets.')}}
+        {% else %}
+            {% if packages|length > 0 %}
+            <div class="favs-block">
+                <div class="favs-block__header">
+                    <h3 class="favs-block__title">Following</h3>
+                </div>
+                <ul class="{{ list_class or 'dataset-list list-unstyled' }}">
+                    {% for package in packages %}
+                    {% snippet 'snippets/package_item.html', package=package, item_class=item_class, hide_resources=hide_resources %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% else %}
+            {{_('You are not currently following any datasets')}}
+            {% endif %}
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "page-search.html" %}
+
+{% block subtitle %}{{ h.humanize_entity_type('organization', group_type, 'page title') or _('Organizations') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{% link_for h.humanize_entity_type('organization', group_type, 'breadcrumb') or _('Organizations'), named_route=group_type+'.index' %}</li>
+{% endblock %}
+
+
+
+{% block upper_content %}
+<div class="row">
+    <div class="col-md-9 col-xs-12 offset-md-3">
+    {% snippet 'snippets/search_form.html', form_id='organization-search-form', type=group_type, query=q, sorting_selected=sort_by_selected, count=page.item_count, placeholder=h.humanize_entity_type('organization', group_type, 'search placeholder') or _('Search organizations...'), show_empty=request.args, no_bottom_border=true if page.items, sorting = [(_('Name Ascending'), 'title asc'), (_('Name Descending'), 'title desc')] %}
+    </div>
+</div>
+{% endblock %}
+
+{% block primary_content %}
+<section class="module">
+    <div class="">
+    {% block page_primary_action %}
+        {% if h.check_access('organization_create') %}
+        <div class="page_primary_action">
+            {% link_for h.humanize_entity_type('organization', group_type, 'add link') or _('Add Organisation'), named_route=group_type ~ '.new', class_='btn btn-primary', icon='plus-square' %}
+        </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block organizations_list %}
+    {% if page.items or request.args %}
+      {% if page.items %}
+        {% snippet "organization/snippets/organization_list.html", organizations=page.items %}
+      {% endif %}
+    {% endif %}
+  {% endblock %}
+  </div>
+  {% block page_pagination %}
+    {{ page.pager(q=q or '', sort=sort_by_selected or '') }}
+  {% endblock %}
+  </section>
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet "organization/snippets/helper.html", group_type=group_type %}
+{% endblock %}

@@ -1,0 +1,14 @@
+# gla-js:
+#   filter: rjsmin
+#   output: ckanext-gla/%(version)s-gla.js
+#   contents:
+#     - js/gla.js
+#   extra:
+#     preload:
+#       - base/main
+
+# gla-css:
+#   filter: cssrewrite
+#   output: ckanext-gla/%(version)s-gla.css
+#   contents:
+#     - css/gla.css

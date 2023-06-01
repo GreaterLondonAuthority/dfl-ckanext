@@ -1,0 +1,93 @@
+{% extends "page-search.html" %}
+{% set dataset_type = h.default_package_type() %}
+
+{% block subtitle %}{{ group_dict.display_name }} {{ g.template_title_delimiter }}
+{{ h.humanize_entity_type('organization', group_type, 'page title') or _('Organizations') }}{% endblock %}
+
+{% block breadcrumb_content %}
+<li>{% link_for h.humanize_entity_type('organization', group_type, 'breadcrumb') or _('Organizations'), named_route=group_type+'.index' %}
+</li>
+<li class="active">
+    {% link_for group_dict.display_name|truncate(35), named_route=group_type+'.read', id=group_dict.name %}</li>
+{% endblock %}
+
+{% block content_primary_nav %}
+{{ h.build_nav_icon(group_type + '.read', h.humanize_entity_type('package', dataset_type, 'content tab') or _('Datasets'), id=group_dict.name, icon='sitemap') }}
+{{ h.build_nav_icon(group_type + '.about', _('About'), id=group_dict.name, icon='info-circle') }}
+{% endblock %}
+
+{% block upper_content %}
+<div class="row">
+    <div class="col-md-3">
+        <img class=org-page-image src="{{group_dict.image_display_url}}" />
+    </div>
+    <div class="col-md-9 col-xs-12">
+        {% block form %}
+        {% set facets = {
+          'fields': fields_grouped,
+          'search': search_facets,
+          'titles': facet_titles,
+          'translated_fields': translated_fields,
+          'remove_field': remove_field }
+        %}
+        {% set sorting = [
+          (_('Relevance'), 'score desc, metadata_modified desc'),
+          (_('Name Ascending'), 'title_string asc'),
+          (_('Name Descending'), 'title_string desc'),
+          (_('Last Modified'), 'metadata_modified desc'),
+          (_('Popular'), 'views_recent desc') if g.tracking_enabled else (false, false) ]
+        %}
+        {% snippet 'snippets/search_form.html', form_id='organization-datasets-search-form', type=dataset_type, query=q, sorting=sorting, sorting_selected=sort_by_selected, count=page.item_count, placeholder=h.humanize_entity_type('package', dataset_type, 'search placeholder') or _('Search datasets...'), facets=facets, show_empty=request.args, fields=fields, title_override=group_dict.display_name%}
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+{% block primary_content %}
+<section class="module">
+    <div class="">
+        {% block page_primary_action %}
+        {% if h.check_access('package_create', {'owner_org': group_dict.id}) %}
+        <div class="page_primary_action">
+            <div class="row justify-content-between">
+                <div class="col-md-3">
+                    {{ h.snippet ('snippets/add_dataset.html', group=group_dic) }}
+                </div>
+                <div class="col-md-3 org-manage-btn">
+                    {% link_for _('Manage'), named_route=group_type+'.edit', id=group_dict.name, class_='btn btn-default', icon='wrench' %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endblock %}
+
+        {% if page.items %}
+        {{ h.snippet('snippets/package_list.html', packages=page.items) }}
+        {% endif %}
+    </div>
+    {% block page_pagination %}
+    {{ page.pager(q=q) }}
+    {% endblock %}
+</section>
+{% endblock %}
+
+{% block secondary_content %}
+<div class="filters">
+    <h2 class="filters__header">Filter by:</h2>
+    <div>
+        {% for facet in facet_titles|reject('==', 'organization')|list %}
+        {{ h.snippet('snippets/facet_list.html', title=facet_titles[facet], name=facet, search_facets=search_facets) }}
+        {% endfor %}
+    </div>
+    <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
+</div>
+
+<script type="text/javascript">
+    const accordionHeadings = document.querySelectorAll('.accordion__heading');
+    accordionHeadings.forEach(accordionHeading => {
+        accordionHeading.addEventListener('click', () => {
+            accordionHeading.parentElement.classList.toggle('active');
+        });
+    });
+</script>
+{% endblock %}

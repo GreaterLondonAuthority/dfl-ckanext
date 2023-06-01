@@ -1,0 +1,42 @@
+{% ckan_extends %}
+
+{% block extras %}
+  {% for extra in pkg_dict.extras %}
+    {% if extra.key == "upstream_url" %}
+      <tr>
+        <th scope="row" class="dataset-label">Upstream URL</th>
+        <td class="dataset-details">
+          <a href="{{ extra.value }}">{{ extra.value }}</a>
+        </td>
+      </tr>
+    {% endif %}
+    {% if extra.key == "upstream_metadata_modified" %}
+      <tr>
+        <th scope="row" class="dataset-label">Upstream Last Updated</th>
+        <td class="dataset-details">
+          {%
+            snippet 'snippets/local_friendly_datetime.html',
+            datetime_obj=extra.value
+          %}
+        </td>
+      </tr>
+    {% endif %}
+    {% if extra.key == "upstream_metadata_created" %}
+      <tr>
+        <th scope="row" class="dataset-label">Upstream Created</th>
+        <td class="dataset-details">
+          {%
+            snippet 'snippets/local_friendly_datetime.html',
+            datetime_obj=extra.value
+          %}
+        </td>
+      </tr>
+    {% endif %}
+  {% endfor %}
+  {% if pkg_dict.data_quality %}
+    <tr>
+      <th scope="row" class="dataset-label">Data Quality</th>
+      <td class="dataset-details">{{ pkg_dict.data_quality }}</td>
+    </tr>
+  {% endif %}
+{% endblock %}

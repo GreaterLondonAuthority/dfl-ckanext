@@ -1,0 +1,17 @@
+{% set num_favourites = 3 %}
+{% block favourites %}
+<div class="favs-block">
+    <div class="favs-block__header">
+        <h3 class="favs-block__title">Following{% if favourites|length > num_favourites %} (showing {{num_favourites}}
+            of {{_(favourites|length)}}) {% endif %}</h3>
+        {{h.link_to('View all', '/dataset/following')}}
+    </div>
+    {% if favourites %}
+    <ul class="{{ list_class or 'dataset-list list-unstyled' }}">
+        {% for package in favourites[:num_favourites] %}
+        {% snippet 'snippets/package_item.html', package=package["dict"], item_class=item_class, hide_resources=hide_resources %}
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endblock %}

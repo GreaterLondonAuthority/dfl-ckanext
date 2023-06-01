@@ -1,0 +1,29 @@
+{% set tags = h.get_facet_items_dict('tags', search_facets, limit=3) %}
+{% set placeholder = _('E.g. environment') %}
+{% set dataset_type = h.default_package_type() %}
+
+<div class="cta">
+    <div class="cta__image" style="background-image: url(/london.jpeg);"></div>
+    <div class="cta__content">
+        <form class="search-form" method="get" action="{% url_for dataset_type ~ '.search' %}">
+            <h1 class="heading">{{ _("Search London's open data") }}</h1>
+            <p>Whether you’re a citizen, business owner, researcher or developer, the site provides over a thousand datasets to help you understand the city and develop solutions to London’s problems.</p>
+            <div class="input-group search-input-group">
+              <input aria-label="{% block header_site_search_label %}{{ h.humanize_entity_type('package', dataset_type, 'search placeholder') or _('Search datasets') }}{% endblock %}" id="field-main-search" type="text" class="form-control input-lg" name="q" value="" autocomplete="off" placeholder="{% block search_placeholder %}{{ placeholder }}{% endblock %}" />
+              <span class="input-group-btn">
+                    <button class="btn btn-default btn-lg" type="submit" aria-labelledby="search-label">
+                        <i class="fa fa-search"></i>
+                        <span class="sr-only" id="search-label">{{ _('Search') }}</span>
+                    </button>
+                </span>
+            </div>
+
+          </form>
+
+
+    </div>
+
+</div>
+
+
+

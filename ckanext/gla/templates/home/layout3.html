@@ -1,0 +1,112 @@
+{% set tags = h.get_facet_items_dict('tags', search_facets, limit=3) %}
+{% set placeholder = _('E.g. environment') %}
+{% set dataset_type = h.default_package_type() %}
+<div role="main" class="main">
+    <div class="phase-banner">
+        <div class="container">
+            <p class="phase-banner__content">
+                <strong class="phase-banner__tag">Beta</strong>
+                <span class="phase-banner__text">This is a preview of the new London Datastore. <a href="#">Click
+                        here</a> to return to the old datastore.</span>
+            </p>
+        </div>
+    </div>
+    <div class="hero" style="background-image: url(/london.jpeg);">
+        <div class="container">
+            <div class="hero__content">
+                <form class="search-form" method="get" action="{% url_for dataset_type ~ '.search' %}">
+                    <h1 class="heading">{{ _("Search London's open data") }}</h1>
+                    <p>Whether you’re a citizen, business owner, researcher or developer, the site provides over a
+                        thousand datasets to help you understand the city and develop solutions to London’s problems.
+                    </p>
+                    <div class="input-group search-input-group">
+                        <input
+                            aria-label="{% block header_site_search_label %}{{ h.humanize_entity_type('package', dataset_type, 'search placeholder') or _('Search datasets') }}{% endblock %}"
+                            id="field-main-search" type="text" class="form-control input-lg" name="q" value=""
+                            autocomplete="off"
+                            placeholder="{% block search_placeholder %}{{ placeholder }}{% endblock %}" />
+                        <span class="input-group-btn">
+                            <button class="btn btn-default btn-lg" type="submit" aria-labelledby="search-label">
+                                <i class="fa fa-search"></i>
+                                <span class="sr-only" id="search-label">{{ _('Search') }}</span>
+                            </button>
+                        </span>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {#
+    <div class="container">
+        <!-- <div class="phase-banner">
+            <p class="phase-banner__content">
+                <strong class="phase-banner__tag">Beta</strong>
+                <span class="phase-banner__text">This is a preview of the new London Datastore. <a href="#">Click here</a> to return to the old datastore.</span>
+            </p>
+        </div> -->
+        <section class="page-section">
+            <h2>About this datastore</h2>
+            <div class="row g-5">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <img class="card-img-top" src="/london.jpeg" alt="">
+                        <div class="card-body">
+                            <h5 class="card-title">A new datastore for London</h5>
+                            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <img class="card-img-top" src="/london.jpeg" alt="">
+                        <div class="card-body">
+                            <h5 class="card-title">Platform roadmap</h5>
+                            <p class="card-text">This is a short card.</p>
+                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <img class="card-img-top" src="/london.jpeg" alt="">
+                        <div class="card-body">
+                            <h5 class="card-title">Data for London Programme</h5>
+                            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content.</p>
+                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="page-section">
+            <div class="cta">
+                <div class="cta__image" style="background-image: url(/example-chart.jpg);background-color: var(--t-colors-pink);background-size: contain;background-position: 50%;background-repeat: no-repeat;"></div>
+                <div class="cta__content">
+                    <h2>See what can you do with London's Open Data</h2>
+                    <p>sdcasdcasd asdca sdcasd asdca sdca sdc </p>
+                    <a href="#" class="btn btn-primary">See projects</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="page-section">
+            <!-- { % snippet 'home/snippets/search.html' % } -->
+            <h2>Connected datastores</h2>
+            <p>The London datastore is connected to many borough and other data sources to provide sdfv sdfv sdfvs fvsdfvsd fv sdfv sdfv</p>
+            <ul class="connections list-unstyled">
+                <li><a href="#"><img src="/tfl.png" alt="Transport for London" /></a></li>
+                <li><a href="#"><img src="/barking.png" alt="Transport for London" /></a></li>
+                <li><a href="#"><img src="/barnet.png" alt="Transport for London" /></a></li>
+                <li><a href="#"><img src="/bexley.png" alt="Transport for London" /></a></li>
+                <li><a href="#"><img src="/camden.png" alt="Transport for London" /></a></li>
+                <li><a href="#"><img src="/met.png" alt="Transport for London" /></a></li>
+            </ul>
+            <a href="#" class="btn btn--primary">See all connected datastores</a>
+        </section>
+    </div>
+    #}
+</div>

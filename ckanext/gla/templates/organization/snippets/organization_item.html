@@ -1,0 +1,31 @@
+{% set url = h.url_for(organization.type ~ '.read', id=organization.name) %}
+<li class="{{ item_class or 'dataset-item' }}">
+    {% block content %}
+    <div class="dataset-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-2">
+                    <img src="{{organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}"
+                        class="img-fluid org-list-image" />
+                </div>
+                <div class="col-sm-10">
+                    <div class="dataset-header">
+                        <h2 class="dataset-heading">
+                            <a href="{{url}}"
+                                title="{{ _('View {organization_name}').format(organization_name=organization.display_name) }}">
+                                {{organization.display_name}}
+                            </a>
+                        </h2>
+                    </div>
+                    <strong
+                        class="count">{{ ungettext('{num} Dataset', '{num} Datasets', organization.package_count).format(num=organization.package_count) }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endblock %}
+</li>

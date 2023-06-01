@@ -1,0 +1,114 @@
+{#
+
+    Displays a test for results of a search.
+    
+    query          - The text that was searched for
+    count          - The number of results for the search
+    type           - Search result type (dataset, group, organization)
+    title_override - Override the title
+    
+    Example:
+    
+    {% snippet 'snippets/search_result_text.html', query=query, count=count, type='dataset' %}
+    
+    #}
+    <h1>
+        {% if type == 'dataset' %}
+        {% set text_query = ungettext('"{query}"', '"{query}"', count) %}
+        {% set text_query_none = _('"{query}"') %}
+        {% set text_no_query = _('Datasets') %}
+        {% set text_no_query_none = _('No datasets found') %}
+    
+    {% elif type == 'group' %}
+        {% set text_query = ungettext('"{query}"', '"{query}"', count) %}
+        {% set text_query_none = _('"{query}"') %}
+        {% set text_no_query = ungettext('{number} group found', '{number} groups found', count) %}
+        {% set text_no_query = _('Groups') %}
+        {% set text_no_query_none = _('No groups found') %}
+    
+    {% elif type == 'organization' %}
+        {% set text_query = ungettext('"{query}"', '"{query}"', count) %}
+        {% set text_query_none = _('"{query}"') %}
+        {% set text_no_query = _('Organisations') %}
+        {% set text_no_query_none = _('No organisations found') %}
+    
+    {% else %}
+        {% set text_query_singular = '{number} ' + type + ' found for "{query}"' %}
+        {% set text_query_plural = '{number} ' + type + 's found for "{query}"' %}
+        {% set text_query_none_plural = 'No ' + type + 's found for "{query}"' %}
+        {% set text_no_query_singular = '{number} ' + type + ' found' %}        
+        {% set text_no_query_plural = '{number} ' + type + 's found' %}
+        {% set text_no_query_none_plural = 'No ' + type + 's found' %}      
+    
+        {% set text_query = ungettext(text_query_singular, text_query_plural, count) %}
+        {% set text_query_none = _(text_query_none_plural) %}
+        {% set text_no_query = ungettext(text_no_query_singular, text_no_query_plural, count) %}
+        {% set text_no_query_none = _(text_no_query_none_plural) %}
+    {%- endif -%}
+
+    {% if title_override %}
+        {{title_override}}
+    {% else %}
+        {% if query %}
+        {%- if count -%}
+            {{ text_query.format(number=h.localised_number(count), query=query, type=type) }}
+        {%- else -%}
+            {{ text_query_none.format(query=query, type=type) }}
+        {%- endif -%}
+        {%- else -%}
+        {%- if count -%}
+            {{ text_no_query.format(number=h.localised_number(count), type=type) }}
+        {%- else -%}
+            {{ text_no_query_none.format(type=type) }}
+        {%- endif -%}
+        {%- endif -%}
+    {% endif %}
+    </h1>
+    
+    <span>
+    {% if type == 'dataset' %}
+        {% set text_query = ungettext('{number} dataset', '{number} datasets"', count) %}
+        {% set text_query_none = _('No datasets found') %}
+        {% set text_no_query = ungettext('{number} dataset', '{number} datasets', count) %}
+        {% set text_no_query_none = _('No datasets found') %}
+
+    {% elif type == 'group' %}
+        {% set text_query = ungettext('{number} group', '{number} groups', count) %}
+        {% set text_query_none = _('No groups found') %}
+        {% set text_no_query = ungettext('{number} group', '{number} groups', count) %}
+        {% set text_no_query_none = _('No groups found') %}
+
+    {% elif type == 'organization' %}
+        {% set text_query = ungettext('{number} organisation', '{number} organisations', count) %}
+        {% set text_query_none = _('No organisations found') %}
+        {% set text_no_query = ungettext('{number} organisation', '{number} organisations', count) %}
+        {% set text_no_query_none = _('No organisations found') %}
+
+    {% else %}
+        {% set text_query_singular = '{number} ' + type + ' found for "{query}"' %}
+        {% set text_query_plural = '{number} ' + type + 's found for "{query}"' %}
+        {% set text_query_none_plural = 'No ' + type + 's found for "{query}"' %}
+        {% set text_no_query_singular = '{number} ' + type + ' found' %}        
+        {% set text_no_query_plural = '{number} ' + type + 's found' %}
+        {% set text_no_query_none_plural = 'No ' + type + 's found' %}      
+
+        {% set text_query = ungettext(text_query_singular, text_query_plural, count) %}
+        {% set text_query_none = _(text_query_none_plural) %}
+        {% set text_no_query = ungettext(text_no_query_singular, text_no_query_plural, count) %}
+        {% set text_no_query_none = _(text_no_query_none_plural) %}
+    {%- endif -%}
+
+    {% if query %}
+        {%- if count -%}
+        {{ text_query.format(number=h.localised_number(count), query=query, type=type) }}
+        {%- else -%}
+        {{ text_query_none.format(query=query, type=type) }}
+        {%- endif -%}
+    {%- else -%}
+        {%- if count -%}
+        {{ text_no_query.format(number=h.localised_number(count), type=type) }}
+        {%- else -%}
+        {{ text_no_query_none.format(type=type) }}
+        {%- endif -%}
+    {%- endif -%}
+    </span>
