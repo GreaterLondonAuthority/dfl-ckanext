@@ -1,5 +1,7 @@
 /* ***** Imported from GLA Site ***** */
-
+.masthead .debug {
+    display: none!important;
+}
 :root {
     --t-colors-transparent: hsla(0, 0%, 100%, 0);
     --t-colors-current: currentColor;
@@ -376,9 +378,15 @@ body {
 
 .london-logos {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 3rem;
+    gap: 1rem;
+}
+@media (min-width: 75em) {
+    .london-logos {
+        gap: 3rem;
+    }
 }
 
 header.masthead {
@@ -389,6 +397,12 @@ header.masthead {
 
 header.masthead .navbar {
     padding-top: 0 !important;
+}
+button.navbar-toggler {
+    background: var(--t-colors-grey);
+    position: absolute;
+    top: 3px;
+    right: 0;
 }
 
 .masthead .main-navbar ul li a {
@@ -415,8 +429,13 @@ header.masthead .navbar {
     background-color: transparent;
 }
 
+.masthead .navbar .logo {
+    max-width: calc(100% - 60px);
+}
+
 .masthead .navbar .logo img {
     max-height: 1.6rem;
+    width: 100%;
 }
 
 input#field-sitewide-search {
@@ -467,6 +486,7 @@ input#field-sitewide-search::-ms-input-placeholder {
 .main {
     background: white;
     padding-bottom: 3rem;
+    overflow: hidden;
 }
 
 /* Breadcrumbs */
@@ -950,7 +970,12 @@ form.lang-select select {
 
 .hero__content {
     position: relative;
-    width: 50%;
+    width: 100%;
+}
+@media (min-width: 75em) {
+    .hero__content {
+        width: 50%;
+    }
 }
 
 .hero .search-form {
@@ -1152,13 +1177,16 @@ a.tag:hover {
 
 .connections {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 30px;
     align-items: center;
+    margin-bottom: 2rem;
 }
 
 .connections a {
     display: block;
-    margin-bottom: 2rem;
+    width: 150px;
 }
 
 .connections img {
@@ -1170,6 +1198,21 @@ a.tag:hover {
 
 .filters {
     padding-top: 20px;
+    position: relative!important;
+    background: transparent!important;
+    display: block!important;
+}
+
+.js body.filters-modal .secondary .filters .hide-filters {
+    display: none;
+}
+
+.search-form .filter-list {
+    display: none;
+}
+
+.show-filters.btn, .hide-filters {
+    display: none!important;
 }
 
 .filters__header {
@@ -1434,4 +1477,27 @@ li.dataset-item {
     margin-left: auto;
     margin-right: 0;
     text-align: right;
+}
+
+/* Account  */
+
+.page-header .content_action {
+    margin: 0 0 1rem!important;
+    float: none!important;
+}
+
+div#followee-filter {
+    float: none!important;
+    margin: 0 0 1rem!important;
+}
+
+@media (max-width: 767.98px) {
+    .main .secondary {
+      padding-right: calc(var(--bs-gutter-x) * 0.5);
+      padding-left: calc(var(--bs-gutter-x) * 0.5);
+    }
+}
+
+.dataset-content .container {
+    padding: 0;
 }
