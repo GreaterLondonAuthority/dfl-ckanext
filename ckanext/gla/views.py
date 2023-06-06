@@ -15,7 +15,7 @@ from ckan.types import Context
 
 favourites = Blueprint("favourites_blueprint", __name__)
 users = Blueprint("users_blueprint", __name__)
-
+privacy = Blueprint("privacy_blueprint", __name__)
 
 def show_favourites():
     # If an unregistered user ends up on the /dataset/following page
@@ -104,6 +104,10 @@ def view_user(id):
 
 users.add_url_rule("/user/<id>", methods=["GET"], view_func=view_user)
 
+def view_privacy():
+    return tk.render("privacy.html")
+
+privacy.add_url_rule("/privacy-policy", methods=["GET"], view_func=view_privacy)
 
 def get_blueprints():
-    return [favourites, users]
+    return [favourites, users, privacy]

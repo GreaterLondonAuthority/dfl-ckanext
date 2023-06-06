@@ -11,3 +11,14 @@
         {{ form.markdown('about', label=_('About'), id='field-about', value=data.about, error=errors.about, placeholder=_('A little information about yourself')) }}
       </fieldset>
 {% endblock %}
+
+{% block form %}
+      {{ super() }}
+      <div class="delete-account">
+          <h6>Delete account</h6>
+          <p>
+              If you wish to delete your account, please <a href="mailto:admin@todo.com">email the site administrator</a> from the email address associated with your acocunt.
+              All personal data will be removed from our systems upon request in accordance with GDPR regulation. Further information can be found in the <a href="/privacy-policy">Privacy Policy</a>.
+          </p>
+      </div>
+{% endblock %}
