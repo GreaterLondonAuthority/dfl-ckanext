@@ -16,21 +16,7 @@
     </div>
     <div class="module-content">
         <p>System administrators can download a log of all user searches, and the results that they selected
-            as a csv file <a id="downloadlink"  data-module="gla_search_result_log_download">here</a>.</p>
-        <script type="text/javascript">
-         fetch(window.location.origin + "/api/action/search_logs")
-             .then(response => response.json())
-             .then(data => {
-                 var csvdata = data.result[0];
-
-                 var downloadLink = document.getElementById("downloadlink");
-                 downloadLink.href =  "data:text/csv;charset=utf-8," + encodeURIComponent(csvdata);
-                 downloadLink.download = "search_logs.csv";
-             })
-             .catch(error => {
-                 console.error('Error:', error);
-             });
-        </script>
+            as a csv file <a id="downloadlink" href="/search_logs">here</a>.</p>
     </div>
 </div>
 {% endblock %}
