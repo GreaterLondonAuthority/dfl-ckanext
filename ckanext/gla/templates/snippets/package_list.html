@@ -25,7 +25,7 @@
                 {% endif %}
             {% endif %}
             {% set nonfavourites = h.remove_favourites(g.userobj, request, packages) %}
-                <ul class="{{ list_class or 'dataset-list list-unstyled' }}" data-module="gla_search_result_logging">
+                <ul class="{{ list_class or 'dataset-list list-unstyled' }}">
                     {% for package in nonfavourites %}
                         {% snippet
                         'snippets/package_item.html',
