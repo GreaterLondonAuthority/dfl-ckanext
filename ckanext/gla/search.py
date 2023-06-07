@@ -46,7 +46,8 @@ logfile = "/srv/app/search_logs.csv"
 
 def _result_index(page, index_in_page):
     page_idx = 0 if _empty_or_none(page) else int(page) - 1
-    return page_idx * 20 + int(index_in_page) + 1
+    from ckan.common import config
+    return page_idx * config.get('ckan.datasets_per_page') + int(index_in_page)
 
 @toolkit.side_effect_free
 def log_selected_result(context, data_dict={}):
