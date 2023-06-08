@@ -18,15 +18,8 @@
         {% if packages %}
             {% block package_list_inner %}
             {% set is_search = h.is_search_results_page(request) %}
-            {% if h.show_favourite_datasets(g.userobj, request) %}
-                {% set favourites = h.get_followed_datasets(g.userobj, request) %}
-                {% if favourites %}
-                    {% snippet 'snippets/favourites.html', favourites=favourites %}
-                {% endif %}
-            {% endif %}
-            {% set nonfavourites = h.remove_favourites(g.userobj, request, packages) %}
                 <ul class="{{ list_class or 'dataset-list list-unstyled' }}">
-                    {% for package in nonfavourites %}
+                    {% for package in packages %}
                         {% snippet
                         'snippets/package_item.html',
                         package=package,
