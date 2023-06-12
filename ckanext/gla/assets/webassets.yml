@@ -12,3 +12,18 @@
 #   output: ckanext-gla/%(version)s-gla.css
 #   contents:
 #     - css/gla.css
+#     
+
+gla-accordion:
+  contents:
+    - accordion.js
+  extra:
+    preload:
+      - base/main
+
+gla-search_result_logging:
+  contents:
+    - search_result_logging.js
+  extra:
+    preload:
+      - base/main
