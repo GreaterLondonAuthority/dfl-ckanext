@@ -1,3 +1,5 @@
+from ckan import authz
+from ckan.common import current_user
 import ckan.plugins.toolkit as toolkit
 import ckan.lib.search.common as common
 from luqum.parser import parser
@@ -25,12 +27,17 @@ def add_quality_to_search(search_params):
 
 @toolkit.side_effect_free
 def debug(context, data_dict={}):
-    params = add_quality_to_search(data_dict)
-    params.setdefault("df", "text")
-    params.setdefault("q.op", "AND")
-    params["debugQuery"] = "true"
-    conn = common.make_connection()
-    try:
-        return conn.search(**params).__dict__
-    except Exception as e:
-        raise common.SearchError(e.args)
+    if not current_user.is_authenticated:
+        raise toolkit.NotAuthorized()
+    if not authz.is_sysadmin(current_user.name):
+        raise toolkit.NotAuthorized()
+    else:
+        params = add_quality_to_search(data_dict)
+        params.setdefault("df", "text")
+        params.setdefault("q.op", "AND")
+        params["debugQuery"] = "true"
+        conn = common.make_connection()
+        try:
+            return conn.search(**params).__dict__
+        except Exception as e:
+            raise common.SearchError(e.args)
