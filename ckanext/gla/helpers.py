@@ -64,4 +64,5 @@ def get_helpers():
         "remove_favourites": remove_favourites,
         "show_favourite_datasets": should_show_favourites,
         "last_updated": last_updated,
+        "is_search_results_page": lambda request: __page_context(request)["is_search"]
     }

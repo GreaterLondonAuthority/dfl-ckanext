@@ -53,7 +53,17 @@ Example:
         {% endif %}
         {% endblock %}
         {% block heading_title %}
-        <a href="{{ h.url_for('%s.read' % package.type, id=package.name) }}">
+        <a href="{{ h.url_for('%s.read' % package.type, id=package.name) }}"
+           onclick="logResultClick(event, this, {'is_search_result': '{{ is_search_result }}',
+                                                'index': '{{ result_index }}',
+                                                'page': '{{ request.args["page"] }}',
+                                                'package-id': '{{ package.name }}',
+                                                'query': '{{ request.args["q"] }}',
+                                                'sort': '{{ request.args["sort"] }}',
+                                                'org': '{{ request.args["organization"] }}',
+                                                'tags': '{{ request.args["tags"] }}',
+                                                'format': '{{ request.args["res_format"] }}',
+                                                'licence': '{{ request.args["license_id"] }}'})">
           {{title|truncate(80)}}
         </a>
 
@@ -108,4 +118,5 @@ Example:
   {% endblock %}
 </li>
 {% endif %}
+
 {% endblock %}
