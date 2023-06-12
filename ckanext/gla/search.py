@@ -10,6 +10,10 @@ from os.path import exists
 
 auto_head_tail = ht.AutoHeadTail()
 
+
+# Set the amount by which the data quality field boosts a result
+data_quality_boost_factor = 0.1
+
 def _empty_or_none(string):
     return string == "" or string is None
 
@@ -23,10 +27,12 @@ def _parse_query(query):
         return parsed
 
 def add_quality_to_search(search_params):
+    data_quality_boosts = [tree.Boost(tree.SearchField("extras_data_quality", tree.Term(str(quality))),
+                                      data_quality_boost_factor * quality)
+                           for quality in range(1, 6)]
     parsed_query = _parse_query(search_params.get("q"))
     boosted_query = tree.Plus(tree.Boost(parsed_query, 1))
-    data_quality_search = tree.Boost(tree.SearchField("extras_data_quality", tree.Range(tree.Word("0"),tree.Word("5"),include_high=True,include_low=True)), 0.1)
-    new_query = tree.OrOperation(boosted_query, data_quality_search)
+    new_query = tree.OrOperation(boosted_query, *data_quality_boosts)
     new_query = auto_head_tail(new_query)
     return {**search_params, "q": str(new_query)}
 
