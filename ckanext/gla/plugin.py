@@ -2,7 +2,7 @@ from ckan.types import Schema
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-from . import auth, helpers, views, search
+from . import auth, helpers, views, search, form
 
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
@@ -55,40 +55,22 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     # Follows https://docs.ckan.org/en/2.10/extensions/adding-custom-fields.html
     def create_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).create_package_schema()
-        schema.update(
-            {
-                "data_quality": [
-                    toolkit.get_validator("int_validator"),
-                    toolkit.get_validator("one_of")([None, 1, 2, 3, 4, 5]),
-                    toolkit.get_converter("convert_to_extras"),
-                ]
-            }
-        )
+        schema.update(form.custom_dataset_fields)
         return schema
 
     def update_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).update_package_schema()
-        schema.update(
-            {
-                "data_quality": [
-                    toolkit.get_validator("int_validator"),
-                    toolkit.get_validator("one_of")([None, 1, 2, 3, 4, 5]),
-                    toolkit.get_converter("convert_to_extras"),
-                ]
-            }
-        )
+        schema.update(form.custom_dataset_fields)
         return schema
 
     def show_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).show_package_schema()
-        schema.update(
-            {
-                "data_quality": [
-                    toolkit.get_converter("convert_from_extras"),
-                    toolkit.get_validator("ignore_missing"),
-                ]
-            }
-        )
+        schema.update({
+            field: [
+                toolkit.get_converter("convert_from_extras"),
+                toolkit.get_validator("ignore_missing"),
+            ]
+            for field in form.custom_dataset_fields.keys()})
         return schema
 
     def is_fallback(self):
