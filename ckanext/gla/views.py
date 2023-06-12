@@ -1,9 +1,10 @@
-from flask import Blueprint
+from os.path import exists
+from flask import Blueprint, send_file
 
 import ckan.model as model
 import ckan.plugins.toolkit as tk
 
-from typing import Any, Optional, Union, cast
+from typing import Any, cast
 
 import ckan.logic as logic
 import ckan.lib.base as base
@@ -15,6 +16,7 @@ from ckan.types import Context
 
 favourites = Blueprint("favourites_blueprint", __name__)
 users = Blueprint("users_blueprint", __name__)
+search_log_download = Blueprint("search_log_download_blueprint", __name__)
 
 
 def show_favourites():
@@ -103,7 +105,24 @@ def view_user(id):
 
 
 users.add_url_rule("/user/<id>", methods=["GET"], view_func=view_user)
+## Download routes:
 
+
+def get_server_search_logs():
+    if not current_user.is_authenticated:
+        base.abort(403, _("Not authorized to see this page"))
+
+    if not authz.is_sysadmin(current_user.name):
+        base.abort(403, _("Not authorized to see this page"))
+
+    if not exists("/srv/app/search_logs.csv"):
+        base.abort(404, _("Log file not found"))
+    return send_file(
+        "/srv/app/search_logs.csv", mimetype="text/csv", as_attachment=True
+    )
+
+
+search_log_download.add_url_rule("/search_logs", methods=["GET"], view_func=get_server_search_logs)
 
 def get_blueprints():
-    return [favourites, users]
+    return [favourites, users, search_log_download]
