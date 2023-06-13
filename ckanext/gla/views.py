@@ -16,8 +16,8 @@ from ckan.types import Context
 
 favourites = Blueprint("favourites_blueprint", __name__)
 users = Blueprint("users_blueprint", __name__)
+privacy = Blueprint("privacy_blueprint", __name__)
 search_log_download = Blueprint("search_log_download_blueprint", __name__)
-
 
 def show_favourites():
     # If an unregistered user ends up on the /dataset/following page
@@ -107,6 +107,10 @@ def view_user(id):
 users.add_url_rule("/user/<id>", methods=["GET"], view_func=view_user)
 ## Download routes:
 
+def view_privacy():
+    return tk.render("privacy.html")
+
+privacy.add_url_rule("/privacy-policy", methods=["GET"], view_func=view_privacy)
 
 def get_server_search_logs():
     if not current_user.is_authenticated:
@@ -125,4 +129,4 @@ def get_server_search_logs():
 search_log_download.add_url_rule("/search_logs", methods=["GET"], view_func=get_server_search_logs)
 
 def get_blueprints():
-    return [favourites, users, search_log_download]
+    return [favourites, users, privacy, search_log_download]
