@@ -3,38 +3,30 @@ import ckan.lib.search.common as common
 from collections import OrderedDict
 import csv
 from datetime import datetime
-from luqum.parser import parser
-import luqum.tree as tree
-import luqum.auto_head_tail as ht
 from os.path import exists
-
-auto_head_tail = ht.AutoHeadTail()
+from urllib.parse import quote
 
 
 # Set the amount by which the data quality field boosts a result
 data_quality_boost_factor = 0.1
 
+# Set the amount by which the "boost" field boosts a result - left this as 1 as this field
+# is intended for admins to control the boost directly, but we can change it if needed.
+dataset_boost_boost_factor = 1
+
 def _empty_or_none(string):
     return string == "" or string is None
 
-def _parse_query(query):
-    if _empty_or_none(query):
-        query = "*:*"
-    parsed = parser.parse(query)
-    if isinstance(parsed, tree.Word):
-        return tree.SearchField("text", parsed)
-    else:
-        return parsed
-
 def add_quality_to_search(search_params):
-    data_quality_boosts = [tree.Boost(tree.SearchField("extras_data_quality", tree.Term(str(quality))),
-                                      data_quality_boost_factor * quality)
-                           for quality in range(1, 6)]
-    parsed_query = _parse_query(search_params.get("q"))
-    boosted_query = tree.Plus(tree.Boost(parsed_query, 1))
-    new_query = tree.OrOperation(boosted_query, *data_quality_boosts)
-    new_query = auto_head_tail(new_query)
-    return {**search_params, "q": str(new_query)}
+    search_terms = search_params.get("q")
+    if _empty_or_none(search_terms):
+        q = "*:*"
+    else:
+        q = f"text:{quote(search_terms)}"
+    query = f"{q} _val_:copy_data_quality^{data_quality_boost_factor} _val_:copy_dataset_boost^{dataset_boost_boost_factor}"
+
+    return {**search_params,
+            "q": query}
 
 @toolkit.side_effect_free
 def debug(context, data_dict={}):
