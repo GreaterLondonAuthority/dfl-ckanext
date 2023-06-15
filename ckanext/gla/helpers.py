@@ -51,10 +51,6 @@ def remove_favourites(user, request, all_items):
 
 
 def last_updated(package):
-    if "extras" in package.keys():
-        for extra in package["extras"]:
-            if extra["key"] == "upstream_metadata_modified":
-                return extra["value"]
     return package.get("metadata_modified", "")
 
 
