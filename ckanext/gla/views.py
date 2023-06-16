@@ -13,20 +13,28 @@ from ckan import authz
 from ckan.common import _, g, current_user
 from ckan.types import Context
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 favourites = Blueprint("favourites_blueprint", __name__)
 users = Blueprint("users_blueprint", __name__)
 privacy = Blueprint("privacy_blueprint", __name__)
 search_log_download = Blueprint("search_log_download_blueprint", __name__)
 
+
 def show_favourites():
+    log.info("IN SHOW_FAVOURITES")
     # If an unregistered user ends up on the /dataset/following page
     # show them a message saying that they need to create an account
     if not tk.g.userobj:
-        return tk.render(
-            "following.html",
-            extra_vars={"unregistered": True},
-        )
+        return h.redirect_to("user.login")
+
+    data_dict: dict[str, Any] = {
+        "id": id,
+        "user_obj": tk.g.userobj,
+    }
 
     context = {
         "model": model,
@@ -37,11 +45,15 @@ def show_favourites():
     }
     data_dict = {"id": tk.g.userobj.id}
     followed_datasets = tk.get_action("dataset_followee_list")(context, data_dict)
-    return tk.render("following.html", extra_vars={"packages": followed_datasets})
+    log.info("GOT FOLLOWED DATASETS")
+    extra_vars = _extra_template_variables(context, data_dict)
+    extra_vars.update({"packages": followed_datasets})
+    log.info(extra_vars)
+    return tk.render("following.html", extra_vars)
 
 
 favourites.add_url_rule(
-    "/dataset/following",
+    "/dashboard/following",
     methods=["GET"],
     view_func=show_favourites,
     endpoint="show_favourites",
@@ -107,10 +119,13 @@ def view_user(id):
 users.add_url_rule("/user/<id>", methods=["GET"], view_func=view_user)
 ## Download routes:
 
+
 def view_privacy():
     return tk.render("privacy.html")
 
+
 privacy.add_url_rule("/privacy-policy", methods=["GET"], view_func=view_privacy)
+
 
 def get_server_search_logs():
     if not current_user.is_authenticated:
@@ -126,7 +141,10 @@ def get_server_search_logs():
     )
 
 
-search_log_download.add_url_rule("/search_logs", methods=["GET"], view_func=get_server_search_logs)
+search_log_download.add_url_rule(
+    "/search_logs", methods=["GET"], view_func=get_server_search_logs
+)
+
 
 def get_blueprints():
     return [favourites, users, privacy, search_log_download]
