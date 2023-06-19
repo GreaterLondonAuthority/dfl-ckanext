@@ -1,19 +1,20 @@
 function postSelectedSearchResult(data) {
-    var baseURL = window.location.origin;
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', baseURL + '/api/action/log_chosen_search_result', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    var jsonified = JSON.stringify(data);
-    return new Promise(function(resolve, reject) {
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                resolve();
-            } else {
-                reject(xhr.status);
-            }
-        };
+    const baseURL = window.location.origin;
+    const url = baseURL + '/api/action/log_chosen_search_result';
+    const jsonified = JSON.stringify(data);
 
-        xhr.send(jsonified);
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: jsonified
+    }).then(function(response) {
+        if (response.ok) {
+            return;
+        } else {
+            throw new Error("Failed to log search result click");
+        }
     });
 }
 
