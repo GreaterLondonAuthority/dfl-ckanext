@@ -35,11 +35,6 @@
     <div class="">
         
       {% block page_primary_action %}
-        {% if h.check_access('package_create') %}
-          <div class="page_primary_action">
-            {{ h.snippet ('snippets/add_dataset.html', dataset_type=dataset_type) }}
-          </div>
-        {% endif %}
       {% endblock %}
       
       {% block package_search_results_list %}
