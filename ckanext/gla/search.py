@@ -62,7 +62,7 @@ def _result_index(page, index_in_page):
     from ckan.common import config
     return page_idx * config.get('ckan.datasets_per_page') + int(index_in_page)
 
-@toolkit.side_effect_free
+@toolkit.auth_allow_anonymous_access
 def log_selected_result(context, data_dict={}):
     data_to_log = {k: v for k, v in data_dict.items() if k not in ["page", "index", "is_search_result"]}
     data_to_log["index"] = _result_index(data_dict["page"], data_dict["index"])
