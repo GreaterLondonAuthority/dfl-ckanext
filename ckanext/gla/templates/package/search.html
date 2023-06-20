@@ -9,7 +9,6 @@
 
 {% block upper_content %}
 <div class="row">
-    <div class="col-md-9 col-xs-12 offset-md-3">
       {% block form %}
         {% set facets = {
           'fields': fields_grouped,
@@ -28,7 +27,6 @@
         {% snippet 'snippets/search_form.html', form_id='dataset-search-form', type=dataset_type, query=q, sorting=sorting, sorting_selected=sort_by_selected, count=page.item_count, placeholder=h.humanize_entity_type('package', dataset_type, 'search placeholder') or _('Search datasets...'), facets=facets, show_empty=request.args, error=query_error, fields=fields %}
       {% endblock %}
 
-    </div>
   </div>
   {% endblock %}
 
@@ -81,15 +79,5 @@
 {% endblock %}
 
 
-{% block secondary_content %}
-  <div class="filters">
-    <h2 class="filters__header">Filter by:</h2>
-    <div>
-      {% for facet in facet_titles %}
-        {{ h.snippet('snippets/facet_list.html', title=facet_titles[facet], name=facet, search_facets=search_facets) }}
-      {% endfor %}
-    </div>
-    <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
-  </div>
-
+{% block secondary %}
 {% endblock %}

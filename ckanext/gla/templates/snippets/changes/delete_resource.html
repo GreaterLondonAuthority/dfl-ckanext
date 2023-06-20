@@ -1,0 +1,8 @@
+<li>
+    <p>
+        {{ _('Deleted resource {resource_link} from {pkg_link}').format(
+        resource_link = change.resource_name,
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        ) }}
+    </p>
+</li>

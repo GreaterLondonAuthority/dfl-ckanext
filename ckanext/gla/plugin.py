@@ -2,7 +2,7 @@ from ckan.types import Schema
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-from . import auth, helpers, views, search, custom_fields
+from . import auth, helpers, views, search, timestamps, custom_fields
 
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
@@ -38,6 +38,12 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
         # Then add the quality parts to the search query:
         return search.add_quality_to_search(search_params)
+
+    def after_dataset_create(self, ctx, package):
+        timestamps.restore_upstream(ctx, package)
+
+    def after_dataset_update(self, ctx, package):
+        timestamps.restore_upstream(ctx, package)
 
     # ITemplateHelpers
     def get_helpers(self):

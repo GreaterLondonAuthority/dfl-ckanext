@@ -10,28 +10,6 @@
         </td>
       </tr>
     {% endif %}
-    {% if extra.key == "upstream_metadata_modified" %}
-      <tr>
-        <th scope="row" class="dataset-label">Upstream Last Updated</th>
-        <td class="dataset-details">
-          {%
-            snippet 'snippets/local_friendly_datetime.html',
-            datetime_obj=extra.value
-          %}
-        </td>
-      </tr>
-    {% endif %}
-    {% if extra.key == "upstream_metadata_created" %}
-      <tr>
-        <th scope="row" class="dataset-label">Upstream Created</th>
-        <td class="dataset-details">
-          {%
-            snippet 'snippets/local_friendly_datetime.html',
-            datetime_obj=extra.value
-          %}
-        </td>
-      </tr>
-    {% endif %}
   {% endfor %}
   {% if pkg_dict.data_quality %}
     <tr>
