@@ -1,12 +1,24 @@
 {% ckan_extends %}
 
-{% block package_basic_fields_custom %} {{
-    form.input(
-       "data_quality",
+{% block package_basic_fields_custom %}
+{{
+    form.input("data_quality",
        label=_("Data Quality"),
        id="field-data_quality",
        placeholder=_("data quality"),
        value=data.data_quality,
        error=errors.data_quality,
        classes=["control-medium"])
-}} {% endblock %}
+}}
+
+{{
+    form.input("dataset_boost",
+        label=_("Boost factor"),
+        id="field-dataset_boost",
+        placeholder=_("boost factor"),
+        value=data.dataset_boost,
+        error=errors.dataset_boost,
+        classes=["control-medium"])
+}}
+
+{% endblock %}

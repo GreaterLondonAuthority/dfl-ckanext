@@ -2,7 +2,7 @@ from ckan.types import Schema
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-from . import auth, helpers, views, search, timestamps
+from . import auth, helpers, views, search, timestamps, custom_fields
 
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
@@ -19,6 +19,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         toolkit.add_template_directory(config_, "templates")
         toolkit.add_public_directory(config_, "public")
         toolkit.add_resource("assets", "gla")
+        custom_fields.add_copy_fields()
 
     # IAuthFunctions
     def get_auth_functions(self):
@@ -61,40 +62,22 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     # Follows https://docs.ckan.org/en/2.10/extensions/adding-custom-fields.html
     def create_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).create_package_schema()
-        schema.update(
-            {
-                "data_quality": [
-                    toolkit.get_validator("int_validator"),
-                    toolkit.get_validator("one_of")([None, 1, 2, 3, 4, 5]),
-                    toolkit.get_converter("convert_to_extras"),
-                ]
-            }
-        )
+        schema.update(custom_fields.custom_dataset_fields)
         return schema
 
     def update_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).update_package_schema()
-        schema.update(
-            {
-                "data_quality": [
-                    toolkit.get_validator("int_validator"),
-                    toolkit.get_validator("one_of")([None, 1, 2, 3, 4, 5]),
-                    toolkit.get_converter("convert_to_extras"),
-                ]
-            }
-        )
+        schema.update(custom_fields.custom_dataset_fields)
         return schema
 
     def show_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).show_package_schema()
-        schema.update(
-            {
-                "data_quality": [
-                    toolkit.get_converter("convert_from_extras"),
-                    toolkit.get_validator("ignore_missing"),
-                ]
-            }
-        )
+        schema.update({
+            field: [
+                toolkit.get_converter("convert_from_extras"),
+                toolkit.get_validator("ignore_missing"),
+            ]
+            for field in custom_fields.custom_dataset_fields.keys()})
         return schema
 
     def is_fallback(self):
