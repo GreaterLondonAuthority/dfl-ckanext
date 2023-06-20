@@ -54,11 +54,29 @@ def last_updated(package):
     return package.get("metadata_modified", "")
 
 
+def extract_resource_format(resource):
+    """Extract the format of the resource, used to find the correct icon.
+    This was added because .xls files have type 'spreadsheet' and so
+    were not being correctly matched to the image associated with type 'xls'.
+
+    The way it works (because it's not obvious) is that this CSS for xls class:
+    https://github.com/ckan/ckan/blob/fd88d1f4c52c8ee247883549ca23500693e2e2a4/ckan/public/base/css/main.css#L14033
+    is used to set the position of this image containing all the icons so the
+    correct one shows:
+    https://github.com/ckan/ckan/blob/fd88d1f4c52c8ee247883549ca23500693e2e2a4/ckan/public/base/images/sprite-resource-icons.png"""
+
+    resource_type = resource.get("format", "data").lower()
+    if resource_type == "spreadsheet":
+        return "xls"
+    else:
+        return resource_type
+
 def get_helpers():
     return {
         "get_followed_datasets": followed,
         "remove_favourites": remove_favourites,
         "show_favourite_datasets": should_show_favourites,
         "last_updated": last_updated,
-        "is_search_results_page": lambda request: __page_context(request)["is_search"]
+        "is_search_results_page": lambda request: __page_context(request)["is_search"],
+        "extract_resource_format": extract_resource_format
     }
