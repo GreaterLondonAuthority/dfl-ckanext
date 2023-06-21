@@ -1,0 +1,40 @@
+{% ckan_extends %}
+
+{% block breadcrumb_content %}
+<li class="active"><a href="{{ h.url_for('activity.dashboard') }}">{{ _('Dashboard') }}</a></li>
+{% endblock %}
+
+{% block page_header %}
+<header class="module-content page-header hug">
+    <div class="d-flex flex-row justify-content-between mb-4">
+        <div class="">
+            {% link_for _('Profile'), named_route='user.read', id=user.name, class_='btn btn-default', icon='user' %}
+            {# {% link_for _('Profile settings'), named_route='user.edit', id=user.name, class_='btn btn-default', icon='cog' %} #}
+            {% if c.userobj.sysadmin %}
+            {% link_for _('Sysadmin settings'), named_route='admin.index', class_='btn btn-default', icon='wrench' %}
+            {% link_for _('Users'), named_route='user.index', class_='btn btn-default', icon='users' %}
+            {% endif%}
+        </div>
+        <div class="">
+            {% link_for _('Log out'), named_route='user.logout', class_='btn btn-default', icon='sign-out' %}
+        </div>
+    </div>
+    <ul class="nav nav-tabs">
+        {{ h.build_nav_icon('activity.dashboard', _('News feed'), icon='list') }}
+        {{ h.build_nav_icon('favourites_blueprint.show_favourites', _('Followed datasets'), icon='bookmark') }}
+    </ul>
+</header>
+{% endblock %}
+
+{% block primary_content_inner %}
+<div data-module="dashboard">
+    {# {% snippet 'user/snippets/followee_dropdown.html', context=dashboard_activity_stream_context, followees=followee_list %} #}
+    <h4 class="page-heading mb-4">
+        {{ _("Activity from datasets that I'm following") }}
+    </h4>
+    {% snippet 'snippets/stream.html', activity_stream=dashboard_activity_stream %}
+</div>
+
+{% snippet 'snippets/pagination.html', newer_activities_url=newer_activities_url, older_activities_url=older_activities_url %}
+
+{% endblock %}

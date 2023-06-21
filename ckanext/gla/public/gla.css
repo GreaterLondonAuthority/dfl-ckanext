@@ -1,7 +1,8 @@
 /* ***** Imported from GLA Site ***** */
 .masthead .debug {
-    display: none!important;
+    display: none !important;
 }
+
 :root {
     --t-colors-transparent: hsla(0, 0%, 100%, 0);
     --t-colors-current: currentColor;
@@ -383,6 +384,7 @@ body {
     justify-content: center;
     gap: 1rem;
 }
+
 @media (min-width: 75em) {
     .london-logos {
         gap: 3rem;
@@ -398,6 +400,7 @@ header.masthead {
 header.masthead .navbar {
     padding-top: 0 !important;
 }
+
 button.navbar-toggler {
     background: var(--t-colors-grey);
     position: absolute;
@@ -421,6 +424,16 @@ button.navbar-toggler {
 
 .account-masthead .account ul li a {
     color: var(--t-colors-text-grey);
+}
+
+.account-masthead .account .notifications a span.badge {
+    font-size: 12px;
+    margin: 0;
+    padding: 0.35em 0.65em;
+    background-color: #00232e;
+    border-radius: 4px;
+    text-shadow: none;
+    color: #bfd7de;
 }
 
 .masthead .main-navbar .site-search button {
@@ -972,6 +985,7 @@ form.lang-select select {
     position: relative;
     width: 100%;
 }
+
 @media (min-width: 75em) {
     .hero__content {
         width: 50%;
@@ -1198,9 +1212,9 @@ a.tag:hover {
 
 .filters {
     padding-top: 20px;
-    position: relative!important;
-    background: transparent!important;
-    display: block!important;
+    position: relative !important;
+    background: transparent !important;
+    display: block !important;
 }
 
 .js body.filters-modal .secondary .filters .hide-filters {
@@ -1211,8 +1225,9 @@ a.tag:hover {
     display: none;
 }
 
-.show-filters.btn, .hide-filters {
-    display: none!important;
+.show-filters.btn,
+.hide-filters {
+    display: none !important;
 }
 
 .filters__header {
@@ -1397,10 +1412,6 @@ li.dataset-item {
     white-space: nowrap;
 }
 
-.favs-block {
-    background: var(--t-colors-off-white);
-}
-
 .favs-block ul.dataset-list {
     margin: 0;
 }
@@ -1482,19 +1493,19 @@ li.dataset-item {
 /* Account  */
 
 .page-header .content_action {
-    margin: 0 0 1rem!important;
-    float: none!important;
+    margin: 0 0 1rem !important;
+    float: none !important;
 }
 
 div#followee-filter {
-    float: none!important;
-    margin: 0 0 1rem!important;
+    float: none !important;
+    margin: 0 0 1rem !important;
 }
 
 @media (max-width: 767.98px) {
     .main .secondary {
-      padding-right: calc(var(--bs-gutter-x) * 0.5);
-      padding-left: calc(var(--bs-gutter-x) * 0.5);
+        padding-right: calc(var(--bs-gutter-x) * 0.5);
+        padding-left: calc(var(--bs-gutter-x) * 0.5);
     }
 }
 
