@@ -10,9 +10,7 @@
 
 {% block upper_content %}
 <div class="row">
-    <div class="col-md-9 col-xs-12 offset-md-3">
     {% snippet 'snippets/search_form.html', form_id='organization-search-form', type=group_type, query=q, sorting_selected=sort_by_selected, count=page.item_count, placeholder=h.humanize_entity_type('organization', group_type, 'search placeholder') or _('Search organizations...'), show_empty=request.args, no_bottom_border=true if page.items, sorting = [(_('Name Ascending'), 'title asc'), (_('Name Descending'), 'title desc')] %}
-    </div>
 </div>
 {% endblock %}
 
