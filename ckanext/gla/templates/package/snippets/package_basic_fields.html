@@ -1,5 +1,88 @@
 {% ckan_extends %}
 
+{% block package_basic_fields_title %}
+{{
+    form.input('title',
+        id='field-title',
+        label=_('Title'),
+        placeholder=_('eg. A descriptive title'),
+        value=data.title,
+        classes=['control-full',
+        'control-large'],
+        attrs={'data-module': 'slug-preview-target', 'class': 'form-control', 'disabled': true})
+}}
+{% endblock %}
+
+{% block package_basic_fields_description %}
+{{
+    form.markdown('notes',
+        id='field-notes',
+        label=_('Description'),
+        placeholder=_('eg. Some useful notes about the data'),
+        value=data.notes,
+        attrs={'disabled': true })
+}}
+{% endblock %}
+
+{% block package_basic_fields_tags %}
+{% set tag_attrs = {'data-module': 'autocomplete',
+                    'data-module-tags': '',
+                    'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?',
+                    'disabled': true } %}
+{{
+    form.input('tag_string',
+        id='field-tags',
+        label=_('Tags'),
+        value=data.tag_string,
+        classes=['control-full'],
+        attrs=tag_attrs)
+}}
+{% endblock %}
+
+{% block package_basic_fields_license %}
+{{
+    form.input('license_id',
+        id='field-license',
+        label='License',
+        value=data.get('license_id'),
+        classes=['control-full'],
+        attrs={'disabled': true})
+}}
+{% endblock %}
+
+{% block package_metadata_fields_visibility %}
+{{
+    form.input('visability',
+        id='field-visablity',
+        label='Visibility',
+        value= 'Private' if data.private else 'Public',
+        classes=['control-full'],
+        attrs={'disabled': true})
+}}
+{% endblock %}
+
+{% block package_basic_fields_org %}
+
+{{
+form.input('organization',
+id='field-organization',
+label='Organization',
+value= data.owner_org,
+classes=['control-full'],
+attrs={'disabled': true})
+}}
+
+
+{{
+form.input('visability',
+id='field-visablity',
+label='Visibility',
+value= 'Private' if data.private else 'Public',
+classes=['control-full'],
+attrs={'disabled': true})
+}}
+  {% endblock %}
+
 {% block package_basic_fields_custom %}
 {{
     form.input("data_quality",
