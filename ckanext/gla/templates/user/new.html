@@ -1,0 +1,15 @@
+{% ckan_extends %}
+
+{% block secondary_content %}
+{% block help %}
+<section class="module module-narrow module-shallow">
+    {% block help_inner %}
+    <h2 class="module-heading">{{ _('Why Sign Up?') }}</h2>
+    <div class="module-content">
+        <p>{% trans %}Registration lets you follow datasets so you can be notified when they are changed.{% endtrans %}
+        </p>
+    </div>
+    {% endblock %}
+</section>
+{% endblock %}
+{% endblock %}
