@@ -10,6 +10,9 @@ def restore_upstream(ctx, package):
 
     Uses the SQLAlchemy interface directly to update the metadata fields.
     """
+    metadata_created = None
+    metadata_modified = None
+
     for extra in package["extras"]:
         if extra["key"] == "upstream_metadata_created":
             metadata_created = dateutil.parser.parse(extra["value"])
