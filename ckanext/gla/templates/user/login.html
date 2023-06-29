@@ -1,0 +1,7 @@
+{% ckan_extends %}
+
+{% block breadcrumb_content %}
+<li class="active">{{ h.nav_link(_('Log in'), named_route='user.login') }}</li>
+{% endblock %}
+
+{% block page_heading %}{{ _('Log in') }}{% endblock %}
