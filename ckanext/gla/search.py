@@ -24,7 +24,7 @@ def add_quality_to_search(search_params):
     if _empty_or_none(search_terms):
         q = "*:*"
     else:
-        q = f"text:{quote(search_terms)}"
+        q = f"text:{search_terms}"
     query = f"{q} _val_:copy_data_quality^{data_quality_boost_factor} _val_:copy_dataset_boost^{dataset_boost_boost_factor}"
 
     return {**search_params,
