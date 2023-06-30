@@ -9,7 +9,7 @@
         value=data.title,
         classes=['control-full',
         'control-large'],
-        attrs={'data-module': 'slug-preview-target', 'class': 'form-control', 'disabled': true})
+        attrs={'data-module': 'slug-preview-target', 'class': 'form-control', 'readonly': true})
 }}
 {% endblock %}
 
@@ -20,7 +20,7 @@
         label=_('Description'),
         placeholder=_('eg. Some useful notes about the data'),
         value=data.notes,
-        attrs={'disabled': true })
+        attrs={'readonly': true })
 }}
 {% endblock %}
 
@@ -28,7 +28,7 @@
 {% set tag_attrs = {'data-module': 'autocomplete',
                     'data-module-tags': '',
                     'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?',
-                    'disabled': true } %}
+                    'readonly': true } %}
 {{
     form.input('tag_string',
         id='field-tags',
@@ -46,7 +46,7 @@
         label='License',
         value=data.get('license_id'),
         classes=['control-full'],
-        attrs={'disabled': true})
+        attrs={'readonly': true})
 }}
 {% endblock %}
 
@@ -57,7 +57,7 @@
         label='Visibility',
         value= 'Private' if data.private else 'Public',
         classes=['control-full'],
-        attrs={'disabled': true})
+        attrs={'readonly': true})
 }}
 {% endblock %}
 
@@ -69,7 +69,7 @@ id='field-organization',
 label='Organization',
 value= data.owner_org,
 classes=['control-full'],
-attrs={'disabled': true})
+attrs={'readonly': true})
 }}
 
 
@@ -79,7 +79,7 @@ id='field-visablity',
 label='Visibility',
 value= 'Private' if data.private else 'Public',
 classes=['control-full'],
-attrs={'disabled': true})
+attrs={'readonly': true})
 }}
   {% endblock %}
 
