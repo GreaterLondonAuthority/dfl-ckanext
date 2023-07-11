@@ -1036,6 +1036,18 @@ form.lang-select select {
     min-height: 74px;
 }
 
+@media (max-width: 575.98px) {
+    .resource-item .btn-group {
+        display: block;
+    }
+}
+
+@media (max-width: 992px) {
+    .resource-item .btn-text {
+        display: none;
+    }
+}
+
 .resource-item:hover {
     background: var(--t-colors-off-white);
 }
