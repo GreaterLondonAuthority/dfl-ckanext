@@ -21,7 +21,7 @@ def _empty_or_none(string):
 
 def add_quality_to_search(search_params):
     search_terms = search_params.get("q")
-    if _empty_or_none(search_terms):
+    if _empty_or_none(search_terms) or search_terms == "*:*":
         q = "*:*"
     else:
         q = f"text:{search_terms}"
