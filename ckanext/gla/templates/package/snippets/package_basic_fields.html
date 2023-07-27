@@ -20,7 +20,7 @@
         label=_('Description'),
         placeholder=_('eg. Some useful notes about the data'),
         value=data.notes,
-        attrs={'readonly': true })
+        attrs={'class': 'form-control', 'readonly': true })
 }}
 {% endblock %}
 
@@ -46,11 +46,11 @@
         label='License',
         value=data.get('license_id'),
         classes=['control-full'],
-        attrs={'readonly': true})
+        attrs={'class': 'form-control', 'readonly': true})
 }}
 {% endblock %}
 
-{% block package_metadata_fields_visibility %}
+{# {% block package_metadata_fields_visibility %}
 {{
     form.input('visability',
         id='field-visablity',
@@ -59,7 +59,7 @@
         classes=['control-full'],
         attrs={'readonly': true})
 }}
-{% endblock %}
+{% endblock %} #}
 
 {% block package_basic_fields_org %}
 
@@ -69,7 +69,7 @@ id='field-organization',
 label='Organization',
 value= data.owner_org,
 classes=['control-full'],
-attrs={'readonly': true})
+attrs={'class': 'form-control', 'readonly': true})
 }}
 
 
@@ -79,9 +79,23 @@ id='field-visablity',
 label='Visibility',
 value= 'Private' if data.private else 'Public',
 classes=['control-full'],
-attrs={'readonly': true})
+attrs={'class': 'form-control', 'readonly': true})
 }}
-  {% endblock %}
+
+{% if data.id and h.check_access('package_delete', {'id': data.id}) and data.state != 'active' %}
+<div class="form-group control-medium">
+    <label for="field-state" class="form-label">{{ _('State') }}</label>
+    <div class="controls">
+        <select class="form-control" id="field-state" name="state">
+            <option value="active" {% if data.get('state', 'none') == 'active' %} selected="selected" {% endif %}>
+                {{ _('Active') }}</option>
+            <option value="deleted" {% if data.get('state', 'none') == 'deleted' %} selected="selected" {% endif %}>
+                {{ _('Deleted') }}</option>
+        </select>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
 
 {% block package_basic_fields_custom %}
 {{
