@@ -68,6 +68,8 @@ def extract_resource_format(resource):
     resource_type = resource.get("format", "data").lower()
     if resource_type == "spreadsheet":
         return "xls"
+    elif resource_type == "image":
+        return "png"
     else:
         return resource_type
 
