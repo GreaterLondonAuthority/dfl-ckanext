@@ -47,7 +47,7 @@ def debug(context, data_dict={}):
         except Exception as e:
             raise common.SearchError(e.args)
 
-logfile = "/srv/app/search_logs.csv"
+logfile = "/logs/search_logs.csv"
 
 def _result_index(page, index_in_page):
     page_idx = 0 if _empty_or_none(page) else int(page) - 1
