@@ -99,7 +99,7 @@ def view_user(id):
         case "edit":
             return ckan.views.user._edit_view()
         case "register":
-            return ckan.views.user.RegisterView.as_view("register")
+            return ckan.views.user.RegisterView.as_view("register")()
         case "login":
             return ckan.views.user.login()
         case "_logout":
@@ -107,7 +107,7 @@ def view_user(id):
         case "logged_out_redirect":
             return ckan.views.user.logged_out_page()
         case "reset":
-            return ckan.views.user.RequestResetView.as_view("request_reset")
+            return ckan.views.user.RequestResetView.as_view("request_reset")()
 
     context = cast(
         Context,
