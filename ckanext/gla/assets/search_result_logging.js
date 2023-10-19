@@ -19,9 +19,8 @@ function postSelectedSearchResult(data) {
 
 
 function logResultClick(event, element, data) {
-    if( data["is_search_result"] == "True") {
-        event.preventDefault();
-        postSelectedSearchResult(data).then(function() {
+    if (data["is_search_result"] == "True") {
+        postSelectedSearchResult(data).then(function () {
             window.location.href = element.getAttribute('href');
         });
     }

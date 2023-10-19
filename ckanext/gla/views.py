@@ -1,6 +1,7 @@
 from os.path import exists
 from flask import Blueprint, send_file
 
+import ckan
 import ckan.model as model
 import ckan.plugins.toolkit as tk
 
@@ -92,6 +93,22 @@ def _extra_template_variables(
 # Copied from:
 # https://github.com/ckan/ckan/blob/3c676e3cf1f075c5e9bae3b625b86247edf3cc1d/ckan/views/user.py#L124
 def view_user(id):
+    match id:
+        case "me":
+            return ckan.views.user.me()
+        case "edit":
+            return ckan.views.user._edit_view()
+        case "register":
+            return ckan.views.user.RegisterView.as_view("register")
+        case "login":
+            return ckan.views.user.login()
+        case "_logout":
+            return ckan.views.user.logout()
+        case "logged_out_redirect":
+            return ckan.views.user.logged_out_page()
+        case "reset":
+            return ckan.views.user.RequestResetView.as_view("request_reset")
+
     context = cast(
         Context,
         {
