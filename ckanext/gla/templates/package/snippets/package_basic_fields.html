@@ -117,5 +117,22 @@ attrs={'class': 'form-control', 'readonly': true})
         error=errors.dataset_boost,
         classes=["control-medium"])
 }}
+{{
+    form.checkbox("archived", 
+        id="field-dataset-archived",
+        label=_("Archive dataset"), 
+        value="true",
+        checked=data.archived == 'true',
+        classes=["control-medium"])
+}}
+{{
+    form.textarea("archived_description", 
+        id="field-dataset-archived-desc",
+        label=_("Reason for archiving"), 
+        value=data.archived_description,
+        placeholder=_("Reason for archiving"),
+        error=errors.archived_description,
+        classes=["control-medium"])
+}}
 
 {% endblock %}
