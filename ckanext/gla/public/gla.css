@@ -1524,3 +1524,8 @@ div#followee-filter {
 .dataset-content .container {
     padding: 0;
 }
+
+.archived-header {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
