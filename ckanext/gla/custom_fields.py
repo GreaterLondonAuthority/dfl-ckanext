@@ -5,32 +5,41 @@ import json
 import os
 
 
-
 solr_endpoint = os.getenv("CKAN_SOLR_URL")
+
 
 def float_validator(value):
     """Ensures that the value is a float and rounds to 4dp."""
     try:
         value = float(value)
-        return round(value,4)
+        return round(value, 4)
     except:
-        raise Invalid('Must be a number')
+        raise Invalid("Must be a number")
+
 
 custom_dataset_fields = {
+    "archived": [
+        toolkit.get_validator("boolean_validator"),
+        toolkit.get_converter("convert_to_extras"),
+    ],
+    "archived_description": [
+        toolkit.get_validator("ignore_missing"),
+        toolkit.get_converter("convert_to_extras"),
+    ],
     "data_quality": [
         toolkit.get_validator("int_validator"),
         toolkit.get_validator("one_of")([None, 1, 2, 3, 4, 5]),
         toolkit.get_converter("convert_to_extras"),
     ],
-    "dataset_boost": [
-        float_validator,
-        toolkit.get_converter("convert_to_extras")
-    ]
+    "dataset_boost": [float_validator, toolkit.get_converter("convert_to_extras")],
 }
 
 
-fields_to_copy = {"extras_data_quality": {"type": "int", "name": "copy_data_quality"},
-                  "extras_dataset_boost": {"type": "double", "name": "copy_dataset_boost"}}
+fields_to_copy = {
+    "extras_data_quality": {"type": "int", "name": "copy_data_quality"},
+    "extras_dataset_boost": {"type": "double", "name": "copy_dataset_boost"},
+}
+
 
 def field_exists(field_name):
     api_url = f"{solr_endpoint}/schema/fields/{field_name}"
