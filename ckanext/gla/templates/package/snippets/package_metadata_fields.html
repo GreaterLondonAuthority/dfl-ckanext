@@ -1,21 +1,21 @@
 {% ckan_extends %}
 
   {% block package_metadata_fields_url %}
-    {{ form.input('url', label=_('Source'), id='field-url', placeholder=_('http://example.com/dataset.json'), value=data.url, error=errors.url, classes=['control-full'], attrs={'disabled': true }) }}
+    {{ form.input('url', label=_('Source'), id='field-url', placeholder=_('http://example.com/dataset.json'), value=data.url, error=errors.url, classes=['control-full']) }}
   {% endblock %}
 
   {% block package_metadata_fields_version %}
-    {{ form.input('version', label=_('Version'), id='field-version', placeholder=_('1.0'), value=data.version, error=errors.version, classes=['control-full'], attrs={'disabled': true }) }}
+    {{ form.input('version', label=_('Version'), id='field-version', placeholder=_('1.0'), value=data.version, error=errors.version, classes=['control-full']) }}
   {% endblock %}
 
   {% block package_metadata_author %}
-    {{ form.input('author', label=_('Author'), id='field-author', placeholder=_('N/A'), value=data.author, error=errors.author, classes=['control-full'], attrs={'disabled': true }) }}
+    {{ form.input('author', label=_('Author'), id='field-author', placeholder=_('N/A'), value=data.author, error=errors.author, classes=['control-full']) }}
 
-{{ form.input('author_email', label=_('Author Email'), id='field-author-email', placeholder=_('N/A'), value=data.author_email, error=errors.author_email, classes=['control-full'], attrs={'disabled': true }) }}
+{{ form.input('author_email', label=_('Author Email'), id='field-author-email', placeholder=_('N/A'), value=data.author_email, error=errors.author_email, classes=['control-full']) }}
   {% endblock %}
 
   {% block package_metadata_fields_maintainer %}
-{{ form.input('maintainer', label=_('Maintainer'), id='field-maintainer', placeholder=_('N/A'), value=data.maintainer, error=errors.maintainer, classes=['control-full'], attrs={'disabled': true }) }}
+{{ form.input('maintainer', label=_('Maintainer'), id='field-maintainer', placeholder=_('N/A'), value=data.maintainer, error=errors.maintainer, classes=['control-full']) }}
 
-{{ form.input('maintainer_email', label=_('Maintainer Email'), id='field-maintainer-email', placeholder=_('N/A'), value=data.maintainer_email, error=errors.maintainer_email, classes=['control-full'], attrs={'disabled': true }) }}
+{{ form.input('maintainer_email', label=_('Maintainer Email'), id='field-maintainer-email', placeholder=_('N/A'), value=data.maintainer_email, error=errors.maintainer_email, classes=['control-full']) }}
   {% endblock %}
