@@ -1,0 +1,17 @@
+{% ckan_extends %}
+
+{% block page_heading %}
+{{ super() }}
+{% if pkg.archived == 'true' %}
+    [{{_('Archived')}}]
+{% endif %}
+{% endblock %}
+
+{% block package_notes %}
+{% if pkg.archived == 'true' and pkg.archived_description %}
+<h2 class="h3 archived-header">
+    {{h.render_markdown(h.get_translated(pkg, 'archived_description'))}}
+</h2>
+{% endif %}
+{{ super() }}
+{% endblock %}
