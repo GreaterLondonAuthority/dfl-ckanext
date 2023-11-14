@@ -51,7 +51,9 @@
         <div class="page_primary_action">
             <div class="row justify-content-between">
                 <div class="col-md-3">
-                    {{ h.snippet ('snippets/add_dataset.html', group=group_dic) }}
+                    {% if h.check_access('package_create') %}
+                        {{ h.snippet ('snippets/add_dataset.html', group=group_dic) }}
+                    {% endif %}
                 </div>
                 <div class="col-md-3 org-manage-btn">
                     {% link_for _('Manage'), named_route=group_type+'.edit', id=group_dict.name, class_='btn btn-default', icon='wrench' %}
