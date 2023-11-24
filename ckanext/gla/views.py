@@ -23,7 +23,7 @@ favourites = Blueprint("favourites_blueprint", __name__)
 users = Blueprint("users_blueprint", __name__)
 privacy = Blueprint("privacy_blueprint", __name__)
 search_log_download = Blueprint("search_log_download_blueprint", __name__)
-
+undelete = Blueprint("undelete_blueprint", __name__)
 
 def show_favourites():
     log.info("IN SHOW_FAVOURITES")
@@ -162,6 +162,15 @@ search_log_download.add_url_rule(
     "/search_logs", methods=["GET"], view_func=get_server_search_logs
 )
 
+def undelete_package(id):
+    res = tk.get_action("package_patch")(None, {"id": id, "state": "active"})
+    return tk.redirect_to('dataset.read', id=id)
+
+
+undelete.add_url_rule("/dataset/<id>/undelete",
+                      methods=["POST"],
+                      view_func=undelete_package,
+                      endpoint="undelete_package")
 
 def get_blueprints():
-    return [favourites, users, privacy, search_log_download]
+    return [favourites, users, privacy, search_log_download, undelete]

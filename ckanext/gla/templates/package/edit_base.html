@@ -1,0 +1,20 @@
+{% ckan_extends %}
+{% import 'macros/form.html' as form %}
+
+{% block content_action %}
+    <div class="d-flex flex-row justify-content-between mb-4">
+        {{ super() }}
+        {% if pkg.state == "deleted" %}
+            <form id="dataset-undelete"
+                  method="post"
+                  action="/dataset/{{ pkg.id }}/undelete"
+                  data-module="basic-form" novalidate>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-default">
+                    <i class="fa fa-undo" style="color: var(--t-colors-pink);"></i>
+                    Undelete dataset
+                </button>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}
