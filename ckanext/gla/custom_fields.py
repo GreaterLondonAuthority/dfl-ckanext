@@ -17,6 +17,15 @@ def float_validator(value):
         raise Invalid("Must be a number")
 
 
+def data_quality_validator(value):
+    try:
+        value = int(value)
+        if 1 <= value <= 5:
+            return value
+        raise Invalid("Must be between 1 and 5")
+    except:
+        raise Invalid("Must be integer")
+
 custom_dataset_fields = {
     "archived": [
         toolkit.get_validator("boolean_validator"),
@@ -27,8 +36,8 @@ custom_dataset_fields = {
         toolkit.get_converter("convert_to_extras"),
     ],
     "data_quality": [
-        toolkit.get_validator("int_validator"),
-        toolkit.get_validator("one_of")([None, 1, 2, 3, 4, 5]),
+        toolkit.get_validator("ignore_empty"),
+        data_quality_validator,
         toolkit.get_converter("convert_to_extras"),
     ],
     "dataset_boost": [float_validator, toolkit.get_converter("convert_to_extras")],
