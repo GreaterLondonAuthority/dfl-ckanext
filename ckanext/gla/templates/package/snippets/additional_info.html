@@ -44,7 +44,11 @@
         {% if pkg_dict.maintainer_email %}
           <tr>
             <th scope="row" class="dataset-label">{{ _('Maintainer') }}</th>
-            <td class="dataset-details" property="dc:contributor">{{ h.mail_to(email_address=pkg_dict.maintainer_email, name=pkg_dict.maintainer) }}</td>
+            {% if pkg_dict.maintainer %}
+              <td class="dataset-details" property="dc:contributor">{{ h.mail_to(email_address=pkg_dict.maintainer_email, name=pkg_dict.maintainer) }}</td>
+            {% else %}
+              <td class="dataset-details" property="dc:contributor">{{ h.mail_to(email_address=pkg_dict.maintainer_email, name=pkg_dict.maintainer_email) }}</td>
+            {% endif %}
           </tr>
         {% elif pkg_dict.maintainer %}
           <tr>
