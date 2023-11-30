@@ -741,6 +741,12 @@ p a {
     text-decoration-color: var(--t-colors-pink);
 }
 
+.hero p a {
+    color: var(--t-colors-white);
+    text-decoration: underline;
+    text-decoration-color: var(--t-colors-pink);
+}
+
 p a:hover {
     color: var(--t-colors-pink);
 }

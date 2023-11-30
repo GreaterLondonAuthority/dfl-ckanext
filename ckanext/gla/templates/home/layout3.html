@@ -33,6 +33,10 @@
                         </span>
                     </div>
 
+                    <p>For example,
+                        <a href={% url_for 'dataset_search', q='population' %}>Population</a>,
+                        <a href={% url_for 'dataset_search', q='economy' %}>Economy</a>, or
+                        <a href={% url_for 'dataset_search', q='state of london' %}>State of London</a>.
                 </form>
             </div>
         </div>
