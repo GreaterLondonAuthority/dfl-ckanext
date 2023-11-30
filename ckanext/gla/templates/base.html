@@ -4,6 +4,11 @@
 <link rel="stylesheet" href="/gla.css" />
 {% endblock %}
 
+{% block meta %}
+    {{ super() }}
+    <meta name="robots" content="noindex,nofollow">
+{% endblock %}
+
 {% block head_extras %}
 
 {# Cookie consent and analytics scripts are omitted on localhost
