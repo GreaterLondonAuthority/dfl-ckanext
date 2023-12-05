@@ -502,50 +502,6 @@ input#field-sitewide-search::-ms-input-placeholder {
     overflow: hidden;
 }
 
-/* Breadcrumbs */
-
-
-.breadcrumb .fa-home {
-    display: none;
-}
-
-.toolbar .home span {
-    display: block;
-}
-
-.toolbar .breadcrumb li:not(:first-child)::before {
-    content: "";
-    display: block;
-    width: 10px;
-    height: 10px;
-    border: 2px solid var(--t-colors-pink);
-    border-width: 2px 2px 0 0;
-    transform: rotate(45deg);
-    position: relative;
-    top: 10px;
-    margin-right: 10px;
-}
-
-.toolbar .breadcrumb .active {
-    font-weight: bold;
-    color: var(--t-colors-text-grey);
-}
-
-.toolbar .breadcrumb a,
-.toolbar .home a {
-    text-decoration: none;
-    display: inline-block;
-    line-height: 1;
-    padding-bottom: 2px;
-}
-
-.toolbar .breadcrumb a:hover,
-.toolbar .home a:hover {
-    color: var(--t-colors-pink);
-    border-bottom: 2px solid var(--t-colors-pink);
-    text-decoration: none;
-}
-
 /* Box / Wrapper */
 
 .box,
