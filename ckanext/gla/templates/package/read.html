@@ -15,6 +15,10 @@
     <p>
         Created {{ created }}{% if updated != created %}, updated {{ updated }}{% endif %}
     </p>
+    <p>
+        Published by
+        <a href={% url_for 'dataset_search', organization=pkg.organization.name %}>{{ pkg.organization.title }}</a>
+    </p>
 
 {{ super() }}
 {% endblock %}
