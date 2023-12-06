@@ -10,5 +10,11 @@
             {% endif %}
         </div>
     {% endif %}
+    {% set created=h.render_datetime(pkg.metadata_created) %}
+    {% set updated=h.render_datetime(pkg.metadata_modified) %}
+    <p>
+        Created {{ created }}{% if updated != created %}, updated {{ updated }}{% endif %}
+    </p>
+
 {{ super() }}
 {% endblock %}
