@@ -1483,6 +1483,8 @@ div#followee-filter {
     }
 }
 
+/* Dataset page */
+
 .dataset-content .container {
     padding: 0;
 }
@@ -1490,4 +1492,20 @@ div#followee-filter {
 .archived-header {
     margin-top: 2rem;
     margin-bottom: 2rem;
+}
+
+.alert-info {
+    color: #874006;
+    border-color: #fd7e14ff;
+    background-color: #fd7e1411;
+}
+
+.alert-info a, a:hover {
+    color: #874006;
+    text-decoration-color: #874006;
+}
+
+.alert-info a:hover {
+    color: #fd7e14ff;
+    text-decoration-color: #fd7e14ff;
 }
