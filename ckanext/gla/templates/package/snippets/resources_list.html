@@ -1,0 +1,13 @@
+{% ckan_extends %}
+
+{% block resource_list %}
+{% if pkg.license_url %}
+    <p><i>
+        Licenced under
+        <a href={{ pkg.license_url }}>
+            {% if pkg.license_title %}{{ pkg.license_title }}{% else %}{{ pkg.license_url }}{% endif %}
+        </a>
+    </i></p>
+{% endif %}
+{{ super() }}
+{% endblock %}
