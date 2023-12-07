@@ -64,7 +64,7 @@ Example:
                                                 'tags': '{{ request.args["tags"] }}',
                                                 'format': '{{ request.args["res_format"] }}',
                                                 'licence': '{{ request.args["license_id"] }}'})">
-          {{title|truncate(80)}}
+          {{title|truncate(80)}}{% if package.archived %} [Archived]{% endif %}
         </a>
 
         {% endblock %}
