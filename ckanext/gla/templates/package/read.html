@@ -1,5 +1,12 @@
 {% ckan_extends %}
 
+{% block page_heading %}
+    {{ super() }}
+    {% if pkg.archived == 'true' %}
+        [{{_('Archived')}}]
+    {% endif %}
+{% endblock %}
+
 {% block package_notes %}
     {% if pkg.archived == 'true' %}
         <div class="alert alert-info">
