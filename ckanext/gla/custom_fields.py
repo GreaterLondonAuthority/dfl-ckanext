@@ -41,7 +41,22 @@ custom_dataset_fields = {
         toolkit.get_converter("convert_to_extras"),
     ],
     "dataset_boost": [float_validator, toolkit.get_converter("convert_to_extras")],
+    "project_name": [
+        toolkit.get_validator("ignore_missing"),
+        toolkit.get_converter("convert_to_extras")],
+    "project_url": [
+        toolkit.get_validator("ignore_missing"),
+        toolkit.get_validator("url_validator"),
+        toolkit.get_converter("convert_to_extras"),
+    ],
+    "entry_type": [
+        toolkit.get_validator("one_of")(["analysis", "dataset"]),
+        toolkit.get_converter("convert_to_extras")],
+    "search_description": [
+        toolkit.get_validator("ignore_missing"),
+        toolkit.get_converter("convert_to_extras")],
 }
+
 
 
 fields_to_copy = {
