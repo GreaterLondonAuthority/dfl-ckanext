@@ -1,6 +1,20 @@
+import json
 import dateutil.parser
+from datetime import datetime
 
 import ckan.plugins.toolkit as tk
+
+
+def set_to_now(ctx, _resources):
+    updated_timestamp = {"metadata_modified": datetime.now().replace(tzinfo=None)}
+
+    model = ctx["model"]
+    # Use SQLAlchemy directly to avoid re-triggering after_package_update:
+    (
+        model.Session.query(model.Package)
+        .filter_by(id=ctx.get("package").id)
+        .update(updated_timestamp)
+    )
 
 
 def override(ctx, package):
@@ -32,6 +46,10 @@ def override(ctx, package):
         # For each of the dataset's resources, get the "last_modified" timestamp
         # or the "created" timestamp if that doesn't exist
         resource_modified_dates = [resource_date(r) for r in p["resources"]]
+
+        # If there were no resources, use the package's original last_updated time
+        if not resource_modified_dates:
+            resource_modified_dates = [p["metadata_modified"]]
 
         # Sort the timestamps in descending order and get the first one
         most_recent = sorted(resource_modified_dates, reverse=True)[0]

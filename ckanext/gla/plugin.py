@@ -9,6 +9,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IAuthFunctions, inherit=True)
     plugins.implements(plugins.IPackageController, inherit=True)
+    plugins.implements(plugins.IResourceController, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IBlueprint)
     plugins.implements(plugins.IActions)
@@ -44,6 +45,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def after_dataset_update(self, ctx, package):
         timestamps.override(ctx, package)
+
+    def after_resource_delete(self, ctx, resources):
+        timestamps.set_to_now(ctx, resources)
 
     # ITemplateHelpers
     def get_helpers(self):
