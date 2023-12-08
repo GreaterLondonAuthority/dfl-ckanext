@@ -14,10 +14,10 @@
     #}
     <h1>
         {% if type == 'dataset' %}
-        {% set text_query = ungettext('"{query}"', '"{query}"', count) %}
-        {% set text_query_none = _('"{query}"') %}
-        {% set text_no_query = _('Datasets') %}
-        {% set text_no_query_none = _('No datasets found') %}
+        {% set text_query = ungettext('Search results for "{query}"', 'Search results for "{query}"', count) %}
+        {% set text_query_none = _('Search results for "{query}"') %}
+        {% set text_no_query = _('Search') %}
+        {% set text_no_query_none = _('No results found') %}
     
     {% elif type == 'group' %}
         {% set text_query = ungettext('"{query}"', '"{query}"', count) %}
@@ -67,10 +67,10 @@
     
     <span>
     {% if type == 'dataset' %}
-        {% set text_query = ungettext('{number} dataset', '{number} datasets', count) %}
-        {% set text_query_none = _('No datasets found') %}
-        {% set text_no_query = ungettext('{number} dataset', '{number} datasets', count) %}
-        {% set text_no_query_none = _('No datasets found') %}
+        {% set text_query = ungettext('{number} result', '{number} results', count) %}
+        {% set text_query_none = _('No results found') %}
+        {% set text_no_query = ungettext('{number} result', '{number} results', count) %}
+        {% set text_no_query_none = _('No results found') %}
 
     {% elif type == 'group' %}
         {% set text_query = ungettext('{number} group', '{number} groups', count) %}
