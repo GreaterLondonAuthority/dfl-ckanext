@@ -65,7 +65,7 @@ Example:
                                                 'format': '{{ request.args["res_format"] }}',
                                                 'licence': '{{ request.args["license_id"] }}'})">
           {{title|truncate(80)}}</a>
-        {% if package.archived %}[Archived]{% endif %}
+        {% if package.archived == "true" %}[Archived]{% endif %}
         {% endblock %}
         {% block heading_meta %}
         {% if package.get('state', '').startswith('draft') %}
