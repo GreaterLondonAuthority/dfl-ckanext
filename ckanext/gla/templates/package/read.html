@@ -1,17 +1,28 @@
 {% ckan_extends %}
 
-{% block page_heading %}
+{% block package_notes %}
+    {% if pkg.archived == 'true' %}
+        <div class="alert alert-info">
+            <i class="fa fa-info-circle"></i>
+            This dataset is no longer actively maintained.
+            {% if pkg.archived_description %}
+                {{h.render_markdown(h.get_translated(pkg, 'archived_description'))}}
+            {% endif %}
+        </div>
+    {% endif %}
+    {% set created=h.render_datetime(pkg.metadata_created) %}
+    {% set updated=h.render_datetime(pkg.metadata_modified) %}
+    <p>
+        Created {{ created }}{% if updated != created %}, updated {{ updated }}{% endif %}
+    </p>
+    <p>
+        Published by
+        <a href={% url_for 'dataset_search', organization=pkg.organization.name %}>{{ pkg.organization.title }}</a>
+    </p>
+
 {{ super() }}
-{% if pkg.archived == 'true' %}
-    [{{_('Archived')}}]
-{% endif %}
 {% endblock %}
 
-{% block package_notes %}
-{% if pkg.archived == 'true' and pkg.archived_description %}
-<h2 class="h3 archived-header">
-    {{h.render_markdown(h.get_translated(pkg, 'archived_description'))}}
-</h2>
-{% endif %}
-{{ super() }}
+
+{% block package_tags %}
 {% endblock %}
