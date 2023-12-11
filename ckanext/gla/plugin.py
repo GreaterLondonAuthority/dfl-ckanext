@@ -13,6 +13,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IBlueprint)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IDatasetForm)
+    plugins.implements(plugins.IFacets)
 
     # IConfigurer
     def update_config(self, config_):
@@ -85,3 +86,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def package_types(self) -> list[str]:
         return []
+
+    # IFacets
+    def dataset_facets(self, facets_dict, _):
+        facets_dict["project_name"] = toolkit._("Project name")
+        facets_dict["entry_type"] = toolkit._("Type")
+        return facets_dict

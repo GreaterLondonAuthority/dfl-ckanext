@@ -61,21 +61,62 @@
         classes=["control-medium"])
 }}
 {{
-    form.checkbox("archived", 
+    form.checkbox("archived",
         id="field-dataset-archived",
-        label=_("Archive dataset"), 
+        label=_("Archive dataset"),
         value="true",
         checked=data.archived == 'true',
         classes=["control-medium"])
 }}
 {{
-    form.textarea("archived_description", 
+    form.textarea("archived_description",
         id="field-dataset-archived-desc",
-        label=_("Reason for archiving"), 
+        label=_("Reason for archiving"),
         value=data.archived_description,
         placeholder=_("Reason for archiving"),
         error=errors.archived_description,
         classes=["control-medium"])
 }}
+
+{{
+    form.input("project_name",
+        id="field-project-name",
+        label=_("Project name"),
+        value=data.project_name,
+        error=errors.project_name,
+        classes=["control-medium"])
+}}
+
+{{
+    form.input("project_url",
+        id="field-project-url",
+        type="url",
+        label=_("Project url"),
+        value=data.project_url,
+        error=errors.project_url,
+        classes=["control-medium"])
+}}
+{{
+    form.select("entry_type",
+        id="field-entry-type",
+        label=_("Type"),
+        options=[{"value": "dataset", "text": "Dataset"}, {"value": "analysis", "text": "Analysis"}],
+        selected=data.entry_type if data.entry_type else "dataset",
+        is_required=true,
+        classes=["control-medium"],
+        error=errors.entry_type)
+
+}}
+
+{{
+    form.textarea("search_description",
+        id="field-search-desc",
+        label=_("Search description"),
+        value=data.search_description,
+        error=errors.search_description,
+        classes=["control-medium"])
+}}
+
+
 
 {% endblock %}

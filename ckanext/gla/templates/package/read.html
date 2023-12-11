@@ -8,15 +8,6 @@
 {% endblock %}
 
 {% block package_notes %}
-    {% if pkg.archived == 'true' %}
-        <div class="alert alert-info">
-            <i class="fa fa-info-circle"></i>
-            This dataset is no longer actively maintained.
-            {% if pkg.archived_description %}
-                {{h.render_markdown(h.get_translated(pkg, 'archived_description'))}}
-            {% endif %}
-        </div>
-    {% endif %}
     {% set created=h.render_datetime(pkg.metadata_created) %}
     {% set updated=h.render_datetime(pkg.metadata_modified) %}
     <p>
@@ -27,9 +18,34 @@
         <a href={% url_for 'dataset_search', organization=pkg.organization.name %}>{{ pkg.organization.title }}</a>
     </p>
 
-{{ super() }}
-{% endblock %}
+    {% set entry_type=pkg.entry_type.capitalize() if pkg.entry_type else "Dataset" %}
+    <p >
+        Asset type: {{ entry_type }}<br>
+    </p>
+    {% if pkg.archived == 'true' %}
+        <div class="alert alert-info">
+            <i class="fa fa-info-circle"></i>
+            This dataset is no longer actively maintained.
+            {% if pkg.archived_description %}
+                {{h.render_markdown(h.get_translated(pkg, 'archived_description'))}}
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if pkg.project_name %}
+        <p>
+            {% if pkg.project_url %}
+                Project: <a href="{{pkg.project_url}}">{{ pkg.project_name }}</a>
+            {% else %}
+                Project: {{ pkg.project_name }}
+            {% endif %}
+        </p>
+    {% endif %}
+    {% if pkg.search_description %}
+        <p>{{ pkg.search_description }}</p>
+    {% endif %}
+    {{ super() }}
 
+{% endblock %}
 
 {% block package_tags %}
 {% endblock %}
