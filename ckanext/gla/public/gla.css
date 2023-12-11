@@ -1355,8 +1355,12 @@ li.dataset-item {
 }
 
 .dataset-source {
-    margin: 10px 0 0 0;
     display: block;
+}
+
+.dataset-notes {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
 }
 
 .user-image {
@@ -1368,7 +1372,6 @@ li.dataset-item {
     display: flex;
     justify-content: space-between;
     gap: 20px;
-    margin-bottom: 10px;
     align-items: center;
 }
 
