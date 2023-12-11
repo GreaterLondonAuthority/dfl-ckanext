@@ -83,6 +83,14 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 toolkit.get_validator("ignore_missing"),
             ]
             for field in custom_fields.custom_dataset_fields.keys()})
+        schema.update({
+            "harvest_source_title":
+            [
+                toolkit.get_converter("convert_from_extras"),
+                toolkit.get_validator("ignore_missing"),
+            ]
+
+        })
         return schema
 
     def is_fallback(self):
@@ -95,4 +103,5 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def dataset_facets(self, facets_dict, _):
         facets_dict["project_name"] = toolkit._("Project name")
         facets_dict["entry_type"] = toolkit._("Type")
+        facets_dict["harvest_source_title"] = toolkit._("Source")
         return facets_dict
