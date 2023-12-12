@@ -1375,6 +1375,10 @@ li.dataset-item {
     align-items: center;
 }
 
+.dataset-last-updated {
+    flex: 0 0 auto;
+}
+
 .dataset-subsection {
     margin-top: 20px;
     margin-bottom: 20px;
