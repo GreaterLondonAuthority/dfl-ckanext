@@ -152,7 +152,7 @@ html {
 h1,
 .h1 {
     font-size: 3rem;
-    line-height: 4.125rem
+    line-height: 3.125rem
 }
 
 @media (min-width: 75em) {
