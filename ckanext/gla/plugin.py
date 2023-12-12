@@ -105,3 +105,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         facets_dict["entry_type"] = toolkit._("Type")
         facets_dict["harvest_source_title"] = toolkit._("Source")
         return facets_dict
+
+    def organization_facets(self, facets_dict, *args):
+        return facets_dict
