@@ -5,3 +5,15 @@
 {% endblock %}
 
 {% block page_heading %}{{ _('Log in') }}{% endblock %}
+
+{% block help_register_inner %}
+<h2 class="module-heading">{{ _('Dont have an account?') }}</h2>
+<div class="module-content">
+<p>{% trans %}Sign up so you can follow datasets you're interested in and be notified when they are changed.{% endtrans %}</p>
+<p class="action">
+{% block help_register_button %}
+    <a class="btn btn-default" href="{{ h.url_for('user.register') }}">{{ _('Create an Account') }}</a>
+{% endblock %}
+</p>
+</div>
+{% endblock %}
