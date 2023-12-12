@@ -11,8 +11,25 @@ Example:
 
 #}
 {% set title = package.title or package.name %}
-{% set notes = h.markdown_extract(package.notes, extract_length=180) %}
+{% set notes = h.markdown_extract(package.search_description, extract_length=0) %}
+{% if notes|length == 0 %}
+  {% set notes = h.markdown_extract(package.notes, extract_length=180) %}
+{% endif%}
 {% set last_updated = h.last_updated(package) %}
+
+{% set resources_formats = h.dict_list_reduce(package.resources, 'format')%}
+
+{# Workaround in case harvest_source_title doesn't get pulled out of extras #}
+{# variables set inside for loops dont exist outside the loop: https://jinja.palletsprojects.com/en/3.0.x/templates/#assignments  #} 
+{% set ns = namespace(harvest_source_title=package.harvest_source_title) %}
+{% if harvest_source_title|length == 0 %}
+  {% for extra in package.extras %}
+    {% if extra['key'] == "harvest_source_title" %}
+     {% set ns.harvest_source_title = extra['value'] %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
 
 {% block package_item %}
 {% if package.get('type','').startswith('showcase') %}
@@ -76,27 +93,34 @@ Example:
         {{ h.popular('recent views', package.tracking_summary.recent, min=10) if package.tracking_summary }}
         {% endblock %}
       </h2>
-      <span class="small-follow-button">
-        {{ h.follow_button('dataset', package.id) }}
-      </span>
+      
+      {% if last_updated %}
+        <div class="dataset-last-updated">Updated {{h.localised_nice_date(h.date_str_to_datetime(last_updated))}}</div>
+      {% endif %}
 
     </div>
+    <div class="dataset-source">{{package.organization.title}}{% if ns.harvest_source_title %}, hosted by {{ns.harvest_source_title}}{% endif %}</div>
     {% endblock %}
     {% block notes %}
     {% if notes %}
-    <div>{{ notes|urlize }}</div>
+    <div class="dataset-notes">{{ notes|urlize }}</div>
     {% else %}
     <p class="empty">{{ h.humanize_entity_type('package', package.type, 'no description') or _("There is no
             description for this dataset") }}</p>
     {% endif %}
     {% endblock %}
+    <div>
+      {% if package.entry_type%}
+        {{package.entry_type|capitalize}}
+      {% else %}
+        Dataset
+      {% endif %}
+      {% if resources_formats|length > 0 %} | {{resources_formats|join(", ") | lower}} {% endif %}
+    </div>
   </div>
 
-  <span class="dataset-source">Source: <strong>{{package.organization.title}}</strong></span>
 
-  {% if last_updated %}
-  <div>Updated {{h.localised_nice_date(h.date_str_to_datetime(last_updated))}}</div>
-  {% endif %}
+  
   {# {% block resources %}
     {% if package.resources and not hide_resources %}
     {% block resources_outer %}
