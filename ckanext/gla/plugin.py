@@ -3,6 +3,7 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
 from . import auth, helpers, views, search, timestamps, custom_fields
+from collections import OrderedDict
 
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
@@ -101,10 +102,15 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     # IFacets
     def dataset_facets(self, facets_dict, _):
-        facets_dict["project_name"] = toolkit._("Project name")
-        facets_dict["entry_type"] = toolkit._("Type")
-        facets_dict["harvest_source_title"] = toolkit._("Source")
-        return facets_dict
+        return OrderedDict([("res_format", facets_dict["res_format"]),
+                               ("organization", facets_dict["organization"]),
+                               ("project_name", toolkit._("Project")),
+                               # Entry type is disabled for now as the value is null for harvested datasets
+                               # The filter works, so enabling it will allow us to filter for datasets with
+                               # the field set, either by manual edit, script, or updates to harvester
+                               # ("entry_type", toolkit._("Type")),
+                               ("harvest_source_title", toolkit._("Source")),
+                               ("license_id", facets_dict["license_id"])])
 
     def organization_facets(self, facets_dict, *args):
         return facets_dict
