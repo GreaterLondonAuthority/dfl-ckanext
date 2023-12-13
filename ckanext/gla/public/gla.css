@@ -1360,12 +1360,13 @@ li.dataset-item {
 }
 
 .small-follow-button>a {
-    font-size: 1rem;
-    padding: 12px 10px;
+    font-size: .8em;
+    padding: 10px 8px;
     border: 2px solid black;
     box-shadow: none;
     background: transparent;
     white-space: nowrap;
+    margin-left: 10px;
 }
 
 .favs-block ul.dataset-list {
