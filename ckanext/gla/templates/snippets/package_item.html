@@ -95,11 +95,11 @@ Example:
       </h2>
       
       {% if last_updated %}
-        <div class="dataset-last-updated">Updated {{h.localised_nice_date(h.date_str_to_datetime(last_updated))}}</div>
+        <div class="dataset-last-updated gla-informational">Updated {{h.localised_nice_date(h.date_str_to_datetime(last_updated))}}</div>
       {% endif %}
 
     </div>
-    <div class="dataset-source">{{package.organization.title}}{% if ns.harvest_source_title %}, hosted by {{ns.harvest_source_title}}{% endif %}</div>
+    <div class="dataset-source gla-informational">Published by {{package.organization.title}}{% if ns.harvest_source_title %}, hosted by {{ns.harvest_source_title}}{% endif %}</div>
     {% endblock %}
     {% block notes %}
     {% if notes %}
@@ -109,13 +109,13 @@ Example:
             description for this dataset") }}</p>
     {% endif %}
     {% endblock %}
-    <div>
+    <div class="gla-informational">
       {% if package.entry_type%}
         {{package.entry_type|capitalize}}
       {% else %}
         Dataset
       {% endif %}
-      {% if resources_formats|length > 0 %} | {{resources_formats|join(", ") | lower}} {% endif %}
+      {% if resources_formats|length > 0 %} with {{resources_formats|join(", ") | lower}} {% endif %}
     </div>
   </div>
 
