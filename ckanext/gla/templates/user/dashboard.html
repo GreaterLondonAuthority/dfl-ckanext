@@ -20,7 +20,7 @@
         </div>
     </div>
     <ul class="nav nav-tabs">
-        {{ h.build_nav_icon('activity.dashboard', _('News feed'), icon='list') }}
+        {{ h.build_nav_icon('activity.dashboard', _('Activity'), icon='list') }}
         {{ h.build_nav_icon('favourites_blueprint.show_favourites', _('Followed datasets'), icon='bookmark') }}
     </ul>
 </header>
@@ -29,9 +29,6 @@
 {% block primary_content_inner %}
 <div data-module="dashboard">
     {# {% snippet 'user/snippets/followee_dropdown.html', context=dashboard_activity_stream_context, followees=followee_list %} #}
-    <h4 class="page-heading mb-4">
-        {{ _("Activity from datasets that I'm following") }}
-    </h4>
     {% snippet 'snippets/stream.html', activity_stream=dashboard_activity_stream %}
 </div>
 
