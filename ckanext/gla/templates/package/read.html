@@ -7,6 +7,11 @@
     {% endif %}
 {% endblock %}
 
+{% block content_primary_nav %}
+  {{ h.build_nav_icon(dataset_type ~ '.read', _('Details'),  id=pkg.name, icon='sitemap') }}
+  {{ h.build_nav_icon('activity.package_activity', _('Activity Stream'), id=pkg.id if is_activity_archive else pkg.name, icon='clock') }}
+{% endblock %}
+
 {% block package_notes %}
     {% set created=h.render_datetime(pkg.metadata_created) %}
     {% set updated=h.render_datetime(pkg.metadata_modified) %}
