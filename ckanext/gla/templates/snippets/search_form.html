@@ -83,7 +83,16 @@
 
 {% if show_empty and count == 0 and not error %}
   {% trans %}
-    <p class="extra">Please try another search.</p>
+    <p class="extra"><strong>There are no matching results.</strong></p>
+    <p>Please try searching again. You may improve your results by</p>
+    <ul>
+      <li>Double-checking your spelling</li>
+      <li>Using fewer words</li>
+      <li>Using more general words</li>
+      <li>Removing filters</li>
+    </ul>
+
+    <p>Still not finding what you expect? Please <a href="mailto:datastore@london.gov.uk">send us an email</a> and we'll do our best to help.</p>
   {% endtrans %}
 {% endif %}
 
