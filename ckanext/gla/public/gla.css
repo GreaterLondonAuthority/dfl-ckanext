@@ -351,6 +351,14 @@ body {
     font-size: 18px;
 }
 
+.gla-informational {
+    /* Tags providing useful adjunct information */
+    font-size: .8em;
+    color: var(--t-colors-grey)
+}
+
+
+
 /* Banner */
 
 .gla_theme-banner {
@@ -786,10 +794,6 @@ a .fa {
     top: 0;
 }
 
-.module-content {
-    /* padding-top: 0; */
-    border-bottom: 1px solid var(--t-colors-grey-50)
-}
 
 .module:first-child .module-heading {
     border-radius: 0;
@@ -994,24 +998,22 @@ form.lang-select select {
 
 /* Resource Item */
 
+
 .resource-item {
-    min-height: 74px;
+    position: relative;
 }
 
-@media (max-width: 575.98px) {
-    .resource-item .btn-group {
-        display: block;
-    }
-}
 
-@media (max-width: 992px) {
-    .resource-item .btn-text {
-        display: none;
-    }
+.resource-item .resource-description { 
+    color: var(--t-colors-grey);
 }
+.resource-item .resource-meta { 
+    
+    color: var(--t-colors-grey);
+    font-size: 0.8rem;}
 
 .resource-item:hover {
-    background: var(--t-colors-off-white);
+    background-color: inherit;
 }
 
 /* Tables */
@@ -1517,12 +1519,22 @@ div#followee-filter {
     text-decoration-color: #fd7e14ff;
 }
 
-/* More info table */
-
-#additional-info {
+/* Section breakups */
+#dataset-resources, #additional-info {
+    margin-top: 3em;
     padding-top: 1.5rem;
+    
+}
+
+#dataset-resources { 
     border-top: 1px solid var(--t-colors-grey-50);
 }
+
+
+
+
+/* More info table */
+
 #additional-info div {
     width: 100%;
     display: flex;
