@@ -1,7 +1,11 @@
 {% ckan_extends %}
 
 {% block page_heading %}
+
     {{ super() }}
+    <span class="large-follow-button">
+        {{ h.follow_button('dataset', pkg.id) }}
+    </span>
     {% if pkg.archived == 'true' %}
         [{{_('Archived')}}]
     {% endif %}

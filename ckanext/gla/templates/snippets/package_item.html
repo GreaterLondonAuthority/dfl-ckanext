@@ -93,10 +93,15 @@ Example:
         {{ h.popular('recent views', package.tracking_summary.recent, min=10) if package.tracking_summary }}
         {% endblock %}
       </h2>
-      
-      {% if last_updated %}
-        <div class="dataset-last-updated gla-informational">Updated {{h.localised_nice_date(h.date_str_to_datetime(last_updated))}}</div>
-      {% endif %}
+      <div class="dataset-last-updated gla-informational">
+          {% if last_updated %}
+            Updated {{h.localised_nice_date(h.date_str_to_datetime(last_updated))}}
+          {% endif %}
+          <span class="small-follow-button">
+              {{ h.follow_button('dataset', package.id) }}
+          </span>
+      </div>
+
 
     </div>
     <div class="dataset-source gla-informational">Published by {{package.organization.title}}{% if ns.harvest_source_title %}, hosted by {{ns.harvest_source_title}}{% endif %}</div>
