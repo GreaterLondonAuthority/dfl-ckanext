@@ -19,47 +19,6 @@
 
 
 {% block header_account %}
-<div class="account-masthead">
-  <div class="container">
-
-    {% block header_account_container_content %} {% if c.userobj %}
-    <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
-      <ul class="list-unstyled">
-        {% block header_account_logged %}
-        {% block header_account_profile %}
-        <li>
-          <a href="{{ h.url_for('activity.dashboard') }}" class="image" title="{{ _('View profile') }}">
-            {{ h.user_image((c.user if c and c.user else ''), size=22) }}
-            <span class="username">{{ c.userobj.display_name }}</span>
-          </a>
-        </li>
-        {% endblock %}
-        {% block header_dashboard %}
-        {% set new_activities = h.new_activities() %}
-        <li class="notifications {% if new_activities > 0 %}notifications-important{% endif %}">
-          {% set notifications_tooltip = ngettext('Dashboard (%(num)d new item)', 'Dashboard (%(num)d new items)',
-            new_activities)
-            %}
-          <a href="{{ h.url_for('activity.dashboard') }}" title="{{ notifications_tooltip }}">
-            <span class="text">{{ _('Dashboard') }}</span>
-            <span class="badge">{{ new_activities }}</span>
-          </a>
-        </li>
-        {% endblock %}
-        {% endblock %}
-      </ul>
-    </div>
-    {% else %}
-    <nav class="account not-authed" aria-label="{{ _('Account') }}">
-      <ul class="list-unstyled">
-        {% block header_account_notlogged %}
-        <li>{% link_for _('Log in'), named_route='user.login' %}</li>
-        {% endblock %}
-      </ul>
-    </nav>
-    {% endif %} {% endblock %}
-  </div>
-</div>
 {% endblock %}
 
 
@@ -73,11 +32,27 @@
 {% endblock %}
 
 {% block header_site_navigation_tabs %}
-{% set org_type = h.default_group_type('organization') %}
-{{ h.build_nav_main(
-        (dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Datasets'),
-        ["dataset", "resource"]),
-        (org_type ~ '.index',
-        h.humanize_entity_type('organization', org_type, 'main nav') or _('Organizations'), ['organization']),
-        ('home.about', _('About')) ) }}
+
+<li><a href="{{ h.url_for('home.index') }}">Home</a></li>
+<li><a href="{{ h.url_for('dataset.search') }}">Search</a></li>
+{% if c.userobj %}
+{% set new_activities = h.new_activities() %}
+
+<li><a href="{{ h.url_for('activity.dashboard') }}">{{ c.userobj.display_name | truncate(20,True) }}
+
+  {% if new_activities > 0 %}
+  {% set notifications_tooltip = ngettext('%(num)d update', '%(num)d updates', new_activities)  %}
+  <span class="badge" title="{{ notifications_tooltip }}">{{ new_activities }}</span>
+
+
+  {% endif %}
+
+</a></li>
+
+{% else %}
+<li><a href="{{ h.url_for('user.login') }}">Log in</a></li>
+{% endif %}
+
+
+</div>
 {% endblock %}
