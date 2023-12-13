@@ -151,7 +151,7 @@ html {
 
 h1,
 .h1 {
-    font-size: 3.125rem;
+    font-size: 3rem;
     line-height: 3.125rem
 }
 
@@ -159,14 +159,15 @@ h1,
 
     h1,
     .h1 {
-        font-size: 3.125rem;
-        line-height: 3.125rem
+        font-size: 3rem;
+        line-height: 3.125rem;
+        margin-bottom: 2.0rem;
     }
 }
 
 h2,
 .h2 {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
     line-height: 2.5rem;
     margin-bottom: 1.5rem;
 }
@@ -175,7 +176,7 @@ h2,
 
     h2,
     .h2 {
-        font-size: 2.5rem;
+        font-size: 2.25rem;
         line-height: 2.5rem;
         margin-bottom: 1.5rem;
     }
@@ -192,7 +193,8 @@ h3,
     h3,
     .h3 {
         font-size: 1.875rem;
-        line-height: 2.1875rem
+        line-height: 2.1875rem;
+        margin-bottom: 1.0rem;
     }
 }
 
@@ -1507,7 +1509,8 @@ div#followee-filter {
     background-color: #fd7e1411;
 }
 
-.alert-info a, a:hover {
+.alert-info a,
+a:hover {
     color: #874006;
     text-decoration-color: #874006;
 }
@@ -1523,31 +1526,39 @@ div#followee-filter {
     padding-top: 1.5rem;
     border-top: 1px solid var(--t-colors-grey-50);
 }
+
 #additional-info div {
     width: 100%;
     display: flex;
 }
+
 #additional-info dl {
     margin-top: 1rem;
     border: 1px solid var(--bs-gray-200);
 }
+
 #additional-info dt {
     float: left;
     width: 30%;
 }
+
 #additional-info dd {
     clear: right;
     float: right;
     width: 70%;
 }
-#additional-info dt, dd {
+
+#additional-info dt,
+dd {
     padding: 0.5rem 0.5rem;
     margin: 0;
 }
-#additional-info > dl > div > dt {
+
+#additional-info>dl>div>dt {
     background-color: #000000ba;
     color: var(--bs-gray-100);
 }
-#additional-info > dl > div:nth-of-type(odd) {
+
+#additional-info>dl>div:nth-of-type(odd) {
     box-shadow: inset 0 0 0 9999px #00000014;
 }

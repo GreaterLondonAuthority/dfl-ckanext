@@ -21,9 +21,10 @@ log = logging.getLogger(__name__)
 
 favourites = Blueprint("favourites_blueprint", __name__)
 users = Blueprint("users_blueprint", __name__)
-privacy = Blueprint("privacy_blueprint", __name__)
+about = Blueprint("about_blueprint", __name__, url_prefix="/about")
 search_log_download = Blueprint("search_log_download_blueprint", __name__)
 undelete = Blueprint("undelete_blueprint", __name__)
+
 
 def show_favourites():
     log.info("IN SHOW_FAVOURITES")
@@ -137,11 +138,16 @@ users.add_url_rule("/user/<id>", methods=["GET"], view_func=view_user)
 ## Download routes:
 
 
-def view_privacy():
-    return tk.render("privacy.html")
+def view_about():
+    return tk.render("about/index.html")
 
 
-privacy.add_url_rule("/privacy-policy", methods=["GET"], view_func=view_privacy)
+def get_about_page(slug):
+    return tk.render(f"about/{slug}.html")
+
+
+about.add_url_rule("", methods=["GET"], view_func=view_about)
+about.add_url_rule("/<slug>", methods=["GET"], view_func=get_about_page)
 
 
 def get_server_search_logs():
@@ -162,15 +168,19 @@ search_log_download.add_url_rule(
     "/search_logs", methods=["GET"], view_func=get_server_search_logs
 )
 
+
 def undelete_package(id):
     res = tk.get_action("package_patch")(None, {"id": id, "state": "active"})
-    return tk.redirect_to('dataset.read', id=id)
+    return tk.redirect_to("dataset.read", id=id)
 
 
-undelete.add_url_rule("/dataset/<id>/undelete",
-                      methods=["POST"],
-                      view_func=undelete_package,
-                      endpoint="undelete_package")
+undelete.add_url_rule(
+    "/dataset/<id>/undelete",
+    methods=["POST"],
+    view_func=undelete_package,
+    endpoint="undelete_package",
+)
+
 
 def get_blueprints():
-    return [favourites, users, privacy, search_log_download, undelete]
+    return [favourites, users, about, search_log_download, undelete]
