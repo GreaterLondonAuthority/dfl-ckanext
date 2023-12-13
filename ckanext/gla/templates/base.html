@@ -1,5 +1,13 @@
 {% ckan_extends %}
 
+{% set title = h.get_site_title(request) %}
+{% block title %}
+{% if title %}
+    {{ title }}
+{% else %}
+    {{ super() }}
+{% endif %}
+{% endblock %}
 {% block custom_styles %}
 <link rel="stylesheet" href="/gla.css" />
 {% endblock %}

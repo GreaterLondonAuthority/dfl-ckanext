@@ -1,5 +1,8 @@
 import ckan.plugins.toolkit as toolkit
+from ckan.common import config
 
+
+site_title = config.get('ckan.site_title', 'Default Site Title')
 
 def __page_context(request):
     page_info = {"source": "", "is_search": False}
@@ -73,6 +76,27 @@ def extract_resource_format(resource):
     else:
         return resource_type
 
+def get_site_title(request):
+    """Check if we're on a search or dataset page and, if so, return a title that omits the
+    word 'dataset'. Otherwise, return None: the template will show the default title"""
+
+    path_parts = [x for x in request.path.split("/") if x != ""]
+    if len(path_parts) == 0: # we're on the homepage
+        return None
+    if path_parts == ["dataset"]: # We're on the dataset search page
+        search = request.args.get("q")
+        if search is not None:
+            page_title = search
+        else:
+            page_title = "Search"
+        return "{} - {}".format(page_title, site_title)
+    elif path_parts[0] == "dataset": # We're on a dataset or resource page
+        context = toolkit.c
+        dataset_title = context.get('pkg_dict', {}).get('title')
+        return "{} - {}".format(dataset_title, site_title)
+    else:
+        return None
+
 def get_helpers():
     return {
         "get_followed_datasets": followed,
@@ -80,5 +104,6 @@ def get_helpers():
         "show_favourite_datasets": should_show_favourites,
         "last_updated": last_updated,
         "is_search_results_page": lambda request: __page_context(request)["is_search"],
-        "extract_resource_format": extract_resource_format
+        "extract_resource_format": extract_resource_format,
+        "get_site_title": get_site_title
     }
