@@ -396,12 +396,8 @@ body {
 header.masthead {
     background: var(--t-colors-off-white);
     border-bottom: 1px solid var(--t-colors-grey-50);
-    padding-top: 0 !important;
 }
 
-header.masthead .navbar {
-    padding-top: 0 !important;
-}
 
 button.navbar-toggler {
     background: var(--t-colors-grey);
@@ -414,28 +410,14 @@ button.navbar-toggler {
     color: var(--t-colors-text-grey);
 }
 
-.account-masthead {
-    background: var(--t-colors-off-white);
-    border-bottom: 0;
-    padding-top: 10px;
-}
 
-.account-masthead .account ul li {
-    border: 0;
-}
-
-.account-masthead .account ul li a {
-    color: var(--t-colors-text-grey);
-}
-
-.account-masthead .account .notifications a span.badge {
-    font-size: 12px;
+.masthead span.badge {
     margin: 0;
-    padding: 0.35em 0.65em;
-    background-color: #00232e;
+    padding: 0.4em 0.65em 0.4em 0.65em;
+    background-color: var(--t-colors-pink);
     border-radius: 4px;
     text-shadow: none;
-    color: #bfd7de;
+    color: #fff;
 }
 
 .masthead .main-navbar .site-search button {
@@ -492,9 +474,6 @@ input#field-sitewide-search::-ms-input-placeholder {
     text-underline-offset: 2px;
 }
 
-.account-masthead .account ul li a i {
-    color: var(--t-colors-text-grey);
-}
 
 /* Main */
 
@@ -727,14 +706,6 @@ a .fa {
     color: var(--t-colors-pink);
 }
 
-.account-masthead .account ul li a:hover {
-    color: var(--t-colors-text-grey);
-    background: initial;
-    text-decoration: underline;
-    text-decoration-color: var(--t-colors-pink);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 3px;
-}
 
 .badge {
     text-decoration: none;
