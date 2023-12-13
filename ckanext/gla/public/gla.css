@@ -1369,6 +1369,10 @@ li.dataset-item {
     margin-left: 10px;
 }
 
+.large-follow-button {
+    display: flex;
+    float: right;
+}
 .favs-block ul.dataset-list {
     margin: 0;
 }
