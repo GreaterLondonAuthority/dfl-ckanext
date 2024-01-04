@@ -2,3 +2,28 @@
 
 {% block package_search_results_api %}
 {% endblock %}
+
+
+{% block secondary_content %}
+    {{ super() }}
+
+    <!---- Figure out if there are filters enabled and show clear filters button if so-----!>
+    {% set searchstate = namespace(filters_set=false) %}
+    {% for filter_name in facet_titles.keys() %}
+        {% if filter_name in request.args %}
+            {% set searchstate.filters_set = true %}
+            {% break %}
+        {% endif %}
+    {% endfor %}
+
+    {% if searchstate.filters_set %}
+        <hr>
+        <p style="padding-top: 25px;">
+            <a class="btn btn-default"
+            href={% url_for 'dataset_search' %}
+            style="width: 100%;">
+                Clear filters
+            </a>
+        </p>
+    {% endif %}
+{% endblock %}
