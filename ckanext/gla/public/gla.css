@@ -89,16 +89,11 @@
 }
 
 :not(.cke_editable):focus {
-    box-shadow: 0 0 0 .125rem #fff, 0 0 0 .3125rem #e7135d, 0 0 0 .4375rem #fff !important;
-    box-shadow: 0 0 0 .125rem #fff, 0 0 0 .3125rem var(--theme-primary), 0 0 0 .4375rem #fff !important;
+    box-shadow: 0 0 0 .125rem #fff, 0 0 0 .3125rem var(--t-colors-pink), 0 0 0 .4375rem #fff !important;
+    border-radius: .125rem;
     outline: none
 }
 
-a:focus {
-    box-shadow: 0 0 0 .125rem #fff, 0 0 0 .3125rem #e7135d, 0 0 0 .4375rem #fff !important;
-    box-shadow: 0 0 0 .125rem #fff, 0 0 0 .3125rem var(--theme-primary), 0 0 0 .4375rem #fff !important;
-    outline: none
-}
 
 @media (prefers-reduced-motion:reduce) {
     * {
