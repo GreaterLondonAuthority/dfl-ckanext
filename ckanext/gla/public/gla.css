@@ -984,6 +984,16 @@ form.lang-select select {
     background-color: inherit;
 }
 
+.resource-item .resource-title a:focus {
+    box-shadow: none !important;
+}
+
+.resource-item .resource-title:focus-within {
+    box-shadow: 0 0 0 .125rem #fff, 0 0 0 .3125rem var(--t-colors-pink), 0 0 0 .4375rem #fff !important;
+    border-radius: .125rem;
+}
+
+
 /* Tables */
 
 th {
@@ -1301,6 +1311,16 @@ p.accordion__empty.empty {
 
 h2.dataset-heading {
     font-size: 1.333rem;
+}
+
+/* Move the focus shadow into the containing element */
+h2.dataset-heading:focus-within {
+    box-shadow: 0 0 0 .125rem #fff, 0 0 0 .3125rem var(--t-colors-pink), 0 0 0 .4375rem #fff !important;
+    border-radius: .125rem;
+}
+
+h2.dataset-heading a:focus {
+    box-shadow: none !important;
 }
 
 ul.dataset-list {
