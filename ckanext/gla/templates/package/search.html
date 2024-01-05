@@ -1,4 +1,22 @@
 {% ckan_extends %}
 
+
+{% block secondary %}
+<aside class="secondary col-md-3">
+    <div class="visually-hidden-focusable"><a href="#search-results">{{ _('Skip to results ') }}</a></div>
+    {% block secondary_content %}
+    {{ super() }}
+    {% endblock %}
+</aside>
+{% endblock %}
+
+{% block primary %}
+<div class="primary col-md-9 col-xs-12" role="main" id="search-results">
+    {% block primary_content %}
+        {{ super() }}
+    {% endblock %}
+</div>
+{% endblock %}
+
 {% block package_search_results_api %}
 {% endblock %}
