@@ -1544,3 +1544,12 @@ dd {
 #additional-info>dl>div:nth-of-type(odd) {
     box-shadow: inset 0 0 0 9999px #00000014;
 }
+
+
+/* focus behaviour for tab selecting */
+.logos-masthead:focus-within {
+    background: var(--t-colors-pink);
+}
+.london-logos:focus {
+    box-shadow: none !important;
+}
