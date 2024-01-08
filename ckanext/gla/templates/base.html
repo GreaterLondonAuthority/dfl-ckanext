@@ -1,5 +1,9 @@
 {% ckan_extends %}
 
+
+{% block htmltag %}<html lang="en-GB">{% endblock %}
+
+
 {% set title = h.get_site_title(request) %}
 {% block title %}
 {% if title %}
