@@ -1,0 +1,30 @@
+{#
+
+Renders the 'additional info' table used on the dataset and resource pages as a description list.
+We have replaced the default CKAN version because it was not so screen reader accessible.
+
+Expects the `table_rows` parameter to contain a list of rows to display. Each row has a `label` field,
+which is the field name shown in the left hand column, and a value to show on the right given in either the
+`text` or `datetime` field depending on its type. Optionally, it will link to the URL given by the `href` field.
+#}
+
+<div class="additional-info">
+    <dl>
+        {% for row in table_rows %}
+        {% if row.text or row.datetime %}
+            <div>
+                <dt class="dataset-label">{{ row.label }}</dt>
+                <dd class="dataset-details">
+                    {% if row.datetime %}
+                        {% snippet 'snippets/local_friendly_datetime.html', datetime_obj=row.datetime %}
+                    {% elif row.href %}
+                        <a href="{{ row.href }}" target="_blank">{{ row.text }}</a>
+                    {% else %}
+                        {{ row.text }}
+                    {% endif %}
+                </dd>
+            </div>
+        {% endif %}
+        {% endfor %}
+    </dl>
+</div>

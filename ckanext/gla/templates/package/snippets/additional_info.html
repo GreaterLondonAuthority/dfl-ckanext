@@ -1,108 +1,45 @@
+<!--- set up the information to show in the 'additional info' table. If the values are not present, the row is not shown---!>
+{% if pkg_dict.author_email %}
+    {% set author_text = pkg_dict.author_email %}
+    {% set author_mailto = "mailto:" + pkg_dict.author_email %}
+{% endif %}
+{% if pkg_dict.author %}
+    {% set author_text = pkg_dict.author %}
+{% endif %}
+
+{% if pkg_dict.maintainer_email %}
+    {% set maintainer_text = pkg_dict.maintainer_email %}
+    {% set maintainer_mailto = "mailto:" + pkg_dict.maintainer_email %}
+{% endif %}
+{% if pkg_dict.maintainer %}
+    {% set maintainer_text = pkg_dict.maintainer %}
+{% endif %}
+
+{% if h.check_access('package_update',{'id':pkg_dict.id}) %}
+    {% set pkg_state = _(pkg_dict.state) %}
+{% endif %}
+
+
+<!--- we have to introduce a namespace to set the upstream_url variable as regular variables are scoped only within the loop---!>
+{% set extras = namespace(upstream_url=none) %}
+{% for extra in pkg_dict.extras %}
+    {% if extra.key == "upstream_url" %}
+        {% set extras.upstream_url=extra.value %}
+    {% endif %}
+{% endfor %}
+
 <section id="additional-info">
-  <dl>
-      {% block package_additional_info %}
-        {% if pkg_dict.url %}
-        <div>
-            <dt class="dataset-label">{{ _('Source') }}</dt>
-            {% if h.is_url(pkg_dict.url) %}
-              <dd class="dataset-details" property="foaf:homepage">
-                <a href="{{ pkg_dict.url }}" rel="foaf:homepage" target="_blank">
-                  {{ pkg_dict.url }}
-                </a>
-              </dd>
-            {% else %}
-              <dd class="dataset-details" property="foaf:homepage">{{ pkg_dict.url }}</dd>
-            {% endif %}
-        </div>
-        {% endif %}
-
-        {% if pkg_dict.author_email %}
-        <div>
-            <dt class="dataset-label">{{ _("Author") }}</dt>
-            {% if pkg_dict.author %}
-              <dd class="dataset-details" property="dc:creator">{{ h.mail_to(email_address=pkg_dict.author_email, name=pkg_dict.author) }}</dd>
-            {% else %}
-              <dd class="dataset-details" property="dc:creator">{{ h.mail_to(email_address=pkg_dict.author_email, name=pkg_dict.author_email) }}</dd>
-            {% endif %}
-        </div>
-        {% elif pkg_dict.author %}
-          
-        <div>
-            <dt class="dataset-label">{{ _("Author") }}</dt>
-            <dd class="dataset-details" property="dc:creator">{{ pkg_dict.author }}</dd>
-        </div>
-        {% endif %}
-
-        {% if pkg_dict.maintainer_email %}
-        <div>
-            <dt class="dataset-label">{{ _('Maintainer') }}</dt>
-            {% if pkg_dict.maintainer %}
-              <dd class="dataset-details" property="dc:contributor">{{ h.mail_to(email_address=pkg_dict.maintainer_email, name=pkg_dict.maintainer) }}</dd>
-            {% else %}
-              <dd class="dataset-details" property="dc:contributor">{{ h.mail_to(email_address=pkg_dict.maintainer_email, name=pkg_dict.maintainer_email) }}</dd>
-            {% endif %}
-        </div>
-        {% elif pkg_dict.maintainer %}
-        <div>
-            <dt class="dataset-label">{{ _('Maintainer') }}</dt>
-            <dd class="dataset-details" property="dc:contributor">{{ pkg_dict.maintainer }}</dd>
-        </div>
-        {% endif %}
-
-        {% if pkg_dict.version %}
-          
-        <div>
-            <dt class="dataset-label">{{ _("Version") }}</dt>
-            <dd class="dataset-details">{{ pkg_dict.version }}</dd>
-        </div>
-        {% endif %}
-
-        {% if h.check_access('package_update',{'id':pkg_dict.id}) %}
-          
-        <div>
-            <dt class="dataset-label">{{ _("State") }}</dt>
-            <dd class="dataset-details">{{ _(pkg_dict.state) }}</dd>
-        </div>
-        {% endif %}
-        {% if pkg_dict.metadata_modified %}
-        <div>
-            <dt class="dataset-label">{{ _("Last Updated") }}</dt>
-            <dd class="dataset-details">
-                {% snippet 'snippets/local_friendly_datetime.html', datetime_obj=pkg_dict.metadata_modified %}
-            </dd>
-        </div>
-        {% endif %}
-        {% if pkg_dict.metadata_created %}
-         <div> 
-            <dt class="dataset-label">{{ _("Created") }}</dt>
-
-            <dd class="dataset-details">
-                {% snippet 'snippets/local_friendly_datetime.html', datetime_obj=pkg_dict.metadata_created %}
-            </dd>
-         </div>
-        {% endif %}
-
-        {% block extras %}
-        {% for extra in pkg_dict.extras %}
-          {% if extra.key == "upstream_url" %}
-            <div>
-              <dt class="dataset-label">Upstream URL</dt>
-              <dd class="dataset-details">
-                <a href="{{ extra.value }}">{{ extra.value }}</a>
-              </dd>
-            </div>
-          {% endif %}
-        {% endfor %}
-        {% if pkg_dict.data_quality %}
-        <div>
-            <dt class="dataset-label">Data Quality</dt>
-            <dd class="dataset-details">{{ pkg_dict.data_quality }}</dd>
-        </div>
-        {% endif %}
-        {% endblock %}
-
-      {% endblock %}
-  </dl>
+{% snippet "package/snippets/additional_info_table.html",
+table_rows=[{"label":  _('Source') , "text": pkg_dict.url, "href": pkg_dict.url},
+            {"label": _('Author'), "text": author_text, "href": author_mailto},
+            {"label": _('Maintainer'), "text": maintainer_text, "href": maintainer_mailto},
+            {"label": _('Version'), "text": pkg_dict.version},
+            {"label": _('State'), "text": pkg_state},
+            {"label": _('Last Updated'), "datetime": pkg_dict.metadata_modified},
+            {"label": _('Created'), "datetime": pkg_dict.metadata_created},
+            {"label": _('Upstream URL'), "text": extras.upstream_url, "href": extras.upstream_url},
+            {"label": 'Data Quality', "text": pkg_dict.data_quality}]
+%}
 </section>
 
 
