@@ -20,7 +20,7 @@
         <hr>
         <p style="padding-top: 25px;">
             <a class="btn btn-default"
-            href={% url_for 'dataset_search' %}
+            href={% url_for 'dataset_search', q=request.args.get("q"), sort=request.args.get("sort") %}
             style="width: 100%;">
                 Clear filters
             </a>
