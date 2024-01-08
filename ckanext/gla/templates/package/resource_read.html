@@ -28,3 +28,34 @@
     {% endblock %}
     </ul>
 {% endblock %}
+
+
+{% block resource_additional_information_inner %}
+
+    <!--- Set up the information to show in the additional info table ---!>
+
+    <!--- We will use the created date for both modified dates if they are not present ---!>
+    {% set data_modified=res.created %}
+    {% if res.last_modified %}
+        {% set data_modified=res.last_modified %}
+    {% endif %}
+
+    {% set metadata_modified=res.created %}
+    {% if res.metadata_modified %}
+        {% set metadata_modified=res.metadata_modified %}
+    {% endif %}
+
+    {% set format= res.format or res.mimetype_inner or res.mimetype %}
+
+        <div class="module-content">
+
+            {% snippet "package/snippets/additional_info_table.html",
+            table_rows=[{"label": _('Data last updated'), "datetime": data_modified},
+                        {"label": _('Metadata last updated'), "datetime": metadata_modified},
+                        {"label": _('Created'), "datetime": res.created},
+                        {"label": _('Format'), "text": format},
+                        {"label": _('License'), "text": pkg.license_title, "href": pkg.license_url},
+                        {"label": _('Size'), "text": h.SI_number_span(res.size) if res.size }]
+            %}
+        </div>
+        {% endblock %}
