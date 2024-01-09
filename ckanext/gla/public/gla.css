@@ -844,7 +844,7 @@ header.module-content.page-header {
     padding: 3rem 0;
 }
 
-.site-footer h4 {
+.site-footer .h4 {
     color: white;
     margin-bottom: 1.25rem;
 }
@@ -862,6 +862,7 @@ header.module-content.page-header {
 }
 
 .site-footer .footer-links ul {
+    column-count: 2;
     border-right: 1px solid var(--t-colors-grey);
 }
 
