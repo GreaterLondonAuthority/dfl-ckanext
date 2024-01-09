@@ -6,24 +6,6 @@
     <div class="visually-hidden-focusable"><a href="#search-results">{{ _('Skip to results ') }}</a></div>
     {% block secondary_content %}
     {{ super() }}
-    {% endblock %}
-</aside>
-{% endblock %}
-
-{% block primary %}
-<div class="primary col-md-9 col-xs-12" role="main" id="search-results">
-    {% block primary_content %}
-        {{ super() }}
-    {% endblock %}
-</div>
-{% endblock %}
-
-{% block package_search_results_api %}
-{% endblock %}
-
-
-{% block secondary_content %}
-    {{ super() }}
 
     <!---- Figure out if there are filters enabled and show clear filters button if so-----!>
     {% set searchstate = namespace(filters_set=false) %}
@@ -44,4 +26,18 @@
             </a>
         </p>
     {% endif %}
+    {% endblock %}
+</aside>
 {% endblock %}
+
+{% block primary %}
+<div class="primary col-md-9 col-xs-12" role="main" id="search-results">
+    {% block primary_content %}
+        {{ super() }}
+    {% endblock %}
+</div>
+{% endblock %}
+
+{% block package_search_results_api %}
+{% endblock %}
+
