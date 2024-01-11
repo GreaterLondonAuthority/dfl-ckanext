@@ -1499,8 +1499,28 @@ div#followee-filter {
 
 .alert-info {
     color: #874006;
-    border-color: #fd7e14ff;
-    background-color: #fd7e1411;
+    border-color: #fd7e14;
+    background-color: #FFF6F0;
+}
+
+.alert-error {
+    color: #8B0000;
+    background-color: #f8f0f0;
+    border-color: #c6898b;
+}
+
+.alert-danger a {
+    color: #8B0000;
+}
+
+.error-inline {
+    color: #8B0000;
+    margin: 0.5rem;
+}
+
+.resource-view-filters .resource-view-remove-filter {
+    cursor: pointer;
+    color: #8B0000;
 }
 
 .alert-info a,
