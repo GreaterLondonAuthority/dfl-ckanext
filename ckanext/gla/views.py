@@ -182,5 +182,13 @@ undelete.add_url_rule(
 )
 
 
+lang_redirect = Blueprint("lang_redirect", __name__)
+
+lang_redirect.add_url_rule(
+    "/api/i18n/en-GB",
+    view_func=lambda: tk.redirect_to("/api/i18n/en_GB"),
+    endpoint="lang_redirect"
+)
+
 def get_blueprints():
-    return [favourites, users, about, search_log_download, undelete]
+    return [favourites, users, about, search_log_download, undelete, lang_redirect]
