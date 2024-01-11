@@ -16,27 +16,28 @@
         <h2>Error</h2>
         {% endif %}
         {% endblock %}
+        </div>
     </div>
     <div class="search-header__order">
         {% block search_sortby %}
         {% if sorting %}
-          <div class="form-group control-order-by">
-            <label for="field-order-by">{{ _('Order by') }}</label>
-            <select id="field-order-by" name="sort" class="form-control form-select">
+        <label style="pointer-events:none;" id="order-by-label">{{ _('Order by') }}</label>
               {% for label, value in sorting %}
                 {% if label and value %}
-                  <option value="{{ value }}"{% if sorting_selected == value %} selected="selected"{% endif %}>{{ label }}</option>
+                    {% if loop.index != 1 %}|{% endif %}
+                    <a href={{ h.remove_url_param("sort", replace=value)}}
+                        class="
+                        {% if sorting_selected == value %} selected {% endif %}
+                        "
+                        aria-labelledby="order-by-label"
+                    >
+                        {{ label }}
+                    </a>
                 {% endif %}
               {% endfor %}
-            </select>
-            {% block search_sortby_button %}
-            <button class="btn btn-default js-hide" type="submit">{{ _('Go') }}</button>
-            {% endblock %}
-          </div>
         {% endif %}
       {% endblock %}
     </div>
-</div>
 
 {% block search_input %}
 <div class="input-group search-input-group">

@@ -1296,12 +1296,11 @@ p.accordion__empty.empty {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-        margin-bottom: 30px;
     }
 }
 
 @media (min-width: 768px) {
-    .search-form .control-order-by {
+    .search-form {
         float: none;
         margin-left: 0;
         width: auto;
@@ -1309,6 +1308,18 @@ p.accordion__empty.empty {
     }
 }
 
+.search-header__order {
+    float: right;
+    margin-bottom: 15px;
+}
+.search-header__order a {
+    font-size: 14px;
+}
+
+.search-header__order a.selected {
+    font-weight: bold;
+    color: var(--t-colors-pink);
+}
 h2.dataset-heading {
     font-size: 1.333rem;
 }
