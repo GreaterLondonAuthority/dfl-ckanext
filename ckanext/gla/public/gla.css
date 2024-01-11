@@ -29,7 +29,10 @@
     --t-colors-green: #008743;
     --t-colors-dark-green: #00632f;
     --t-colors-red: #eb001b;
-    --t-colors-dark-red: #a40011;
+    --t-colors-dark-red: #8B0000;
+    --t-colors-dark-red-contrast: #f8f0f0;
+    --t-colors-orange: #fd7e14;
+    --t-colors-orange-contrast: #FFF6F0;
     --t-colors-purple: #ae4ac6;
     --t-colors-dark-purple: #713080;
     --t-colors-yellow: #fff200;
@@ -1389,6 +1392,7 @@ li.dataset-item {
     display: flex;
     float: right;
 }
+
 .favs-block ul.dataset-list {
     margin: 0;
 }
@@ -1499,28 +1503,28 @@ div#followee-filter {
 
 .alert-info {
     color: #874006;
-    border-color: #fd7e14;
-    background-color: #FFF6F0;
+    border-color: var(--t-colors-orange);
+    background-color: var(--t-colors-orange-contrast);
 }
 
 .alert-error {
-    color: #8B0000;
-    background-color: #f8f0f0;
+    color: var(--t-colors-dark-red);
+    background-color: var(--t-colors-dark-red-contrast);
     border-color: #c6898b;
 }
 
 .alert-danger a {
-    color: #8B0000;
+    color: var(--t-colors-dark-red);
 }
 
 .error-inline {
-    color: #8B0000;
+    color: var(--t-colors-dark-red);
     margin: 0.5rem;
 }
 
 .resource-view-filters .resource-view-remove-filter {
     cursor: pointer;
-    color: #8B0000;
+    color: var(--t-colors-dark-red);
 }
 
 .alert-info a,
