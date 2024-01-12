@@ -24,10 +24,11 @@
         <label style="pointer-events:none;" id="order-by-label">{{ _('Order by') }}</label>
               {% for label, value in sorting %}
                 {% if label and value %}
+                    {% set is_selected = sorting_selected.split(",")[0] == value %}
                     {% if loop.index != 1 %} |{% endif %}
                     <a href={{ h.remove_url_param("sort", replace=value)}}
                         class="
-                        {% if sorting_selected == value %} selected {% endif %}
+                        {% if is_selected %} selected {% endif %}
                         "
                         aria-labelledby="order-by-label"
                     >{{ label }}</a>
