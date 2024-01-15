@@ -7,33 +7,30 @@
             label=_('HTTP status'),
             id='field-http_status',
             value=data.http_status,
-            error=errors.http_status,
-            classes=['control-medium']) }}
+            error=errors.http_status) }}
 
 {{ form.input('last_check',
                label=_('Last check'),
                type='date',
                value=data.last_check,
-               error=errors.last_check,)}}
+               error=errors.last_check) }}
 
 {{ form.input('resource_hash',
                 label=_('Resource hash'),
                 value=data.resource_hash,
-                error=errors.resource_hash,)}}
+                error=errors.resource_hash) }}
 
 {{ form.input('mime_type',
                 label=_('MIME type'),
                 id='field-mime_type',
                 value=data.mime_type,
-                error=errors.mime_type,
-                classes=['control-medium']) }}
+                error=errors.mime_type) }}
 
 {{ form.input('resource_category',
                 label=_('Category'),
                 id='field-resource_category',
                 value=data.resource_category,
-                error=errors.resource_category,
-                classes=['control-medium']) }}
+                error=errors.resource_category) }}
 
 {{ form.input('validity_start',
                 label=_('Validity start'),
