@@ -1538,8 +1538,7 @@ div#followee-filter {
     color: var(--t-colors-dark-red);
 }
 
-.alert-info a,
-a:hover {
+.alert-info a {
     color: #874006;
     text-decoration-color: #874006;
 }
