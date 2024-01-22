@@ -3,6 +3,7 @@ from ckan.lib.navl.dictization_functions import Invalid
 import requests
 import json
 import os
+from datetime import datetime
 
 
 solr_endpoint = os.getenv("CKAN_SOLR_URL")
@@ -57,7 +58,41 @@ custom_dataset_fields = {
         toolkit.get_converter("convert_to_extras")],
 }
 
+def date_validator(date_string):
+    if date_string == "":
+        return None
+    try:
+        parsed = datetime.strptime(date_string, "%Y-%m-%d")
+        return date_string
+    except:
+        raise Invalid("Must be a date of format YYYY-MM-DD")
 
+custom_resource_fields = {
+    "http_status": [
+        toolkit.get_validator("ignore_missing")
+    ],
+    "last_check": [
+        toolkit.get_validator("ignore_missing"),
+        date_validator
+    ],
+    "resource_hash": [
+        toolkit.get_validator("ignore_missing")
+    ],
+    "mime_type": [
+        toolkit.get_validator("ignore_missing")
+    ],
+    "resource_category": [
+        toolkit.get_validator("ignore_missing")
+    ],
+    "validity_start": [
+        toolkit.get_validator("ignore_missing"),
+        date_validator
+    ],
+    "validity_end": [
+        toolkit.get_validator("ignore_missing"),
+        date_validator
+    ],
+}
 
 fields_to_copy = {
     "extras_data_quality": {"type": "int", "name": "copy_data_quality"},
