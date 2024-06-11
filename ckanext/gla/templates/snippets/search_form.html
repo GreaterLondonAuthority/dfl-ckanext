@@ -24,7 +24,7 @@
         <label style="pointer-events:none;" id="order-by-label">{{ _('Order by') }}</label>
               {% for label, value in sorting %}
                 {% if label and value %}
-                    {% set is_selected = sorting_selected.split(",")[0] == value %}
+                    {% set is_selected = sorting_selected.split(",")[0] == value if sorting_selected else false %}
                     {% if loop.index != 1 %} |{% endif %}
                     <a href={{ h.remove_url_param("sort", replace=value)}}
                         class="
@@ -56,7 +56,7 @@
       <span>{{ form.hidden_from_list(fields=fields) }}</span>
     {%- endif %}
   {% endblock %}
-  
+
   {% block search_facets %}
     {% if facets %}
       <p class="filter-list">
