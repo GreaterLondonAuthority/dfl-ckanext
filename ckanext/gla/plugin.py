@@ -61,10 +61,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     # IActions
     def get_actions(self):
-        return {
-            "debug_dataset_search": search.debug,
-            "log_chosen_search_result": search.log_selected_result,
-        }
+        return {"debug_dataset_search": search.debug,
+                "log_chosen_search_result": search.log_selected_result}
 
     # IDatasetForm
     # Follows https://docs.ckan.org/en/2.10/extensions/adding-custom-fields.html
@@ -80,23 +78,20 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def show_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).show_package_schema()
-        schema.update(
-            {
-                field: [
-                    toolkit.get_converter("convert_from_extras"),
-                    toolkit.get_validator("ignore_missing"),
-                ]
-                for field in custom_fields.custom_dataset_fields.keys()
-            }
-        )
-        schema.update(
-            {
-                "harvest_source_title": [
-                    toolkit.get_converter("convert_from_extras"),
-                    toolkit.get_validator("ignore_missing"),
-                ]
-            }
-        )
+        schema.update({
+            field: [
+                toolkit.get_converter("convert_from_extras"),
+                toolkit.get_validator("ignore_missing"),
+            ]
+            for field in custom_fields.custom_dataset_fields.keys()})
+        schema.update({
+            "harvest_source_title":
+            [
+                toolkit.get_converter("convert_from_extras"),
+                toolkit.get_validator("ignore_missing"),
+            ]
+
+        })
         return schema
 
     def is_fallback(self):
@@ -107,19 +102,15 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     # IFacets
     def dataset_facets(self, facets_dict, _):
-        return OrderedDict(
-            [
-                ("res_format", facets_dict["res_format"]),
-                ("organization", facets_dict["organization"]),
-                ("project_name", toolkit._("Projects")),
-                # Entry type is disabled for now as the value is null for harvested datasets
-                # The filter works, so enabling it will allow us to filter for datasets with
-                # the field set, either by manual edit, script, or updates to harvester
-                # ("entry_type", toolkit._("Type")),
-                ("harvest_source_title", toolkit._("Sources")),
-                ("license_id", facets_dict["license_id"]),
-            ]
-        )
+        return OrderedDict([("res_format", facets_dict["res_format"]),
+                               ("organization", facets_dict["organization"]),
+                               ("project_name", toolkit._("Projects")),
+                               # Entry type is disabled for now as the value is null for harvested datasets
+                               # The filter works, so enabling it will allow us to filter for datasets with
+                               # the field set, either by manual edit, script, or updates to harvester
+                               # ("entry_type", toolkit._("Type")),
+                               ("harvest_source_title", toolkit._("Sources")),
+                               ("license_id", facets_dict["license_id"])])
 
     def organization_facets(self, facets_dict, *args):
         return facets_dict
