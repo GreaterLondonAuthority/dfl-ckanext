@@ -114,3 +114,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def organization_facets(self, facets_dict, *args):
         return facets_dict
+
+    def group_facets(self, facets_dict, *args):
+        return facets_dict
