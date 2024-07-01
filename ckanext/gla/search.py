@@ -28,7 +28,8 @@ def add_quality_to_search(search_params):
     query = f"{q} _val_:copy_data_quality^{data_quality_boost_factor} _val_:copy_dataset_boost^{dataset_boost_boost_factor}"
 
     return {**search_params,
-            "q": query}
+            #"q": query
+            }
 
 @toolkit.side_effect_free
 def debug(context, data_dict={}):
