@@ -29,6 +29,7 @@ def add_quality_to_search(search_params):
 
     return {**search_params,
             #"q": query
+            "qf": "name^4 title^4 tags^2 groups^2 text_general"
             }
 
 @toolkit.side_effect_free
