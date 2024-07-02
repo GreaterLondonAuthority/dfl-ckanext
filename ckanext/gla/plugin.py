@@ -2,6 +2,7 @@ from ckan.types import Schema
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
+from ckan.common import current_user 
 from . import auth, helpers, views, search, timestamps, custom_fields
 from collections import OrderedDict
 
@@ -102,15 +103,29 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     # IFacets
     def dataset_facets(self, facets_dict, _):
-        return OrderedDict([("res_format", facets_dict["res_format"]),
-                               ("organization", facets_dict["organization"]),
-                               ("project_name", toolkit._("Projects")),
-                               # Entry type is disabled for now as the value is null for harvested datasets
-                               # The filter works, so enabling it will allow us to filter for datasets with
-                               # the field set, either by manual edit, script, or updates to harvester
-                               # ("entry_type", toolkit._("Type")),
-                               ("harvest_source_title", toolkit._("Sources")),
-                               ("license_id", facets_dict["license_id"])])
+        if current_user.is_authenticated:
+            return OrderedDict([("res_format", facets_dict["res_format"]),
+                                ("tags", toolkit._("Topic")),
+                                ("private", toolkit._("Private")),
+                                ("organization", facets_dict["organization"]),
+                                #("project_name", toolkit._("Projects")),
+                                # Entry type is disabled for now as the value is null for harvested datasets
+                                # The filter works, so enabling it will allow us to filter for datasets with
+                                # the field set, either by manual edit, script, or updates to harvester
+                                # ("entry_type", toolkit._("Type")),
+                                ("harvest_source_title", toolkit._("Sources")),
+                                ("license_id", facets_dict["license_id"])])
+        else:
+            return OrderedDict([("res_format", facets_dict["res_format"]),
+                                ("tags", toolkit._("Topic")),
+                                ("organization", facets_dict["organization"]),
+                                #("project_name", toolkit._("Projects")),
+                                # Entry type is disabled for now as the value is null for harvested datasets
+                                # The filter works, so enabling it will allow us to filter for datasets with
+                                # the field set, either by manual edit, script, or updates to harvester
+                                # ("entry_type", toolkit._("Type")),
+                                ("harvest_source_title", toolkit._("Sources")),
+                                ("license_id", facets_dict["license_id"])])
 
     def organization_facets(self, facets_dict, *args):
         return facets_dict
