@@ -25,10 +25,27 @@ def add_quality_to_search(search_params):
         q = "*:*"
     else:
         q = f"text:{search_terms}"
-    query = f"{q} _val_:copy_data_quality^{data_quality_boost_factor} _val_:copy_dataset_boost^{dataset_boost_boost_factor}"
-
+    
     return {**search_params,
-            "q": query}
+            "q": q,
+            # NOTE the bf parameter adds these additional boosts into
+            # the query/results. There are two numeric fields stored
+            # in our dataset records which admins can adjust to
+            # influence a datasets ranking
+            #
+            # These fields are weighted by the appropriate boost
+            # factors, and the computed boost is added via addition to
+            # the relevance score. It may be better in the future to
+            # move this to a multiplicative boosting approach, as the
+            # boosts will then become a function of text-match
+            # relevance, rather than being universally applied.
+            #
+            # A good article on the subject is here:
+            #
+            # https://nolanlawson.com/2012/06/02/comparing-boost-methods-in-solr/
+            # 
+            "bf": f"copy_data_quality^{data_quality_boost_factor} copy_dataset_boost^{dataset_boost_boost_factor}"
+            }
 
 @toolkit.side_effect_free
 def debug(context, data_dict={}):
