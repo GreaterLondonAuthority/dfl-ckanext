@@ -20,14 +20,7 @@ def _empty_or_none(string):
     return string == "" or string is None
 
 def add_quality_to_search(search_params):
-    search_terms = search_params.get("q")
-    if _empty_or_none(search_terms) or search_terms == "*:*":
-        q = "*:*"
-    else:
-        q = f"text:{search_terms}"
-    
     return {**search_params,
-            "q": q,
             # NOTE the bf parameter adds these additional boosts into
             # the query/results. There are two numeric fields stored
             # in our dataset records which admins can adjust to
