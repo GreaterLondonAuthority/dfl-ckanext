@@ -38,6 +38,17 @@ def add_quality_to_search(search_params):
             # https://nolanlawson.com/2012/06/02/comparing-boost-methods-in-solr/
             # 
             "bf": f"copy_data_quality^{data_quality_boost_factor} copy_dataset_boost^{dataset_boost_boost_factor}"
+            # NOTE
+            #
+            # The query field settings shown below are the CKAN
+            # defaults. If in the future it becomes desirable to tweak
+            # the importance of these fields for relevance, this line
+            # can be uncommented and the values can be changed.
+            #
+            # Note also that the text field contains a large amount of
+            # metadata copied from other fields in a stemmed form.
+
+            # "qf":"name^4 title^4 tags^2 groups^2 text"
             }
 
 @toolkit.side_effect_free
