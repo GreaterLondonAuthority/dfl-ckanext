@@ -514,6 +514,10 @@ input.search.form-control+.input-group-btn .btn {
     border-radius: 0 6px 6px 0;
 }
 
+.search-form .search-input-group {
+    margin-bottom: 0.25rem;
+}
+
 /* Forms */
 
 .form-control {
