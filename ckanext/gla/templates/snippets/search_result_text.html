@@ -1,45 +1,44 @@
 {#
 
     Displays a test for results of a search.
-    
+
     query          - The text that was searched for
     count          - The number of results for the search
     type           - Search result type (dataset, group, organization)
     title_override - Override the title
-    
+
     Example:
-    
+
     {% snippet 'snippets/search_result_text.html', query=query, count=count, type='dataset' %}
-    
+
     #}
     <h1>
         {% if type == 'dataset' %}
-        {% set text_query = ungettext('Search results for "{query}"', 'Search results for "{query}"', count) %}
+        {% set text_query = ungettext('Search result for "{query}"', 'Search results for "{query}"', count) %}
         {% set text_query_none = _('Search results for "{query}"') %}
         {% set text_no_query = ungettext('Search {number} dataset', 'Search {number} datasets', count) %}
         {% set text_no_query_none = _('No results found') %}
-    
+
     {% elif type == 'group' %}
-        {% set text_query = ungettext('"{query}"', '"{query}"', count) %}
-        {% set text_query_none = _('"{query}"') %}
-        {% set text_no_query = ungettext('{number} group found', '{number} groups found', count) %}
-        {% set text_no_query = _('Groups') %}
+        {% set text_query = ungettext('Group search result for "{query}"', 'Group search results for "{query}"', count) %}
+        {% set text_query_none = _('No groups found for "{query}"') %}
+        {% set text_no_query = ungettext('Search {number} group', 'Search {number} groups', count) %}
         {% set text_no_query_none = _('No groups found') %}
-    
+
     {% elif type == 'organization' %}
-        {% set text_query = ungettext('"{query}"', '"{query}"', count) %}
-        {% set text_query_none = _('"{query}"') %}
-        {% set text_no_query = _('Organisations') %}
+        {% set text_query = ungettext('Organisation search result for "{query}"', 'Organisation search results for "{query}"', count) %}
+        {% set text_query_none = _('No organisations found for "{query}"') %}
+        {% set text_no_query = ungettext('Search {number} organisation', 'Search {number} organisations', count) %}
         {% set text_no_query_none = _('No organisations found') %}
-    
+
     {% else %}
         {% set text_query_singular = '{number} ' + type + ' found for "{query}"' %}
         {% set text_query_plural = '{number} ' + type + 's found for "{query}"' %}
         {% set text_query_none_plural = 'No ' + type + 's found for "{query}"' %}
-        {% set text_no_query_singular = '{number} ' + type + ' found' %}        
+        {% set text_no_query_singular = '{number} ' + type + ' found' %}
         {% set text_no_query_plural = '{number} ' + type + 's found' %}
-        {% set text_no_query_none_plural = 'No ' + type + 's found' %}      
-    
+        {% set text_no_query_none_plural = 'No ' + type + 's found' %}
+
         {% set text_query = ungettext(text_query_singular, text_query_plural, count) %}
         {% set text_query_none = _(text_query_none_plural) %}
         {% set text_no_query = ungettext(text_no_query_singular, text_no_query_plural, count) %}
@@ -76,24 +75,24 @@
         {% set text_no_query_none = '' %}
 
     {% elif type == 'group' %}
-        {% set text_query = ungettext('{number} group', '{number} groups', count) %}
-        {% set text_query_none = _('No groups found') %}
-        {% set text_no_query = ungettext('{number} group', '{number} groups', count) %}
-        {% set text_no_query_none = _('No groups found') %}
+        {% set text_query = ungettext('Showing {number} group.', 'Showing {number} groups.', count) %}
+        {% set text_query_none = '' %}
+        {% set text_no_query = '' %}
+        {% set text_no_query_none = '' %}
 
     {% elif type == 'organization' %}
-        {% set text_query = ungettext('{number} organisation', '{number} organisations', count) %}
-        {% set text_query_none = _('No organisations found') %}
-        {% set text_no_query = ungettext('{number} organisation', '{number} organisations', count) %}
-        {% set text_no_query_none = _('No organisations found') %}
+        {% set text_query = ungettext('Showing {number} organisation.', 'Showing {number} organisations.', count) %}
+        {% set text_query_none = '' %}
+        {% set text_no_query = '' %}
+        {% set text_no_query_none = '' %}
 
     {% else %}
         {% set text_query_singular = '{number} ' + type + ' found for "{query}"' %}
         {% set text_query_plural = '{number} ' + type + 's found for "{query}"' %}
         {% set text_query_none_plural = 'No ' + type + 's found for "{query}"' %}
-        {% set text_no_query_singular = '{number} ' + type + ' found' %}        
+        {% set text_no_query_singular = '{number} ' + type + ' found' %}
         {% set text_no_query_plural = '{number} ' + type + 's found' %}
-        {% set text_no_query_none_plural = 'No ' + type + 's found' %}      
+        {% set text_no_query_none_plural = 'No ' + type + 's found' %}
 
         {% set text_query = ungettext(text_query_singular, text_query_plural, count) %}
         {% set text_query_none = _(text_query_none_plural) %}
