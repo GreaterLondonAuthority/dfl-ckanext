@@ -33,7 +33,7 @@
 {% endblock %}
     <div class="search-header__order">
         {% block search_sortby %}
-        {% if sorting %}
+        {% if sorting and type == 'dataset' %}
         <label style="pointer-events:none;" id="order-by-label">{{ _('Order by') }}</label>
               {% for label, value in sorting %}
                 {% if label and value %}
