@@ -66,6 +66,11 @@
     </h1>
     
     <span>
+
+    <div class='lead dfl-hint'>
+      Use London’s data to help you understand the city and develop solutions.
+    </div>
+
     {% if type == 'dataset' %}
         {% set text_query = ungettext('{number} result', '{number} results', count) %}
         {% set text_query_none = _('No results found') %}
