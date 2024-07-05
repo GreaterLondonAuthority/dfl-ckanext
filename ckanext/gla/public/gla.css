@@ -1313,7 +1313,6 @@ p.accordion__empty.empty {
 }
 
 .search-header__order {
-    float: right;
     margin-bottom: 15px;
 }
 .search-header__order a {
