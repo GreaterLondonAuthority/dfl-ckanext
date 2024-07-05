@@ -20,15 +20,36 @@ def _empty_or_none(string):
     return string == "" or string is None
 
 def add_quality_to_search(search_params):
-    search_terms = search_params.get("q")
-    if _empty_or_none(search_terms) or search_terms == "*:*":
-        q = "*:*"
-    else:
-        q = f"text:{search_terms}"
-    query = f"{q} _val_:copy_data_quality^{data_quality_boost_factor} _val_:copy_dataset_boost^{dataset_boost_boost_factor}"
-
     return {**search_params,
-            "q": query}
+            # NOTE the bf parameter adds these additional boosts into
+            # the query/results. There are two numeric fields stored
+            # in our dataset records which admins can adjust to
+            # influence a datasets ranking
+            #
+            # These fields are weighted by the appropriate boost
+            # factors, and the computed boost is added via addition to
+            # the relevance score. It may be better in the future to
+            # move this to a multiplicative boosting approach, as the
+            # boosts will then become a function of text-match
+            # relevance, rather than being universally applied.
+            #
+            # A good article on the subject is here:
+            #
+            # https://nolanlawson.com/2012/06/02/comparing-boost-methods-in-solr/
+            # 
+            "bf": f"copy_data_quality^{data_quality_boost_factor} copy_dataset_boost^{dataset_boost_boost_factor}"
+            # NOTE
+            #
+            # The query field settings shown below are the CKAN
+            # defaults. If in the future it becomes desirable to tweak
+            # the importance of these fields for relevance, this line
+            # can be uncommented and the values can be changed.
+            #
+            # Note also that the text field contains a large amount of
+            # metadata copied from other fields in a stemmed form.
+
+            # "qf":"name^4 title^4 tags^2 groups^2 text"
+            }
 
 @toolkit.side_effect_free
 def debug(context, data_dict={}):
