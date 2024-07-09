@@ -20,7 +20,7 @@ def _empty_or_none(string):
     return string == "" or string is None
 
 def add_quality_to_search(search_params):
-    return {**search_params,
+    return {**search_params
             # NOTE the bf parameter adds these additional boosts into
             # the query/results. There are two numeric fields stored
             # in our dataset records which admins can adjust to
@@ -37,7 +37,8 @@ def add_quality_to_search(search_params):
             #
             # https://nolanlawson.com/2012/06/02/comparing-boost-methods-in-solr/
             # 
-            "bf": f"copy_data_quality^{data_quality_boost_factor} copy_dataset_boost^{dataset_boost_boost_factor}"
+            ,"bf": f"copy_data_quality^{data_quality_boost_factor} copy_dataset_boost^{dataset_boost_boost_factor}"
+
             # NOTE
             #
             # The query field settings shown below are the CKAN
@@ -48,7 +49,7 @@ def add_quality_to_search(search_params):
             # Note also that the text field contains a large amount of
             # metadata copied from other fields in a stemmed form.
 
-            # "qf":"name^4 title^4 tags^2 groups^2 text"
+            #,"qf":"name^4 title^4 tags^2 groups^2 text"
             }
 
 @toolkit.side_effect_free
