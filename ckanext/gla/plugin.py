@@ -22,7 +22,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         toolkit.add_template_directory(config_, "templates")
         toolkit.add_public_directory(config_, "public")
         toolkit.add_resource("assets", "gla")
-        custom_fields.add_copy_fields()
+        custom_fields.add_solr_config()
 
     # IAuthFunctions
     def get_auth_functions(self):

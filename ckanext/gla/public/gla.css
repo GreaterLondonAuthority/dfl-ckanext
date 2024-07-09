@@ -514,6 +514,18 @@ input.search.form-control+.input-group-btn .btn {
     border-radius: 0 6px 6px 0;
 }
 
+.search-form .search-input-group {
+    margin-bottom: 0.25rem;
+}
+
+.dfl-result-count {
+    margin-bottom: 0.5rem;
+}
+
+.dfl-hint {
+    margin-bottom: 0.5rem;
+}
+
 /* Forms */
 
 .form-control {
@@ -1313,7 +1325,6 @@ p.accordion__empty.empty {
 }
 
 .search-header__order {
-    float: right;
     margin-bottom: 15px;
 }
 .search-header__order a {

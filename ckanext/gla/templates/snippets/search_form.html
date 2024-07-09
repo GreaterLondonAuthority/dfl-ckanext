@@ -1,7 +1,7 @@
 {% import 'macros/form.html' as form %}
 
 {% set placeholder = 'Please enter a search term e.g. environment' if type == 'dataset' else 'Search {type}s...'.format(type=type) %}
-{% set sorting = [(_('Relevance'), 'score desc'), (_('Last Modified'), 'metadata_modified desc')] %}
+{% set sorting = [(_('Relevance'), 'score desc'), (_('Last Modified'), 'metadata_modified desc'), (_('Name (A-Z)'), 'dfl_title_sort asc'), (_('Name (Z-A)'), 'dfl_title_sort desc')] %}
 {% set search_class = search_class if search_class else 'search-giant' %}
 {% set no_bottom_border = no_bottom_border if no_bottom_border else false %}
 {% set form_id = form_id if form_id else false %}
@@ -18,9 +18,22 @@
         {% endblock %}
         </div>
     </div>
+
+{% block search_input %}
+<div class="input-group search-input-group">
+    <input aria-label="{% block header_site_search_label %}{{ placeholder }}{% endblock %}" id="field-giant-search" type="text" class="form-control input-lg" name="q" value="{{ query }}" autocomplete="off" placeholder="{{ placeholder }}">
+    {% block search_input_button %}
+    <span class="input-group-btn">
+    <button class="btn btn-default btn-lg" type="submit" value="search" aria-label="{{_('Submit')}}">
+        <i class="fa fa-search"></i>
+    </button>
+    </span>
+    {% endblock %}
+</div>
+{% endblock %}
     <div class="search-header__order">
         {% block search_sortby %}
-        {% if sorting %}
+        {% if sorting and type == 'dataset' %}
         <label style="pointer-events:none;" id="order-by-label">{{ _('Order by') }}</label>
               {% for label, value in sorting %}
                 {% if label and value %}
@@ -38,18 +51,6 @@
       {% endblock %}
     </div>
 
-{% block search_input %}
-<div class="input-group search-input-group">
-    <input aria-label="{% block header_site_search_label %}{{ placeholder }}{% endblock %}" id="field-giant-search" type="text" class="form-control input-lg" name="q" value="{{ query }}" autocomplete="off" placeholder="{{ placeholder }}">
-    {% block search_input_button %}
-    <span class="input-group-btn">
-    <button class="btn btn-default btn-lg" type="submit" value="search" aria-label="{{_('Submit')}}">
-        <i class="fa fa-search"></i>
-    </button>
-    </span>
-    {% endblock %}
-</div>
-{% endblock %}
 
   {% block search_search_fields %}
     {% if fields -%}

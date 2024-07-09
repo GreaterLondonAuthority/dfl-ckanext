@@ -61,7 +61,7 @@ custom_dataset_fields = {
 
 fields_to_copy = {
     "extras_data_quality": {"type": "int", "name": "copy_data_quality"},
-    "extras_dataset_boost": {"type": "double", "name": "copy_dataset_boost"},
+    "extras_dataset_boost": {"type": "double", "name": "copy_dataset_boost"}
 }
 
 
@@ -90,6 +90,14 @@ def add_field(field_name, field_type):
     if not response.status_code == 200 and response_json.get("responseHeader", {}).get("status", -1) == 0:
         raise Exception("Failed to add field", {"name": field_name, "error": response_json})
 
+def add_schema(field_config):
+    api_url = f"{solr_endpoint}/schema"
+    response = requests.post(api_url, json=field_config)
+    response_json = response.json()
+    if not response.status_code == 200 and response_json.get("responseHeader", {}).get("status", -1) == 0:
+        raise Exception("Failed to add field type", {"error": response_json})
+
+
 def add_copy_field(from_field, to_field):
     copy_field_config = {
         "add-copy-field": {
@@ -111,3 +119,48 @@ def add_copy_fields():
         if not field_exists(new_field):
             add_field(new_field, new_field_conf["type"])
             add_copy_field(field, new_field)
+
+def add_solr_config():
+    if not field_exists('dfl_title_sort'):
+        add_schema({
+            "add-field-type": {
+            "name": "dfl_sortable_text_field",
+            "class": "solr.TextField",
+            "sortMissingLast": True,
+            "multiValued": False,
+            "analyzer": {
+                "charFilters": [
+                    # If we need handle accented characters
+                    # differently we may want to uncomment a
+                    # configuration like this, and inject the
+                    # appropriate character mapping file into the
+                    # container. 
+                    # 
+                    # { "class":
+                    # "solr.MappingCharFilterFactory", "mapping":
+                    # "mapping-ISOLatin1Accent.txt" },
+                    {
+                        "class": "solr.PatternReplaceCharFilterFactory",
+                        "pattern": "[^a-zA-Z0-9]",
+                        "replacement": ""
+                    }
+                ],
+                "tokenizer": {
+                    "class": "solr.KeywordTokenizerFactory"
+                },
+                "filters": [
+                    {
+                        "class": "solr.LowerCaseFilterFactory"
+                    }
+                ]
+            }
+        }})
+
+        add_schema({"add-field": {"name": "dfl_title_sort",
+                                  "type": "dfl_sortable_text_field"}})
+
+        add_schema({"add-copy-field": {"source": "title",
+                                       "dest": ["dfl_title_sort"]}})
+
+    add_copy_fields()
+
