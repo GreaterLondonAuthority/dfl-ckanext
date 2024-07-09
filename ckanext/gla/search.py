@@ -39,6 +39,23 @@ def add_quality_to_search(search_params):
             # 
             ,"bf": f"copy_data_quality^{data_quality_boost_factor} copy_dataset_boost^{dataset_boost_boost_factor}"
 
+            # CKANs minimum match default of "2<-1 5<80%"
+            # which means
+            #
+            # - if there are two or fewer query terms both are
+            #   required
+            #
+            # - if there are between 3 and 5 clause all but one term
+            #   is required
+            #
+            # - if there are more than 5 clauses 80% are required
+            #, "mm": "2<-1 5<80%"
+
+            # Override minimum match to require 100% of terms to
+            # match. This essentially makes simple text search always
+            # subtractive (adding more search terms to an existing
+            # query will never return more results)
+            ,"mm": 100
             # NOTE
             #
             # The query field settings shown below are the CKAN
