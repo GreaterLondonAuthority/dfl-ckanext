@@ -55,7 +55,14 @@
                         {"label": _('Created'), "datetime": res.created},
                         {"label": _('Format'), "text": format},
                         {"label": _('License'), "text": pkg.license_title, "href": pkg.license_url},
-                        {"label": _('Size'), "text": h.SI_number_span(res.size) if res.size }]
+                        {"label": _('Size'), "text": h.SI_number_span(res.size) if res.size },
+                        {"label": "HTTP status", "text": res.http_status},
+                        {"label": _('Last check'), "datetime": res.last_check},
+                        {"label": "Resource hash", "text": res.resource_hash},
+                        {"label": "MIME type", "text": res.mime_type},
+                        {"label": "Category", "text": res.resource_category},
+                        {"label": "Validity start", "datetime": res.validity_start},
+                        {"label": "Validity end", "datetime": res.validity_end}]
             %}
         </div>
         {% endblock %}

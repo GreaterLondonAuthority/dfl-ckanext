@@ -69,11 +69,13 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def create_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).create_package_schema()
         schema.update(custom_fields.custom_dataset_fields)
+        schema["resources"].update(custom_fields.custom_resource_fields)
         return schema
 
     def update_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).update_package_schema()
         schema.update(custom_fields.custom_dataset_fields)
+        schema["resources"].update(custom_fields.custom_resource_fields)
         return schema
 
     def show_package_schema(self) -> Schema:
@@ -92,6 +94,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             ]
 
         })
+        schema["resources"].update(custom_fields.custom_resource_fields)
         return schema
 
     def is_fallback(self):
