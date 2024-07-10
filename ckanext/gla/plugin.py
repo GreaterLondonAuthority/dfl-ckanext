@@ -51,6 +51,13 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def after_resource_delete(self, ctx, resources):
         timestamps.set_to_now(ctx, resources)
 
+
+    def after_dataset_search(self, search_results, search_params):
+        for result in search_results['results']:
+            result['total_file_size'] = sum(item['size'] for item in result['resources'] if item and item['size'] is not None)
+ 
+        return search_results
+        
     # ITemplateHelpers
     def get_helpers(self):
         return helpers.get_helpers()
@@ -105,6 +112,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return OrderedDict([("res_format", facets_dict["res_format"]),
                                ("organization", facets_dict["organization"]),
                                ("project_name", toolkit._("Projects")),
+                               ("private", toolkit._("private")),
                                # Entry type is disabled for now as the value is null for harvested datasets
                                # The filter works, so enabling it will allow us to filter for datasets with
                                # the field set, either by manual edit, script, or updates to harvester
