@@ -92,9 +92,6 @@ Example:
         {% endblock %}
       </h2>
       <div class="dataset-last-updated gla-informational">
-          {% if last_updated %}
-            Updated {{h.localised_nice_date(h.date_str_to_datetime(last_updated))}}
-          {% endif %}
           <span class="small-follow-button">
               {{ h.follow_button('dataset', package.id) }}
           </span>
@@ -102,7 +99,9 @@ Example:
 
 
     </div>
-    <div class="dataset-source gla-informational">Published by {{package.organization.title|safe}}{% if ns.harvest_source_title %}, hosted by {{ns.harvest_source_title}}{% endif %}</div>
+    <div class="dataset-source gla-informational">Published by {{package.organization.title}}
+      {% if last_updated %} • Updated {{h.localised_nice_date(h.date_str_to_datetime(last_updated))}} {% endif %}
+    </div>
     {% endblock %}
     {% block notes %}
       {% if package.search_description %}
