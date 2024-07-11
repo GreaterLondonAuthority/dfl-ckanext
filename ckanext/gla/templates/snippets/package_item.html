@@ -121,7 +121,7 @@ Example:
       {% else %}
         {{ package.number_of_files }} files
       {% endif %}
-      {% if resources_formats|length > 0 %} ({{resources_formats|join(", ") | lower}}) {% endif %} • {% if package.total_file_size != 0 %} {{ h.SI_number_span(package.total_file_size) }} {% else %} Unknown Filesize {% endif %}
+      {% if resources_formats|length > 0 %} ({{resources_formats|sort|join(", ") | lower}}) {% endif %} • {% if package.total_file_size != 0 %} {{ h.SI_number_span(package.total_file_size) }} {% else %} Unknown Filesize {% endif %}
     </div>
   </div>
 
