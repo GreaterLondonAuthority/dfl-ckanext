@@ -41,7 +41,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         search_params.update(
             {
                 "hl": "on",
-                "hl.fl": "title,notes,search_description,organization",
+                "hl.fl": "title,notes,search_description",
                 "hl.fragsize": 200,
                 "hl.simple.pre": "[[",
                 "hl.simple.post": "]]",

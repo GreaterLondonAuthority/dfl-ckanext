@@ -48,8 +48,9 @@ def add_quality_to_search(search_params):
             #
             # Note also that the text field contains a large amount of
             # metadata copied from other fields in a stemmed form.
-
-            #,"qf":"name^4 title^4 tags^2 groups^2 text"
+            #
+            #,"qf":"name^4 title^4 tags^2 groups^2 text" # CKAN Defaults
+            ,"qf":"title^4,search_description^2,notes" # limit matching of text queries to agreed fields
             }
 
 @toolkit.side_effect_free
