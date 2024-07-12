@@ -68,8 +68,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             return highlighted_field
 
         for result in search_results["results"]:
-            index_id = result.get("index_id", False)
+            result['total_file_size'] = sum(item['size'] for item in result['resources'] if item and item['size'] is not None)
 
+            index_id = result.get("index_id", False)
             if index_id and index_id in search_results["highlighting"]:
                 highlighted_title = _get_highlighted_field("title", index_id)
                 highlighted_notes = _get_highlighted_field("notes", index_id)

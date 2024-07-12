@@ -18,7 +18,7 @@ Example:
 {% set resources_formats = h.dict_list_reduce(package.resources, 'format')%}
 
 {# Workaround in case harvest_source_title doesn't get pulled out of extras #}
-{# variables set inside for loops dont exist outside the loop: https://jinja.palletsprojects.com/en/3.0.x/templates/#assignments  #} 
+{# variables set inside for loops dont exist outside the loop: https://jinja.palletsprojects.com/en/3.0.x/templates/#assignments  #}
 {% set ns = namespace(harvest_source_title=package.harvest_source_title) %}
 {% if harvest_source_title|length == 0 %}
   {% for extra in package.extras %}
@@ -122,12 +122,12 @@ Example:
       {% else %}
         Dataset
       {% endif %}
-      {% if resources_formats|length > 0 %} with {{resources_formats|join(", ") | lower}} {% endif %}
+      {% if resources_formats|length > 0 %} with {{resources_formats|join(", ") | lower}} {% endif %} | {% if package.total_file_size != 0 %} Total File Size {{ h.SI_number_span(package.total_file_size) }} {% else %} Unknown Total Filesize {% endif %}
     </div>
   </div>
 
 
-  
+
   {# {% block resources %}
     {% if package.resources and not hide_resources %}
     {% block resources_outer %}
