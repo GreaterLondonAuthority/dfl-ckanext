@@ -1374,6 +1374,12 @@ li.dataset-item {
     display: block;
 }
 
+.dataset-search-highlight {
+    border-radius: 1px;
+    background: #ffff73;
+    box-shadow: 0 0 0 3px #ffff73;
+}
+
 .dataset-notes {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;

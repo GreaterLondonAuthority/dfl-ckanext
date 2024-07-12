@@ -10,11 +10,9 @@ Example:
 {% snippet 'snippets/package_item.html', package=c.datasets[0] %}
 
 #}
+
 {% set title = package.title or package.name %}
-{% set notes = h.markdown_extract(package.search_description, extract_length=0) %}
-{% if notes|length == 0 %}
-  {% set notes = h.markdown_extract(package.notes, extract_length=180) %}
-{% endif%}
+
 {% set last_updated = h.last_updated(package) %}
 
 {% set resources_formats = h.dict_list_reduce(package.resources, 'format')%}
@@ -81,7 +79,7 @@ Example:
                                                 'tags': '{{ request.args["tags"] }}',
                                                 'format': '{{ request.args["res_format"] }}',
                                                 'licence': '{{ request.args["license_id"] }}'})">
-          {{title|truncate(80)}}</a>
+          {{title|safe}}</a>
         {% if package.archived == "true" %}[Archived]{% endif %}
         {% endblock %}
         {% block heading_meta %}
@@ -104,15 +102,19 @@ Example:
 
 
     </div>
-    <div class="dataset-source gla-informational">Published by {{package.organization.title}}{% if ns.harvest_source_title %}, hosted by {{ns.harvest_source_title}}{% endif %}</div>
+    <div class="dataset-source gla-informational">Published by {{package.organization.title|safe}}{% if ns.harvest_source_title %}, hosted by {{ns.harvest_source_title}}{% endif %}</div>
     {% endblock %}
     {% block notes %}
-    {% if notes %}
-    <div class="dataset-notes">{{ notes|urlize }}</div>
-    {% else %}
-    <p class="empty">{{ h.humanize_entity_type('package', package.type, 'no description') or _("There is no
-            description for this dataset") }}</p>
-    {% endif %}
+      {% if package.search_description %}
+        <div class="dataset-notes">
+        {% for substring in package.search_description %}
+          {{substring|safe}}
+        {% endfor %}
+        </div>
+      {% else %}
+      <p class="empty">{{ h.humanize_entity_type('package', package.type, 'no description') or _("There is no
+              description for this dataset") }}</p>
+      {% endif %}
     {% endblock %}
     <div class="gla-informational">
       {% if package.entry_type%}

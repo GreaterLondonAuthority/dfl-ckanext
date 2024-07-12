@@ -26,6 +26,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
     # sometimes context['schema'] is None
     schema = context.get("schema") or ckan.logic.schema.default_package_search_schema()
     data_dict, errors = _validate(data_dict, schema, context)
+
     # put the extras back into the data_dict so that the search can
     # report needless parameters
     data_dict.update(data_dict.get("__extras", {}))
@@ -62,6 +63,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
     results: list[dict[str, Any]] = []
     facets: dict[str, Any] = {}
     count = 0
+    highlighting: dict[str, Any] = {}
 
     if not abort:
         if asbool(data_dict.get("use_default_schema")):
@@ -72,7 +74,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
         result_fl = data_dict.get("fl")
         if not result_fl:
-            data_dict["fl"] = "id {0}".format(data_source)
+            data_dict["fl"] = "id index_id {0}".format(data_source)
         else:
             data_dict["fl"] = " ".join(result_fl)
 
@@ -126,6 +128,10 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
                 if package_dict:
                     # the package_dict still needs translating when being viewed
                     package_dict = json.loads(package_dict)
+
+                    if package.get("index_id", False):
+                        package_dict["index_id"] = package["index_id"]
+
                     if context.get("for_view"):
                         for item in plugins.PluginImplementations(
                             plugins.IPackageController
@@ -140,12 +146,14 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
         count = query.count
         facets = query.facets
+        highlighting = query.highlighting
 
     search_results: dict[str, Any] = {
         "count": count,
         "facets": facets,
         "results": results,
         "sort": data_dict["sort"],
+        "highlighting": highlighting,
     }
 
     # create a lookup table of group name to title for all the groups and

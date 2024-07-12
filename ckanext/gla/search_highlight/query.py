@@ -12,6 +12,10 @@ from werkzeug.datastructures import MultiDict
 
 log = logging.getLogger(__name__)
 
+VALID_SOLR_PARAMETERS.update(
+    ["hl", "hl.fl", "hl.fragsize", "hl.simple.pre", "hl.simple.post"]
+)
+
 
 class PatchedPackageSearchQuery(PackageSearchQuery):
     def run(
@@ -151,4 +155,10 @@ class PatchedPackageSearchQuery(PackageSearchQuery):
         for field, values in self.facets.items():
             self.facets[field] = dict(zip(values[0::2], values[1::2]))
 
+        # Get Solr highlighting
+        self.highlighting = solr_response.highlighting
+
         return {"results": self.results, "count": self.count}
+
+
+_QUERIES["package"] = PatchedPackageSearchQuery
