@@ -18,7 +18,7 @@ Example:
 {% set resources_formats = h.dict_list_reduce(package.resources, 'format')%}
 
 {# Workaround in case harvest_source_title doesn't get pulled out of extras #}
-{# variables set inside for loops dont exist outside the loop: https://jinja.palletsprojects.com/en/3.0.x/templates/#assignments  #} 
+{# variables set inside for loops dont exist outside the loop: https://jinja.palletsprojects.com/en/3.0.x/templates/#assignments  #}
 {% set ns = namespace(harvest_source_title=package.harvest_source_title) %}
 {% if harvest_source_title|length == 0 %}
   {% for extra in package.extras %}
@@ -92,9 +92,6 @@ Example:
         {% endblock %}
       </h2>
       <div class="dataset-last-updated gla-informational">
-          {% if last_updated %}
-            Updated {{h.localised_nice_date(h.date_str_to_datetime(last_updated))}}
-          {% endif %}
           <span class="small-follow-button">
               {{ h.follow_button('dataset', package.id) }}
           </span>
@@ -102,7 +99,9 @@ Example:
 
 
     </div>
-    <div class="dataset-source gla-informational">Published by {{package.organization.title|safe}}{% if ns.harvest_source_title %}, hosted by {{ns.harvest_source_title}}{% endif %}</div>
+    <div class="dataset-source gla-informational">Published by {{package.organization.title}}
+      {% if last_updated %} • Updated {{h.localised_nice_date(h.date_str_to_datetime(last_updated))}} {% endif %}
+    </div>
     {% endblock %}
     {% block notes %}
       {% if package.search_description %}
@@ -120,14 +119,14 @@ Example:
       {% if package.entry_type%}
         {{package.entry_type|capitalize}}
       {% else %}
-        Dataset
+        {{ package.number_of_files }} files
       {% endif %}
-      {% if resources_formats|length > 0 %} with {{resources_formats|join(", ") | lower}} {% endif %}
+      {% if resources_formats|length > 0 %} ({{resources_formats|sort|join(", ") | lower}}) {% endif %} • {% if package.total_file_size != 0 %} {{ h.SI_number_span(package.total_file_size) }} {% else %} Unknown Filesize {% endif %} • Expected update unknown
     </div>
   </div>
 
 
-  
+
   {# {% block resources %}
     {% if package.resources and not hide_resources %}
     {% block resources_outer %}
