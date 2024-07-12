@@ -7,7 +7,7 @@
     {% block secondary_content %}
     {{ super() }}
 
-    <!---- Figure out if there are filters enabled and show clear filters button if so-----!>
+    <!-- Figure out if there are filters enabled and show clear filters button if so -->
     {% set searchstate = namespace(filters_set=false) %}
     {% for filter_name in facet_titles.keys() %}
         {% if filter_name in request.args %}
