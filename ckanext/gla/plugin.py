@@ -194,13 +194,11 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             [
                 ("res_format", facets_dict["res_format"]),
                 ("organization", facets_dict["organization"]),
-                ("project_name", toolkit._("Projects")),
+                ("project_name", toolkit._("Projects"))
                 # Entry type is disabled for now as the value is null for harvested datasets
                 # The filter works, so enabling it will allow us to filter for datasets with
                 # the field set, either by manual edit, script, or updates to harvester
                 # ("entry_type", toolkit._("Type")),
-                ("harvest_source_title", toolkit._("Sources")),
-                ("license_id", facets_dict["license_id"]),
             ]
         )
 
