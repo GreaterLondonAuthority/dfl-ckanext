@@ -5,7 +5,8 @@
       <div class="row">
         <div class="col-md-8 footer-links">
           {% block footer_nav %}
-            <ul class="list-unstyled">
+          <ul class="list-unstyled">
+                {{ h.build_nav_main() }}
                 <li><a href="/about">Contact Us</a></li>
                 <li><a href="/about/data-governance-and-quality">Governance</a></li>
                 <li><a href="/about/data-quality-standards">Standards</a></li>
