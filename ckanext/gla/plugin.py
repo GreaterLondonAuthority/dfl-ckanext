@@ -38,6 +38,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def before_dataset_search(self, search_params):
         # Include showcases *and* datasets in the search results:
         # We only want Showcases to show up when there is a search query
+        search_params = search.add_quality_to_search(search_params)
         search_params.update(
             {
                 "hl": "on",
@@ -68,8 +69,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             return highlighted_field
 
         for result in search_results["results"]:
-            result['total_file_size'] = sum(item['size'] for item in result['resources'] if item and item['size'] is not None)
-            result['number_of_files'] = len(result['resources'])
+            resources = result.get('resources',[])
+            result['total_file_size'] = sum(item['size'] for item in resources if item and item['size'] is not None)
+            result['number_of_files'] = len(resources)
 
             index_id = result.get("index_id", False)
             if index_id and index_id in search_results["highlighting"]:
