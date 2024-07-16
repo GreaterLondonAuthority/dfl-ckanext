@@ -38,6 +38,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def before_dataset_search(self, search_params):
         # Include showcases *and* datasets in the search results:
         # We only want Showcases to show up when there is a search query
+        search_params = search.add_quality_to_search(search_params)
         search_params.update(
             {
                 "hl": "on",
