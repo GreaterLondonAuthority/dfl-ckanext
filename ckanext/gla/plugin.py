@@ -45,6 +45,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 "hl.method": "unified",
                 "hl.fragsizeIsMinimum": "false",
                 "hl.fragsize": 200,
+                "hl.bs.type": "WORD",
                 "hl.fl": "title,notes,search_description",
                 "hl.simple.pre": "[[",
                 "hl.simple.post": "]]",
