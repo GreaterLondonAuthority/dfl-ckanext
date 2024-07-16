@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 
 favourites = Blueprint("favourites_blueprint", __name__)
 users = Blueprint("users_blueprint", __name__)
-about = Blueprint("about_blueprint", __name__, url_prefix="/about")
 search_log_download = Blueprint("search_log_download_blueprint", __name__)
 undelete = Blueprint("undelete_blueprint", __name__)
 
@@ -137,19 +136,6 @@ def view_user(id):
 users.add_url_rule("/user/<id>", methods=["GET"], view_func=view_user)
 ## Download routes:
 
-
-def view_about():
-    return tk.render("about/index.html")
-
-
-def get_about_page(slug):
-    return tk.render(f"about/{slug}.html")
-
-
-about.add_url_rule("", methods=["GET"], view_func=view_about)
-about.add_url_rule("/<slug>", methods=["GET"], view_func=get_about_page)
-
-
 def get_server_search_logs():
     if not current_user.is_authenticated:
         base.abort(403, _("Not authorized to see this page"))
@@ -191,4 +177,4 @@ lang_redirect.add_url_rule(
 )
 
 def get_blueprints():
-    return [favourites, users, about, search_log_download, undelete, lang_redirect]
+    return [favourites, users, search_log_download, undelete, lang_redirect]
