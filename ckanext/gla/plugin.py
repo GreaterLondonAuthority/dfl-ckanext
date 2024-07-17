@@ -195,6 +195,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 ("res_format", facets_dict["res_format"]),
                 ("organization", facets_dict["organization"]),
                 ("project_name", toolkit._("Projects")),
+                ("extras_london_smallest_geography", toolkit._("Smallest Geography")),
+                ("extras_update_frequency", toolkit._("Update Frequency")),
                 # Entry type is disabled for now as the value is null for harvested datasets
                 # The filter works, so enabling it will allow us to filter for datasets with
                 # the field set, either by manual edit, script, or updates to harvester
