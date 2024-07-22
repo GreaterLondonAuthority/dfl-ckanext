@@ -14,8 +14,8 @@
     #}
     <h1>
         {% if type == 'dataset' %}
-        {% set text_query = ungettext('Search result for "{query}"', 'Search results for "{query}"', count) %}
-        {% set text_query_none = _('Search results for "{query}"') %}
+        {% set text_query = ungettext('Search results for {query}', 'Search results for {query}', count) %}
+        {% set text_query_none = _('Search results for {query}') %}
         {% set text_no_query = ungettext('Search {number} dataset', 'Search {number} datasets', count) %}
         {% set text_no_query_none = _('No results found') %}
 
