@@ -1,29 +1,42 @@
-{% ckan_extends %}
-
-{% block facet_list_items %}
+{% block facet_list %}
+{% set hide_empty = true %}
 {% with items = items or h.get_facet_items_dict(name, search_facets) %}
+{% if items or not hide_empty %}
+
+{% block facet_list_item %}
+<section class="module module-narrow module-shallow">
+    {% block facet_list_heading %}
+    <h2 class="module-heading-filter">
+        {{ title }}
+    </h2>
+    {% endblock %}
+
+    {% block facet_list_items %}
+    {% with items = items or h.get_facet_items_dict(name, search_facets) %}
     {% if items %}
 <nav aria-label="{{ title }}">
-    <ul class="list-unstyled nav nav-simple nav-facet">
-    {% for item in items %}
+    <ul class="list-unstyled nav nav-filter">
+        {% for item in items %}
         {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
         {% set label = label_function(item) if label_function else item.display_name %}
         {% set label_truncated = label|truncate(30, True) if not label_function else label %}
         {% set count = count_label(item['count']) if count_label else ('%d' % item['count']) %}
-        <li class="nav-item {% if item.active %} active{% endif %}">
-    <a href="{{ href }}" title="{{ label if label != label_truncated else '' }}">
-        <span class="item-label">{{ label_truncated }}</span>
-        <span class="hidden separator"> - </span>
-        <span class="item-count badge">{{ count }}</span>
+        {% set id = item.name %}
 
-        {% if item.active %}<span class="facet-close"> <i class="fa fa-solid fa-circle-xmark"></i></span>{% endif %}
-    </a>
-        </li>
-    {% endfor %}
-    </ul>
-</nav>
+        <li class="nav-item">
+            <a href="{{ href }}" title="{{ label if label != label_truncated else '' }}">
+                <input class="checkbox-filter" type="checkbox" id="{{ id }}" onchange="window.location.href='{{ href }}'" name="{{ label }}"
+                    {% if item.active %} checked{% endif %}>
+                <label for="{{ id }}" class="label-filter"> {{ label }} ({{ count }})</label>
 
-<p class="module-footer">
+                <!-- {% if item.active %}<span class="facet-close"> <i class="fa fa-solid fa-circle-xmark"></i></span>{% endif %} -->
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </nav>
+
+    <p class="module-footer module-footer-filter">
     {% if h.get_param_int('_%s_limit' % name) %}
     {% if h.has_more_facets(name, search_facets) %}
         <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show more {facet_type}').format(facet_type=title.lower()) }}</a>
@@ -31,9 +44,14 @@
     {% else %}
     <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show only popular {facet_type}').format(facet_type=title.lower()) }}</a>
     {% endif %}
-</p>
+    </p>
     {% else %}
-<p class="module-content empty">{{ _('There are no {facet_type} that match this search').format(facet_type=title.lower()) }}</p>
+    <p class="module-content empty">{{ _('No {facet_type} filters').format(facet_type=title.lower()) }}</p>
     {% endif %}
+    {% endwith %}
+    {% endblock %}
+</section>
+{% endblock %}
+{% endif %}
 {% endwith %}
 {% endblock %}
