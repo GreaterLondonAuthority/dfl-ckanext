@@ -1688,3 +1688,7 @@ text-decoration: none;
 .fa-circle-xmark-black {
 color: var(--t-colors-black);
 }
+
+.facet-toggle {
+    color: var(--t-colors-pink);
+}
