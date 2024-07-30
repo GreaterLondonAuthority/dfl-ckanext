@@ -1692,3 +1692,7 @@ color: var(--t-colors-black);
 .facet-toggle {
     color: var(--t-colors-pink);
 }
+
+p.filter {
+    color: #767676;
+}

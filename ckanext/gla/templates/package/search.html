@@ -16,8 +16,8 @@
     {% endfor %}
 
     <h2 class="filter">Filter by:</h2>
+    <p class="filter">Filters narrow down results.</p>
     {% if searchstate.filters_set %}
-    <p>Filters narrow down results.</p>
 
     {% for filter_name in facet_titles.keys() %}
         {% with items = items or h.get_facet_items_dict(filter_name, search_facets) %}
@@ -35,7 +35,7 @@
             <a href={% url_for 'dataset_search', q=request.args.get("q"), sort=request.args.get("sort") %}>Clear filters</a>
         </p><hr>
     {% else %}
-    <p class="filter">No filters applied</p>
+    <p>No filters applied.</p>
     {% endif %}
     {{ super() }}
     {% endblock %}
