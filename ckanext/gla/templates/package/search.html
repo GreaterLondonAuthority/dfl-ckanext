@@ -5,9 +5,8 @@
 <aside class="secondary col-md-3">
     <div class="visually-hidden-focusable"><a href="#search-results">{{ _('Skip to results ') }}</a></div>
     {% block secondary_content %}
-    {{ super() }}
-
-    <!-- Figure out if there are filters enabled and show clear filters button if so -->
+    
+    <!-- Figure out if there are filters enabled and show filters section if so -->
     {% set searchstate = namespace(filters_set=false) %}
     {% for filter_name in facet_titles.keys() %}
         {% if filter_name in request.args %}
@@ -16,16 +15,29 @@
         {% endif %}
     {% endfor %}
 
+    <h2 class="filter">Filter by:</h2>
+    <p class="filter">Filters narrow down results.</p>
     {% if searchstate.filters_set %}
-        <hr>
-        <p style="padding-top: 25px;">
-            <a class="btn btn-default"
-            href={% url_for 'dataset_search', q=request.args.get("q"), sort=request.args.get("sort") %}
-            style="width: 100%;">
-                Clear filters
+
+    {% for filter_name in facet_titles.keys() %}
+        {% with items = items or h.get_facet_items_dict(filter_name, search_facets) %}
+        {% for item in items %}
+            {% if item.active != False %}
+            <a class="btn-filter" href="{{ h.remove_url_param(filter_name,value=item.name) }}">
+                {{facet_titles[filter_name]}}: <strong>{{item.display_name}}</strong>
+                    <i class="fa-solid fa-circle-xmark fa-circle-xmark-black"></i>    
             </a>
-        </p>
+            {% endif %}
+        {% endfor %} 
+        {% endwith %}
+    {% endfor %} 
+        <p style="padding-top:20px">
+            <a href={% url_for 'dataset_search', q=request.args.get("q"), sort=request.args.get("sort") %}>Clear filters</a>
+        </p><hr>
+    {% else %}
+    <p>No filters applied.</p>
     {% endif %}
+    {{ super() }}
     {% endblock %}
 </aside>
 {% endblock %}
