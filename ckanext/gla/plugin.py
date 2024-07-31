@@ -1,3 +1,4 @@
+import re
 from collections import OrderedDict
 from typing import Any
 
@@ -51,8 +52,22 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 "hl.simple.post": "]]",
             }
         )
-        return search_params
 
+        if "fq" in search_params:
+            pattern = r'res_format:"([^"]+)"'
+
+            def replacement_function(match):
+                # This function receives a match object and can return the replacement string
+                formatted_query = " OR ".join(
+                    [f'"{item}"' for item in match.group(1).split(" ") if item != "OR"]
+                )
+                return f"res_format:{formatted_query}"
+
+            search_params["fq"] = re.sub(
+                pattern, replacement_function, search_params["fq"]
+            )
+
+        return search_params
 
     # IPackageController
     def after_dataset_search(
@@ -72,9 +87,11 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             return highlighted_field
 
         for result in search_results["results"]:
-            resources = result.get('resources',[])
-            result['total_file_size'] = sum(item['size'] for item in resources if item and item['size'] is not None)
-            result['number_of_files'] = len(resources)
+            resources = result.get("resources", [])
+            result["total_file_size"] = sum(
+                item["size"] for item in resources if item and item["size"] is not None
+            )
+            result["number_of_files"] = len(resources)
 
             index_id = result.get("index_id", False)
             if index_id and index_id in search_results["highlighting"]:
@@ -92,7 +109,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 search_description = highlighted_search_description or result.get(
                     "search_description"
                 )
-                organization = highlighted_organization_title or result["organization"]["title"]
+                organization = (
+                    highlighted_organization_title or result["organization"]["title"]
+                )
 
                 # Fall back to notes if search_description is present but not highlighted
                 if search_description and "[[" in search_description:
@@ -109,18 +128,69 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 ).replace("]]", "</span>")
 
                 # Handle unclosed tags that flow into the next search result
-                sanitized_search_description = str(markdown_extract(search_description, extract_length=240))
+                sanitized_search_description = str(
+                    markdown_extract(search_description, extract_length=240)
+                )
                 sanitized_search_description_list = []
                 for substring in sanitized_search_description.split("[["):
                     if not substring:
                         continue
                     if "]]" in substring:
                         span_content, rest = substring.split("]]")
-                        sanitized_search_description_list.append(Markup(f'<span class="dataset-search-highlight">{span_content}</span>'))
-                        sanitized_search_description_list.append(markdown_extract(rest, extract_length=0))
+                        sanitized_search_description_list.append(
+                            Markup(
+                                f'<span class="dataset-search-highlight">{span_content}</span>'
+                            )
+                        )
+                        sanitized_search_description_list.append(
+                            markdown_extract(rest, extract_length=0)
+                        )
                     else:
-                        sanitized_search_description_list.append(markdown_extract(substring, extract_length=0))
+                        sanitized_search_description_list.append(
+                            markdown_extract(substring, extract_length=0)
+                        )
                 result["search_description"] = sanitized_search_description_list
+
+        if "res_format" in search_results["search_facets"]:
+            categories = {"items": []}
+            table_formats = ["csv", "xls", "xlsx", "tsv", "spreadsheet"]
+            report_formats = ["zip", "html", "htm", "pdf", "docx", "doc", "odw"]
+            geospatial_formats = ["geojson" "shp" "mbtiles" "kml"]
+
+            tables_format_item = {
+                "count": 0,
+                "display_name": "Tables",
+                "name": "CSV OR spreadsheet OR XLS OR XLSX OR TSV OR spreadsheet",
+            }
+            reports_format_item = {
+                "count": 0,
+                "display_name": "Reports",
+                "name": "ZIP OR HTML OR PDF OR DOCX OR DOC OR ODW",
+            }
+            geospatial_format_item = {
+                "count": 0,
+                "display_name": "Geospatial",
+                "name": "geojson OR shp OR mbtiles OR kml",
+            }
+
+            for format in search_results["search_facets"]["res_format"]["items"]:
+                if format["name"].lower() in table_formats:
+                    tables_format_item["count"] += format["count"]
+                elif format["name"].lower() in report_formats:
+                    reports_format_item["count"] += format["count"]
+                elif format["name"].lower() in geospatial_formats:
+                    geospatial_format_item["count"] += format["count"]
+                else:
+                    categories["items"].append(format)
+
+            if tables_format_item["count"] > 0:
+                categories["items"].append(tables_format_item)
+            if reports_format_item["count"] > 0:
+                categories["items"].append(reports_format_item)
+            if geospatial_format_item["count"] > 0:
+                categories["items"].append(geospatial_format_item)
+
+            search_results["search_facets"]["res_format"]["items"] = categories["items"]
 
         return search_results
 
@@ -199,8 +269,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 # The filter works, so enabling it will allow us to filter for datasets with
                 # the field set, either by manual edit, script, or updates to harvester
                 # ("entry_type", toolkit._("Type")),
-                ("harvest_source_title", toolkit._("Sources")),
-                ("license_id", facets_dict["license_id"]),
+                ("entry_type", toolkit._("Smallest geography")),
+                ("harvest_source_title", toolkit._("Update frequency")),
             ]
         )
 
