@@ -43,7 +43,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         search_params.update(
             {
                 "hl": "on",
-                "hl.method": "unified",
+                "hl.method": "original", # Note: Used to be "unified" which is efficient for large documents but an issue came up highlight matched values in title.
                 "hl.fragsizeIsMinimum": "false",
                 "hl.fragsize": 200,
                 "hl.bs.type": "WORD",
