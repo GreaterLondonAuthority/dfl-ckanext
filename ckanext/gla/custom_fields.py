@@ -161,6 +161,8 @@ def add_solr_config():
 
         add_schema({"add-copy-field": {"source": "title",
                                        "dest": ["dfl_title_sort"]}})
+        add_schema({"add-field": {"name": "frequency",
+                                    "type": "text"}})
 
     add_copy_fields()
 

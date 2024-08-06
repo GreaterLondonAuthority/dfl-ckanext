@@ -165,7 +165,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             reports_format_item = {
                 "count": 0,
                 "display_name": "Reports",
-                "name": "ZIP OR HTML OR PDF OR DOCX OR DOC OR ODW",
+                "name": "ZIP OR HTML OR pdf OR DOCX OR DOC OR ODW",
             }
             geospatial_format_item = {
                 "count": 0,
@@ -247,7 +247,11 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 "harvest_source_title": [
                     toolkit.get_converter("convert_from_extras"),
                     toolkit.get_validator("ignore_missing"),
-                ]
+                ],
+                "harvest_source_frequency": [
+                    toolkit.get_converter("convert_from_extras"),
+                    toolkit.get_validator("ignore_missing"),
+                ],
             }
         )
         return schema
@@ -269,8 +273,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 # The filter works, so enabling it will allow us to filter for datasets with
                 # the field set, either by manual edit, script, or updates to harvester
                 # ("entry_type", toolkit._("Type")),
-                ("entry_type", toolkit._("Smallest geography")),
-                ("harvest_source_title", toolkit._("Update frequency")),
+                ("harvest_source_borough_name", toolkit._("Smallest geography")),
+                ("harvest_source_frequency", toolkit._("Update frequency")),
             ]
         )
 
