@@ -1,6 +1,6 @@
 import re
 from collections import OrderedDict
-from typing import Any
+from typing import Any, Literal
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
@@ -10,6 +10,76 @@ from markupsafe import Markup
 
 from . import auth, custom_fields, helpers, search, timestamps, views
 from .search_highlight import action, query
+
+TABLE_FORMATS = [
+    "csv",
+    "xls",
+    "xlsx",
+    "xlsm",
+    "tsv",
+    "spreadsheet",
+    "tab",
+    "google-sheet",
+]
+REPORT_FORMATS = ["zip", "html", "htm", "pdf", "docx", "doc", "odw"]
+GEOSPATIAL_FORMATS = ["geojson" "shp" "mbtiles" "kml"]
+
+
+def _get_aggregate_res_format_query(
+    category: Literal["table", "report", "geospatial"]
+) -> str:
+    if category == "table":
+        query = " OR ".join([f'"{item}"' for item in TABLE_FORMATS])
+    elif category == "report":
+        query = " OR ".join([f'"{item}"' for item in REPORT_FORMATS])
+    elif category == "geospatial":
+        query = " OR ".join([f'"{item}"' for item in GEOSPATIAL_FORMATS])
+
+    return f"res_format:{query}"
+
+
+def _calculate_res_format_totals(search_results: dict[str, Any]):
+    categories = {"items": []}
+
+    tables_format_item = {
+        "count": 0,
+        "display_name": "Tables",
+        "name": "table",
+    }
+    reports_format_item = {
+        "count": 0,
+        "display_name": "Reports",
+        "name": "report",
+    }
+    geospatial_format_item = {
+        "count": 0,
+        "display_name": "Geospatial",
+        "name": "geospatial",
+    }
+
+    skipped_formats = set()
+    for format in search_results["search_facets"]["res_format"]["items"]:
+        if format["name"].lower() in TABLE_FORMATS:
+            tables_format_item["count"] += format["count"]
+            continue
+        if format["name"].lower() in REPORT_FORMATS:
+            reports_format_item["count"] += format["count"]
+            continue
+        if format["name"].lower() in GEOSPATIAL_FORMATS:
+            geospatial_format_item["count"] += format["count"]
+            continue
+
+        skipped_formats.add(format["name"].lower())
+        categories["items"].append(format)
+
+    if tables_format_item["count"] > 0:
+        categories["items"].append(tables_format_item)
+    if reports_format_item["count"] > 0:
+        categories["items"].append(reports_format_item)
+    if geospatial_format_item["count"] > 0:
+        categories["items"].append(geospatial_format_item)
+
+    return categories["items"]
 
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
@@ -54,18 +124,28 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         )
 
         if "fq" in search_params:
-            pattern = r'res_format:"([^"]+)"'
-
-            def replacement_function(match):
-                # This function receives a match object and can return the replacement string
-                formatted_query = " OR ".join(
-                    [f'"{item}"' for item in match.group(1).split(" ") if item != "OR"]
+            search_params["fq_list"] = []
+            if 'res_format:"table"' in search_params["fq"]:
+                search_params["fq"] = search_params["fq"].replace(
+                    'res_format:"table"', ""
                 )
-                return f"res_format:{formatted_query}"
-
-            search_params["fq"] = re.sub(
-                pattern, replacement_function, search_params["fq"]
-            )
+                search_params["fq_list"].append(
+                    _get_aggregate_res_format_query("table")
+                )
+            if 'res_format:"report"' in search_params["fq"]:
+                search_params["fq"] = search_params["fq"].replace(
+                    'res_format:"report"', ""
+                )
+                search_params["fq_list"].append(
+                    _get_aggregate_res_format_query("report")
+                )
+            if 'res_format:"geospatial"' in search_params["fq"]:
+                search_params["fq"] = search_params["fq"].replace(
+                    'res_format:"geospatial"', ""
+                )
+                search_params["fq_list"].append(
+                    _get_aggregate_res_format_query("geospatial")
+                )
 
         return search_params
 
@@ -152,45 +232,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 result["search_description"] = sanitized_search_description_list
 
         if "res_format" in search_results["search_facets"]:
-            categories = {"items": []}
-            table_formats = ["csv", "xls", "xlsx", "tsv", "spreadsheet"]
-            report_formats = ["zip", "html", "htm", "pdf", "docx", "doc", "odw"]
-            geospatial_formats = ["geojson" "shp" "mbtiles" "kml"]
-
-            tables_format_item = {
-                "count": 0,
-                "display_name": "Tables",
-                "name": "CSV OR spreadsheet OR XLS OR XLSX OR TSV OR spreadsheet",
-            }
-            reports_format_item = {
-                "count": 0,
-                "display_name": "Reports",
-                "name": "ZIP OR HTML OR pdf OR DOCX OR DOC OR ODW",
-            }
-            geospatial_format_item = {
-                "count": 0,
-                "display_name": "Geospatial",
-                "name": "geojson OR shp OR mbtiles OR kml",
-            }
-
-            for format in search_results["search_facets"]["res_format"]["items"]:
-                if format["name"].lower() in table_formats:
-                    tables_format_item["count"] += format["count"]
-                elif format["name"].lower() in report_formats:
-                    reports_format_item["count"] += format["count"]
-                elif format["name"].lower() in geospatial_formats:
-                    geospatial_format_item["count"] += format["count"]
-                else:
-                    categories["items"].append(format)
-
-            if tables_format_item["count"] > 0:
-                categories["items"].append(tables_format_item)
-            if reports_format_item["count"] > 0:
-                categories["items"].append(reports_format_item)
-            if geospatial_format_item["count"] > 0:
-                categories["items"].append(geospatial_format_item)
-
-            search_results["search_facets"]["res_format"]["items"] = categories["items"]
+            search_results["search_facets"]["res_format"]["items"] = (
+                _calculate_res_format_totals(search_results)
+            )
 
         return search_results
 
@@ -273,8 +317,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 # The filter works, so enabling it will allow us to filter for datasets with
                 # the field set, either by manual edit, script, or updates to harvester
                 # ("entry_type", toolkit._("Type")),
-                ("harvest_source_borough_name", toolkit._("Smallest geography")),
-                ("harvest_source_frequency", toolkit._("Update frequency")),
+                ("london_smallest_geography", toolkit._("Smallest geography")),
+                ("update_frequency", toolkit._("Update frequency")),
             ]
         )
 
