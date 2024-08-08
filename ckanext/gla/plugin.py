@@ -1,9 +1,9 @@
-import re
 from collections import OrderedDict
-from typing import Any, Literal
+from typing import Any
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
+from ckan.config.declaration import Declaration, Key
 from ckan.lib.helpers import markdown_extract
 from ckan.types import Schema
 from markupsafe import Markup
@@ -11,79 +11,14 @@ from markupsafe import Markup
 from . import auth, custom_fields, helpers, search, timestamps, views
 from .search_highlight import action, query
 
-TABLE_FORMATS = [
-    "csv",
-    "xls",
-    "xlsx",
-    "xlsm",
-    "tsv",
-    "spreadsheet",
-    "tab",
-    "google-sheet",
-]
-REPORT_FORMATS = ["zip", "html", "htm", "pdf", "docx", "doc", "odw"]
-GEOSPATIAL_FORMATS = ["geojson" "shp" "mbtiles" "kml"]
-
-
-def _get_aggregate_res_format_query(
-    category: Literal["table", "report", "geospatial"]
-) -> str:
-    if category == "table":
-        query = " OR ".join([f'"{item}"' for item in TABLE_FORMATS])
-    elif category == "report":
-        query = " OR ".join([f'"{item}"' for item in REPORT_FORMATS])
-    elif category == "geospatial":
-        query = " OR ".join([f'"{item}"' for item in GEOSPATIAL_FORMATS])
-
-    return f"res_format:{query}"
-
-
-def _calculate_res_format_totals(search_results: dict[str, Any]):
-    categories = {"items": []}
-
-    tables_format_item = {
-        "count": 0,
-        "display_name": "Tables",
-        "name": "table",
-    }
-    reports_format_item = {
-        "count": 0,
-        "display_name": "Reports",
-        "name": "report",
-    }
-    geospatial_format_item = {
-        "count": 0,
-        "display_name": "Geospatial",
-        "name": "geospatial",
-    }
-
-    skipped_formats = set()
-    for format in search_results["search_facets"]["res_format"]["items"]:
-        if format["name"].lower() in TABLE_FORMATS:
-            tables_format_item["count"] += format["count"]
-            continue
-        if format["name"].lower() in REPORT_FORMATS:
-            reports_format_item["count"] += format["count"]
-            continue
-        if format["name"].lower() in GEOSPATIAL_FORMATS:
-            geospatial_format_item["count"] += format["count"]
-            continue
-
-        skipped_formats.add(format["name"].lower())
-        categories["items"].append(format)
-
-    if tables_format_item["count"] > 0:
-        categories["items"].append(tables_format_item)
-    if reports_format_item["count"] > 0:
-        categories["items"].append(reports_format_item)
-    if geospatial_format_item["count"] > 0:
-        categories["items"].append(geospatial_format_item)
-
-    return categories["items"]
+TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
+REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
+GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
 
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
+    plugins.implements(plugins.IConfigDeclaration)
     plugins.implements(plugins.IAuthFunctions, inherit=True)
     plugins.implements(plugins.IPackageController, inherit=True)
     plugins.implements(plugins.IResourceController, inherit=True)
@@ -92,6 +27,12 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IDatasetForm)
     plugins.implements(plugins.IFacets)
+
+    # IConfigDeclaration
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        declaration.declare_list(key.ckan.harvesters.table_formats, [])
+        declaration.declare_list(key.ckan.harvesters.report_formats, [])
+        declaration.declare_list(key.ckan.harvesters.geospatial_formats, [])
 
     # IConfigurer
     def update_config(self, config_):
@@ -122,30 +63,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 "hl.simple.post": "]]",
             }
         )
-
-        if "fq" in search_params:
-            search_params["fq_list"] = []
-            if 'res_format:"table"' in search_params["fq"]:
-                search_params["fq"] = search_params["fq"].replace(
-                    'res_format:"table"', ""
-                )
-                search_params["fq_list"].append(
-                    _get_aggregate_res_format_query("table")
-                )
-            if 'res_format:"report"' in search_params["fq"]:
-                search_params["fq"] = search_params["fq"].replace(
-                    'res_format:"report"', ""
-                )
-                search_params["fq_list"].append(
-                    _get_aggregate_res_format_query("report")
-                )
-            if 'res_format:"geospatial"' in search_params["fq"]:
-                search_params["fq"] = search_params["fq"].replace(
-                    'res_format:"geospatial"', ""
-                )
-                search_params["fq_list"].append(
-                    _get_aggregate_res_format_query("geospatial")
-                )
 
         return search_params
 
@@ -231,11 +148,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                         )
                 result["search_description"] = sanitized_search_description_list
 
-        if "res_format" in search_results["search_facets"]:
-            search_results["search_facets"]["res_format"]["items"] = (
-                _calculate_res_format_totals(search_results)
-            )
-
         return search_results
 
     def after_dataset_create(self, ctx, package):
@@ -246,6 +158,22 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def after_resource_delete(self, ctx, resources):
         timestamps.set_to_now(ctx, resources)
+
+    def before_dataset_index(self, pkg_dict: dict[str, Any]) -> dict[str, Any]:
+        new_format_list = []
+        for file_format in pkg_dict.get("res_format", []):
+            if file_format.lower() in TABLE_FORMATS:
+                new_format_list.append("Tables")
+            elif file_format.lower() in REPORT_FORMATS:
+                new_format_list.append("Reports")
+            elif file_format.lower() in GEOSPATIAL_FORMATS:
+                new_format_list.append("Geospatial")
+            else:
+                new_format_list.append(file_format)
+
+        pkg_dict["res_format"] = new_format_list
+
+        return pkg_dict
 
     # ITemplateHelpers
     def get_helpers(self):
