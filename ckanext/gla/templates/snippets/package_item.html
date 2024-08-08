@@ -119,9 +119,14 @@ Example:
       {% if package.entry_type%}
         {{package.entry_type|capitalize}}
       {% else %}
-        {{ package.number_of_files }} files
+        {% if package.number_of_files > 0 %}
+          {{ package.number_of_files }} {{ ungettext('file', 'files', package.number_of_files )}}
+        {% endif %}
       {% endif %}
-      {% if resources_formats|length > 0 %} ({{resources_formats|sort|join(", ") | lower}}) {% endif %} • {% if package.total_file_size != 0 %} {{ h.SI_number_span(package.total_file_size) }} {% else %} Unknown Filesize {% endif %} • Expected update unknown
+      {% if resources_formats|length > 0 %} ({{resources_formats|sort|join(", ") | lower}}) {% endif %}
+      {% if package.total_file_size != 0 %}
+        • {{ h.SI_number_span(package.total_file_size) }}
+      {% endif %} • Expected update unknown
     </div>
   </div>
 
