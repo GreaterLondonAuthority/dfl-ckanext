@@ -13,7 +13,7 @@ from werkzeug.datastructures import MultiDict
 log = logging.getLogger(__name__)
 
 VALID_SOLR_PARAMETERS.update(
-    ["hl", "hl.fl", "hl.fragsize", "hl.simple.pre", "hl.simple.post", "hl.method", "hl.fragsizeIsMinimum", "hl.bs.type"]
+    ["hl", "hl.fl", "hl.fragsize", "hl.simple.pre", "hl.simple.post", "hl.method", "hl.fragsizeIsMinimum", "hl.bs.type", "hl.requireFieldMatch"]
 )
 
 
