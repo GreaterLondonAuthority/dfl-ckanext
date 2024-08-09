@@ -54,7 +54,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         search_params.update(
             {
                 "hl": "on",
-                "hl.method": "unified", 
+                "hl.method": "unified",
                 "hl.fragsizeIsMinimum": "false",
                 "hl.requireFieldMatch": "true",
                 "hl.snippets": "1",
@@ -63,13 +63,23 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 "hl.fl": "title,notes,search_description",
                 "hl.simple.pre": "[[",
                 "hl.simple.post": "]]",
-                "hl.maxAnalyzedChars": "250000" # only highlight matches occuring in the first 250k characters of a field we increase this from SOLRs default of 51k because some datasets have long descriptions and highlighting wasn't displaying
+                "hl.maxAnalyzedChars": "250000",  # only highlight matches occuring in the first 250k characters of a field we increase this from SOLRs default of 51k because some datasets have long descriptions and highlighting wasn't displaying
             }
         )
 
         return search_params
 
     # IPackageController
+    def before_dataset_view(self, package_dict):
+        for extra in package_dict.get("extras", []):
+            if extra["key"] == "update_frequency":
+                package_dict["update_frequency_label"] = (
+                    f"Expected update: {extra['value']}"
+                )
+                break
+
+        return package_dict
+
     def after_dataset_search(
         self, search_results: dict[str, Any], search_params: dict[str, Any]
     ):
@@ -172,7 +182,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             elif file_format.lower() in GEOSPATIAL_FORMATS:
                 new_format_list.append("Geospatial")
             else:
-                continue #new_format_list.append("Other")
+                continue  # new_format_list.append("Other")
 
         pkg_dict["dfl_res_format_group"] = new_format_list
 
