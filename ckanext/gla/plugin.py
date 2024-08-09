@@ -46,11 +46,13 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 "hl.method": "unified", 
                 "hl.fragsizeIsMinimum": "false",
                 "hl.requireFieldMatch": "true",
-                "hl.fragsize": 200,
-                "hl.bs.type": "WORD",
+                "hl.snippets": "1",
+                "hl.fragsize": "200",
+                "hl.bs.type": "SENTENCE",
                 "hl.fl": "title,notes,search_description",
                 "hl.simple.pre": "[[",
                 "hl.simple.post": "]]",
+                "hl.maxAnalyzedChars": "250000" # only highlight matches occuring in the first 250k characters of a field we increase this from SOLRs default of 51k because some datasets have long descriptions and highlighting wasn't displaying
             }
         )
 
@@ -130,7 +132,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
                 # Handle unclosed tags that flow into the next search result
                 sanitized_search_description = str(
-                    markdown_extract(search_description, extract_length=240)
+                    markdown_extract(search_description, extract_length=500)
                 )
                 sanitized_search_description_list = []
                 for substring in sanitized_search_description.split("[["):
