@@ -121,6 +121,15 @@ def add_copy_fields():
             add_copy_field(field, new_field)
 
 def add_solr_config():
+
+    if not field_exists('dfl_res_format_group'):
+
+        add_schema({"add-field": {"name": "dfl_res_format_group",
+                                  "type": "string",
+                                  "indexed": True,
+                                  "stored": True,
+                                  "multiValued": True}})
+    
     if not field_exists('dfl_title_sort'):
         add_schema({
             "add-field-type": {

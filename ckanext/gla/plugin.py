@@ -172,9 +172,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             elif file_format.lower() in GEOSPATIAL_FORMATS:
                 new_format_list.append("Geospatial")
             else:
-                new_format_list.append(file_format)
+                continue #new_format_list.append("Other")
 
-        pkg_dict["res_format"] = new_format_list
+        pkg_dict["dfl_res_format_group"] = new_format_list
 
         return pkg_dict
 
@@ -241,7 +241,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def dataset_facets(self, facets_dict, _):
         return OrderedDict(
             [
-                ("res_format", facets_dict["res_format"]),
+                ("dfl_res_format_group", toolkit._("Format")),
                 ("organization", facets_dict["organization"]),
                 ("project_name", toolkit._("Projects")),
                 # Entry type is disabled for now as the value is null for harvested datasets
@@ -250,6 +250,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 # ("entry_type", toolkit._("Type")),
                 ("london_smallest_geography", toolkit._("Smallest geography")),
                 ("update_frequency", toolkit._("Update frequency")),
+                ("res_format", toolkit._("File type")),
             ]
         )
 
