@@ -73,9 +73,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def before_dataset_view(self, package_dict):
         for extra in package_dict.get("extras", []):
             if extra["key"] == "update_frequency":
-                package_dict["update_frequency_label"] = (
-                    f"Expected update: {extra['value']}"
-                )
+                package_dict["update_frequency_label"] = extra['value']
                 break
 
         return package_dict

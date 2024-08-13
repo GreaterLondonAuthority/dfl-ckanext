@@ -131,7 +131,8 @@ Example:
        {% endif %}
 
        {% if package.update_frequency_label %}
-         {% if package.number_of_files > 0 %} • {% endif %} {{ package.update_frequency_label }}
+        {% if package.number_of_files > 0 %} • {% endif %}
+        Expected update {{ package.update_frequency_label | lower }}
        {% endif %}
     </div>
   </div>
