@@ -115,18 +115,25 @@ Example:
               description for this dataset") }}</p>
       {% endif %}
     {% endblock %}
-    <div class="gla-informational">
-      {% if package.entry_type%}
-        {{package.entry_type|capitalize}}
-      {% else %}
-        {% if package.number_of_files > 0 %}
-          {{ package.number_of_files }} {{ ungettext('file', 'files', package.number_of_files )}}
-        {% endif %}
-      {% endif %}
-      {% if resources_formats|length > 0 %} ({{resources_formats|sort|join(", ") | lower}}) {% endif %}
-      {% if package.total_file_size != 0 %}
-        • {{ h.SI_number_span(package.total_file_size) }}
-      {% endif %} • Expected update unknown
+      <div class="gla-informational">
+        {% if package.entry_type %}
+          {{package.entry_type|capitalize}}
+        {% else %}
+          {% if package.number_of_files > 0 %}
+           {{ package.number_of_files }} {{ ungettext('file', 'files', package.number_of_files )}}
+         {% endif %}
+       {% endif %}
+
+       {% if resources_formats|length > 0 %} ({{resources_formats|sort|join(", ") | lower}}) {% endif %}
+
+       {% if package.total_file_size != 0 %}
+         • {{ h.SI_number_span(package.total_file_size) }}
+       {% endif %}
+
+       {% if package.update_frequency_label %}
+        {% if package.number_of_files > 0 %} • {% endif %}
+        Expected update {{ package.update_frequency_label | lower }}
+       {% endif %}
     </div>
   </div>
 
