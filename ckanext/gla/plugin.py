@@ -5,7 +5,7 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.common import _
 from ckan.config.declaration import Declaration, Key
-from ckan.lib.helpers import markdown_extract
+from ckan.lib.helpers import markdown_extract, ungettext, dict_list_reduce
 from ckan.types import Schema, Validator
 from markupsafe import Markup
 
@@ -76,11 +76,40 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     # IPackageController
     def before_dataset_view(self, package_dict):
+        gla_information = []
+
+        if package_dict.get('num_resources',0) > 0:
+            num_resources = package_dict.get('num_resources',0)
+            files_suffix = ungettext('file', 'files', package_dict['num_resources'])
+
+            formats = dict_list_reduce(package_dict.get('resources',[]), 'format')
+            formats = list(map(str.lower, formats))
+            formats.sort()
+            formats_string = ', '.join(formats)
+
+            resource_summary = f"{num_resources} {files_suffix} ({formats_string})"
+            
+            gla_information.append(resource_summary)
+
+            total_file_size = sum(
+                item["size"] for item in package_dict.get('resources',[]) if item and item["size"] is not None
+            )
+
+            package_dict["total_file_size"] = total_file_size
+            
+            gla_information.append(helpers.humanise_file_size(total_file_size))
+        else:
+            package_dict["total_file_size"] = 0
+            
+        
         for extra in package_dict.get("extras", []):
             if extra["key"] == "update_frequency":
                 package_dict["update_frequency_label"] = extra["value"]
+                gla_information.append(f"Expected update {extra["value"].lower()}")
                 break
 
+        package_dict['gla_result_summary'] = ' • '.join(gla_information)
+        
         return package_dict
 
     def after_dataset_search(
@@ -101,10 +130,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
         for result in search_results["results"]:
             resources = result.get("resources", [])
-            result["total_file_size"] = sum(
-                item["size"] for item in resources if item and item["size"] is not None
-            )
-            result["number_of_files"] = len(resources)
 
             index_id = result.get("index_id", False)
             if index_id and index_id in search_results["highlighting"]:

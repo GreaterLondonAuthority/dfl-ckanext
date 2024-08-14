@@ -1,4 +1,5 @@
 import ckan.plugins.toolkit as toolkit
+import ckan.lib.formatters as formatters
 from ckan.common import config
 
 
@@ -21,6 +22,10 @@ def __maybe_filter_by_organization(request, datasets):
     else:
         return datasets
 
+def humanise_file_size(file_size):
+    size_string = formatters.localised_filesize(file_size)
+    humanised_str = size_string.replace('i','').replace('B','b').title()
+    return humanised_str
 
 def followed(user, request):
     """Get a list of the users followed datasets"""
@@ -105,5 +110,6 @@ def get_helpers():
         "last_updated": last_updated,
         "is_search_results_page": lambda request: __page_context(request)["is_search"],
         "extract_resource_format": extract_resource_format,
-        "get_site_title": get_site_title
+        "get_site_title": get_site_title,
+        "humanise_file_size": humanise_file_size
     }

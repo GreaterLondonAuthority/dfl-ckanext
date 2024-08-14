@@ -29,7 +29,7 @@
         {% if res.format %}
         {{ h.get_translated(res, 'format') }}, {% endif %}
         {% if res.size %}
-        {{ h.SI_number_span(res.size) }}, {% endif %}
+        {{ h.humanise_file_size(res.size) }}, {% endif %}
          <a href="{{ url }}">Details</a>
 
     </div>
