@@ -5,7 +5,6 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.config.declaration import Declaration, Key
 from ckan.lib.helpers import markdown_extract, ungettext, dict_list_reduce
-import ckan.lib.formatters as formatters
 from ckan.types import Schema
 from markupsafe import Markup
 
@@ -92,12 +91,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             )
 
             package_dict["total_file_size"] = total_file_size
-
-            def humanise_file_size(file_size):
-                size_string = formatters.localised_filesize(file_size)
-                return size_string
             
-            gla_information.append(humanise_file_size(total_file_size))
+            gla_information.append(helpers.humanise_file_size(total_file_size))
         else:
             package_dict["total_file_size"] = 0
             
