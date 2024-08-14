@@ -71,9 +71,10 @@ def user_password_validator(
         errors[("password",)].append(_("Passwords must be strings"))
     elif value == "":
         pass
-    elif len(value) < 13:
-        errors[("password",)].append(_("Your password must be 13 characters or longer"))
-    elif isinstance(value, str):
+    if isinstance(value, str):
+        if len(value) < 13:
+            errors[("password",)].append(_("Your password must be 13 characters or longer"))
+        
         rules = [
             any(x.isupper() for x in value),
             any(x.islower() for x in value),
@@ -87,15 +88,22 @@ def user_password_validator(
                     "Your password must contain at least one of each of the following: upper case character, lower case character, number and a non alpha character (e.g. !$#,%)"
                 )
             )
-    elif data.get(("name",)) in value or data.get(("fullname",)) in value:
-        errors[("password",)].append(
-            _("Your password shouldn't contain your username or full name")
-        )
-    elif has_consecutive_numbers(value):
-        errors[("password",)].append(
-            _("Your password must not contain consecutive numbers such as '123'")
-        )
-    else:
+        
+        if data.get(("name",)) and data[("name",)] in value:
+            errors[("password",)].append(
+                _("Your password shouldn't contain your username")
+            )
+        
+        if data.get(("fullname",)) and data[("fullname",)] in value:
+            errors[("password",)].append(
+                _("Your password shouldn't contain your full name")
+            )
+        
+        if isinstance(value, str) and has_consecutive_numbers(value):
+            errors[("password",)].append(
+                _("Your password must not contain consecutive numbers such as '123'")
+            )
+        
         for password_char in value:
             if password_char * 3 in value:
                 errors[("password",)].append(
@@ -103,3 +111,5 @@ def user_password_validator(
                         'Your password must not contain repeating characters such as "aaa"'
                     )
                 )
+    
+    
