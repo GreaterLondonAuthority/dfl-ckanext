@@ -3,9 +3,10 @@ from typing import Any
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
+from ckan.common import _
 from ckan.config.declaration import Declaration, Key
 from ckan.lib.helpers import markdown_extract, ungettext, dict_list_reduce
-from ckan.types import Schema
+from ckan.types import Schema, Validator
 from markupsafe import Markup
 
 from . import auth, custom_fields, helpers, search, timestamps, views
@@ -27,6 +28,10 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IDatasetForm)
     plugins.implements(plugins.IFacets)
+    plugins.implements(plugins.IValidators)
+
+    def get_validators(self) -> dict[str, Validator]:
+        return {"user_password_validator": auth.user_password_validator}
 
     # IConfigDeclaration
     def declare_config_options(self, declaration: Declaration, key: Key):
@@ -99,8 +104,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         
         for extra in package_dict.get("extras", []):
             if extra["key"] == "update_frequency":
-                package_dict["update_frequency_label"] = extra['value']
-                gla_information.append(f"Expected update {extra['value'].lower()}")
+                package_dict["update_frequency_label"] = extra["value"]
+                gla_information.append(f"Expected update {extra["value"].lower()}")
                 break
 
         package_dict['gla_result_summary'] = ' • '.join(gla_information)
