@@ -105,7 +105,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         for extra in package_dict.get("extras", []):
             if extra["key"] == "update_frequency":
                 package_dict["update_frequency_label"] = extra["value"]
-                gla_information.append(f"Expected update {extra["value"].lower()}")
+                gla_information.append(f"Expected update {extra['value'].lower()}")
                 break
 
         package_dict['gla_result_summary'] = ' • '.join(gla_information)
