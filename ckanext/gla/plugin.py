@@ -86,8 +86,12 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             formats = list(map(str.lower, formats))
             formats.sort()
             formats_string = ', '.join(formats)
+            if len(formats) > 0:
+                formats_string = f"({formats_string})"
+            else:
+                formats_string = ''
 
-            resource_summary = f"{num_resources} {files_suffix} ({formats_string})"
+            resource_summary = f"{num_resources} {files_suffix} {formats_string}"
             
             gla_information.append(resource_summary)
 
