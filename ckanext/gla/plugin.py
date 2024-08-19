@@ -284,6 +284,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return OrderedDict(
             [
                 ("dfl_res_format_group", toolkit._("Format")),
+                ("res_format", toolkit._("File type")),
                 ("organization", facets_dict["organization"]),
                 ("project_name", toolkit._("Projects")),
                 # Entry type is disabled for now as the value is null for harvested datasets
@@ -291,8 +292,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 # the field set, either by manual edit, script, or updates to harvester
                 # ("entry_type", toolkit._("Type")),
                 ("london_smallest_geography", toolkit._("Smallest geography")),
-                ("update_frequency", toolkit._("Update frequency")),
-                ("res_format", toolkit._("File type")),
+                ("update_frequency", toolkit._("Update frequency"))
             ]
         )
 
