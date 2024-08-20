@@ -1,26 +1,32 @@
 from collections import OrderedDict
 from typing import Any
 
+import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-from ckan.common import _
+from ckan.common import _, g, request
+from ckan import model
+from ckan.model import User
+from ckan.lib import captcha, signals
 from ckan.config.declaration import Declaration, Key
 from ckan.lib.helpers import markdown_extract, ungettext, dict_list_reduce
 from ckan.types import Schema, Validator
 from markupsafe import Markup
 
-from . import auth, custom_fields, helpers, search, timestamps, views
+from . import auth, custom_fields, helpers, search, timestamps, views, user
 from .search_highlight import action, query
 
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
 GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
 
+log = logging.getLogger(__name__)
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IConfigDeclaration)
     plugins.implements(plugins.IAuthFunctions, inherit=True)
+    plugins.implements(plugins.IAuthenticator)
     plugins.implements(plugins.IPackageController, inherit=True)
     plugins.implements(plugins.IResourceController, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
@@ -234,6 +240,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             "debug_dataset_search": search.debug,
             "log_chosen_search_result": search.log_selected_result,
             "package_search": action.package_search,
+            "user_create": user.user_create,
         }
 
     # IDatasetForm
@@ -301,3 +308,51 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def group_facets(self, facets_dict, *args):
         return facets_dict
+
+    def identify(self):
+        pass
+
+    def login(self):
+        pass
+    
+    def logout(self):
+        pass
+
+    def abort(self):
+        pass
+
+    def authenticate(
+        self, identity: dict[str, Any]
+    ) -> model.User | model.AnonymousUser | None:
+      if not ('login' in identity and 'password' in identity):
+          return None
+
+      login = identity['login']
+      user_obj = User.by_name(login.lower())
+      if not user_obj:
+          user_obj = User.by_email(login.lower())
+
+      if user_obj is None:
+          log.debug('Login failed - username or email %r not found', login)
+      elif not user_obj.is_active:
+          log.debug('Login as %r failed - user isn\'t active', login)
+      elif not user_obj.validate_password(identity['password']):
+          log.debug('Login as %r failed - password not valid', login)
+      else:
+          check_captcha = identity.get('check_captcha', True)
+          if check_captcha and g.recaptcha_publickey:
+              # Check for a valid reCAPTCHA response
+              try:
+                  client_ip_address = request.remote_addr or 'Unknown IP Address'
+                  captcha.check_recaptcha_v2_base(
+                      client_ip_address,
+                      request.form.get(u'g-recaptcha-response', '')
+                  )
+                  return user_obj
+              except captcha.CaptchaError:
+                  log.warning('Login as %r failed - failed reCAPTCHA', login)
+                  request.environ[u'captchaFailed'] = True
+          else:
+              return user_obj
+      signals.failed_login.send(login)
+      return None
