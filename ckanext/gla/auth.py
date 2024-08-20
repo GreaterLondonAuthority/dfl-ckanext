@@ -89,12 +89,12 @@ def user_password_validator(
                 )
             )
         
-        if data.get(("name",)) and data[("name",)] in value:
+        if data.get(("name",)) and data[("name",)].lower() in value.lower():
             errors[("password",)].append(
                 _("Your password shouldn't contain your username")
             )
         
-        if data.get(("fullname",)) and data[("fullname",)] in value:
+        if data.get(("fullname",)) and data[("fullname",)].lower() in value.lower():
             errors[("password",)].append(
                 _("Your password shouldn't contain your full name")
             )
