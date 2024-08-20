@@ -309,6 +309,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def group_facets(self, facets_dict, *args):
         return facets_dict
 
+    # IAuthenticator
     def identify(self):
         pass
 
@@ -328,6 +329,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
           return None
 
       login = identity['login']
+      # Force username and email to be lowercase
       user_obj = User.by_name(login.lower())
       if not user_obj:
           user_obj = User.by_email(login.lower())
