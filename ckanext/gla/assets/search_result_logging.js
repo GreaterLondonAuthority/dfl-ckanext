@@ -29,9 +29,9 @@ function logResultClick(event, element, data) {
         } else {
             // Prevent the default anchor click behavior navigating
             // away from the page before our logging call has finished
-            event.preventDefault();
+	    event.preventDefault();
 
-            postSelectedSearchResult(data).then(function () {
+            postSelectedSearchResult(data).finally(function() {
                 // Navigate to the href of the anchor after our logging has occured
                 window.location.href = element.getAttribute('href');
             });
