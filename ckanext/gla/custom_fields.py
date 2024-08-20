@@ -120,7 +120,94 @@ def add_copy_fields():
             add_copy_field(field, new_field)
 
 def add_solr_config():
-
+    # NOTE if you change anything in this function you will likely
+    # need to rebuild the SOLR index for changes to be applied to the
+    # index.
+    #
+    # This can be done by running:
+    #
+    # docker exec -it ckan ckan search-index rebuild
+    # 
+    add_schema({"replace-field-type":
+                # This call replaces the default solr-ckan text field
+                # type with one that includes configuration changes
+                # that support query time synonym replacements via a
+                # synonyms.txt file that is defined here:
+                #
+                # https://github.com/GreaterLondonAuthority/Data_for_London/blob/develop/ckan-solr/synonyms.txt
+                # 
+                {
+                    "name": "text",
+                    "class": "solr.TextField",
+                    "positionIncrementGap": 100,                    
+                    "indexAnalyzer": {
+                        "tokenizer": {
+                            "class": "solr.WhitespaceTokenizerFactory"
+                        },
+                        "filters": [
+                            {
+                                "class": "solr.WordDelimiterGraphFilterFactory",
+                                "generateWordParts": 1,
+                                "generateNumberParts": 1,
+                                "catenateWords": 1,
+                                "catenateNumbers": 1,
+                                "catenateAll": 0,
+                                "splitOnCaseChange": 1
+                            },
+                            {
+                                "class": "solr.FlattenGraphFilterFactory"
+                            },
+                            {
+                                "class": "solr.LowerCaseFilterFactory"
+                            },
+                            {
+                                "class": "solr.SnowballPorterFilterFactory",
+                                "language": "English",
+                                # NOTE this file is included in the top level Data-for-london repository
+                                "protected": "protwords.txt"
+                            },
+                            {
+                                "class": "solr.ASCIIFoldingFilterFactory"
+                            }
+                        ]
+                    },
+                    "queryAnalyzer": {
+                        "tokenizer": {
+                            "class": "solr.WhitespaceTokenizerFactory"
+                        },
+                        "filters": [
+                            {
+                                "class": "solr.SynonymGraphFilterFactory",
+                                # NOTE this file is included in the top level Data-for-london repository
+                                "synonyms": "synonyms.txt",
+                                "ignoreCase": True,
+                                "expand": True
+                            },
+                            {
+                                "class": "solr.WordDelimiterGraphFilterFactory",
+                                "generateWordParts": 1,
+                                "generateNumberParts": 1,
+                                "catenateWords": 0,
+                                "catenateNumbers": 0,
+                                "catenateAll": 0,
+                                "splitOnCaseChange": 1
+                            },
+                            {
+                                "class": "solr.LowerCaseFilterFactory"
+                            },
+                            {
+                                "class": "solr.SnowballPorterFilterFactory",
+                                "language": "English",
+                                "protected": "protwords.txt"
+                            },
+                            {
+                                "class": "solr.ASCIIFoldingFilterFactory"
+                            }
+                        ]
+                    }
+                }
+                })
+    
     if not field_exists('dfl_res_format_group'):
 
         add_schema({"add-field": {"name": "dfl_res_format_group",
