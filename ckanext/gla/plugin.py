@@ -5,7 +5,7 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.common import _
 from ckan.config.declaration import Declaration, Key
-from ckan.lib.helpers import markdown_extract, ungettext, dict_list_reduce
+from ckan.lib.helpers import dict_list_reduce, markdown_extract, ungettext
 from ckan.types import Schema, Validator
 from markupsafe import Markup
 
@@ -65,7 +65,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 "hl.snippets": "1",
                 "hl.fragsize": "200",
                 "hl.bs.type": "SENTENCE",
-                "hl.fl": "title,notes,search_description",
+                "hl.fl": "title,extras_sanitized_notes,search_description",
                 "hl.simple.pre": "[[",
                 "hl.simple.post": "]]",
                 "hl.maxAnalyzedChars": "250000",  # only highlight matches occuring in the first 250k characters of a field we increase this from SOLRs default of 51k because some datasets have long descriptions and highlighting wasn't displaying
@@ -78,42 +78,42 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def before_dataset_view(self, package_dict):
         gla_information = []
 
-        if package_dict.get('num_resources',0) > 0:
-            num_resources = package_dict.get('num_resources',0)
-            files_suffix = ungettext('file', 'files', package_dict['num_resources'])
+        if package_dict.get("num_resources", 0) > 0:
+            num_resources = package_dict.get("num_resources", 0)
+            files_suffix = ungettext("file", "files", package_dict["num_resources"])
 
-            formats = dict_list_reduce(package_dict.get('resources',[]), 'format')
+            formats = dict_list_reduce(package_dict.get("resources", []), "format")
             formats = list(map(str.lower, formats))
             formats.sort()
-            formats_string = ', '.join(formats)
+            formats_string = ", ".join(formats)
             if len(formats) > 0:
                 formats_string = f"({formats_string})"
             else:
-                formats_string = ''
+                formats_string = ""
 
             resource_summary = f"{num_resources} {files_suffix} {formats_string}"
-            
+
             gla_information.append(resource_summary)
 
             total_file_size = sum(
-                item["size"] for item in package_dict.get('resources',[]) if item and item["size"] is not None
+                item["size"]
+                for item in package_dict.get("resources", [])
+                if item and item["size"] is not None
             )
 
             package_dict["total_file_size"] = total_file_size
-            
+
             gla_information.append(helpers.humanise_file_size(total_file_size))
         else:
             package_dict["total_file_size"] = 0
-            
-        
+
         for extra in package_dict.get("extras", []):
             if extra["key"] == "update_frequency":
                 package_dict["update_frequency_label"] = extra["value"]
                 gla_information.append(f"Expected update {extra['value'].lower()}")
                 break
 
-        package_dict['gla_result_summary'] = ' • '.join(gla_information)
-        
+        package_dict["gla_result_summary"] = " • ".join(gla_information)
         return package_dict
 
     def after_dataset_search(
@@ -138,7 +138,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             index_id = result.get("index_id", False)
             if index_id and index_id in search_results["highlighting"]:
                 highlighted_title = _get_highlighted_field("title", index_id)
-                highlighted_notes = _get_highlighted_field("notes", index_id)
+                highlighted_notes = _get_highlighted_field(
+                    "extras_sanitized_notes", index_id
+                )
                 highlighted_search_description = _get_highlighted_field(
                     "extras_search_description", index_id
                 )
@@ -292,7 +294,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 # the field set, either by manual edit, script, or updates to harvester
                 # ("entry_type", toolkit._("Type")),
                 ("london_smallest_geography", toolkit._("Smallest geography")),
-                ("update_frequency", toolkit._("Update frequency"))
+                ("update_frequency", toolkit._("Update frequency")),
             ]
         )
 

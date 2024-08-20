@@ -1,9 +1,12 @@
-import ckan.plugins.toolkit as toolkit
 import ckan.lib.formatters as formatters
+import ckan.plugins.toolkit as toolkit
+from bs4 import BeautifulSoup
 from ckan.common import config
+from ckan.lib.helpers import render_markdown as original_render_markdown
+from markupsafe import Markup
 
+site_title = config.get("ckan.site_title", "Default Site Title")
 
-site_title = config.get('ckan.site_title', 'Default Site Title')
 
 def __page_context(request):
     page_info = {"source": "", "is_search": False}
@@ -22,10 +25,12 @@ def __maybe_filter_by_organization(request, datasets):
     else:
         return datasets
 
+
 def humanise_file_size(file_size):
     size_string = formatters.localised_filesize(file_size)
-    humanised_str = size_string.replace('i','').replace('B','b').title()
+    humanised_str = size_string.replace("i", "").replace("B", "b").title()
     return humanised_str
+
 
 def followed(user, request):
     """Get a list of the users followed datasets"""
@@ -71,7 +76,8 @@ def extract_resource_format(resource):
     https://github.com/ckan/ckan/blob/fd88d1f4c52c8ee247883549ca23500693e2e2a4/ckan/public/base/css/main.css#L14033
     is used to set the position of this image containing all the icons so the
     correct one shows:
-    https://github.com/ckan/ckan/blob/fd88d1f4c52c8ee247883549ca23500693e2e2a4/ckan/public/base/images/sprite-resource-icons.png"""
+    https://github.com/ckan/ckan/blob/fd88d1f4c52c8ee247883549ca23500693e2e2a4/ckan/public/base/images/sprite-resource-icons.png
+    """
 
     resource_type = resource.get("format", "data").lower()
     if resource_type == "spreadsheet":
@@ -81,26 +87,58 @@ def extract_resource_format(resource):
     else:
         return resource_type
 
+
 def get_site_title(request):
     """Check if we're on a search or dataset page and, if so, return a title that omits the
     word 'dataset'. Otherwise, return None: the template will show the default title"""
 
     path_parts = [x for x in request.path.split("/") if x != ""]
-    if len(path_parts) == 0: # we're on the homepage
+    if len(path_parts) == 0:  # we're on the homepage
         return None
-    if path_parts == ["dataset"]: # We're on the dataset search page
+    if path_parts == ["dataset"]:  # We're on the dataset search page
         search = request.args.get("q")
         if search is not None:
             page_title = search
         else:
             page_title = "Search"
         return "{} - {}".format(page_title, site_title)
-    elif path_parts[0] == "dataset": # We're on a dataset or resource page
+    elif path_parts[0] == "dataset":  # We're on a dataset or resource page
         context = toolkit.c
-        dataset_title = context.get('pkg_dict', {}).get('title')
+        dataset_title = context.get("pkg_dict", {}).get("title")
         return "{} - {}".format(dataset_title, site_title)
     else:
         return None
+
+
+def _sanitise_markup(html: str, remove_tags: bool = True) -> str:
+    soup = BeautifulSoup(html, "html.parser")
+
+    for data in soup(["style", "script", "iframe", "br"]):
+        data.decompose()
+
+    if remove_tags:
+        return " ".join(soup.stripped_strings)
+    return str(soup)
+
+
+def render_markdown(
+    data: str, auto_link: bool = True, allow_html: bool = False
+) -> str | Markup:
+    """
+    Returns the data as rendered markdown
+
+    :param auto_link: Should ckan specific links be created e.g. `group:xxx`
+    :type auto_link: bool
+    :param allow_html: If True then html entities in the markdown data.
+        This is dangerous if users have added malicious content. We remove script and style tags
+        ro reduce this risk.
+        If False all html tags are removed.
+    :type allow_html: bool
+    """
+    if allow_html:
+        data = _sanitise_markup(data.strip(), remove_tags=False)
+    return original_render_markdown(data, auto_link, allow_html)
+
 
 def get_helpers():
     return {
@@ -111,5 +149,6 @@ def get_helpers():
         "is_search_results_page": lambda request: __page_context(request)["is_search"],
         "extract_resource_format": extract_resource_format,
         "get_site_title": get_site_title,
-        "humanise_file_size": humanise_file_size
+        "humanise_file_size": humanise_file_size,
+        "render_markdown": render_markdown,
     }

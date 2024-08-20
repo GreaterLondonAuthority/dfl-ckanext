@@ -50,7 +50,7 @@ def add_quality_to_search(search_params):
             # metadata copied from other fields in a stemmed form.
             #
             #,"qf":"name^4 title^4 tags^2 groups^2 text" # CKAN Defaults
-            ,"qf":"title^4 search_description^2 notes" # limit matching of text queries to agreed fields
+            ,"qf":"title^4 search_description^2 extras_sanitized_notes" # limit matching of text queries to agreed fields
             }
 
 @toolkit.side_effect_free
