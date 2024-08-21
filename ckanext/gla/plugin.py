@@ -331,7 +331,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             flash_error(detail)
 
         flask_abort(status_code, detail)
-
+    
+    # Copy and pasted from the default_authenticate function in https://github.com/ckan/ckan/blob/25cbcb9d69b2128a40f28c37bfd44a053e43a715/ckan/lib/authenticator.py#L15
+    # The only change is forcing username and email to be lowercase when authenticating
     def authenticate(
         self, identity: dict[str, Any]
     ) -> model.User | model.AnonymousUser | None:
