@@ -4,15 +4,12 @@ from typing import Any, Optional, Mapping
 import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-from ckan.common import _, g, request
-from ckan import model
+from ckan.common import _
 from ckan.model import User
-from ckan.lib import captcha, signals
+from ckan.lib import signals
 from ckan.config.declaration import Declaration, Key
-from ckan.lib.helpers import markdown_extract, ungettext, dict_list_reduce, flash_error
+from ckan.lib.helpers import markdown_extract, ungettext, dict_list_reduce
 from ckan.types import Schema, Validator
-from ckan.views.user import PerformResetView
-from flask import abort as flask_abort
 from markupsafe import Markup
 
 from . import auth, custom_fields, helpers, search, timestamps, views, user
