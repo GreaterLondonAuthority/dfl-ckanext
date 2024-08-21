@@ -3,11 +3,13 @@ from typing import Any
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
+import ckan.lib.mailer as Mailer
 from ckan.common import _
 from ckan.config.declaration import Declaration, Key
 from ckan.lib.helpers import markdown_extract, ungettext, dict_list_reduce
 from ckan.types import Schema, Validator
 from markupsafe import Markup
+from .email import send_reset_link
 
 from . import auth, custom_fields, helpers, search, timestamps, views
 from .search_highlight import action, query
@@ -16,6 +18,8 @@ TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
 GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
 
+# Add html template to password reset email
+Mailer.send_reset_link = send_reset_link
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
