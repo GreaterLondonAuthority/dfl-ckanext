@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Any
+from typing import Any, Optional, NoReturn
 
 import logging
 import ckan.plugins as plugins
@@ -9,8 +9,10 @@ from ckan import model
 from ckan.model import User
 from ckan.lib import captcha, signals
 from ckan.config.declaration import Declaration, Key
-from ckan.lib.helpers import markdown_extract, ungettext, dict_list_reduce
+from ckan.lib.helpers import markdown_extract, ungettext, dict_list_reduce, flash_error
 from ckan.types import Schema, Validator
+from ckan.views.user import PerformResetView
+from flask import abort as flask_abort
 from markupsafe import Markup
 
 from . import auth, custom_fields, helpers, search, timestamps, views, user
@@ -318,9 +320,17 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     
     def logout(self):
         pass
+    
+    # Copy and pasted from the abort function in https://github.com/ckan/ckan/blob/25cbcb9d69b2128a40f28c37bfd44a053e43a715/ckan/lib/base.py#L28
+    def abort(self,
+              status_code: int,
+              detail: str = '',
+              headers: Optional[dict[str, Any]] = None,
+              comment: Optional[str] = None) -> NoReturn:
+        if detail and status_code != 503:
+            flash_error(detail)
 
-    def abort(self):
-        pass
+        flask_abort(status_code, detail)
 
     def authenticate(
         self, identity: dict[str, Any]
