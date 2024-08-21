@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Any, Optional, NoReturn
+from typing import Any, Optional, Mapping
 
 import logging
 import ckan.plugins as plugins
@@ -28,7 +28,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IConfigDeclaration)
     plugins.implements(plugins.IAuthFunctions, inherit=True)
-    plugins.implements(plugins.IAuthenticator)
+    plugins.implements(plugins.IAuthenticator, inherit=True)
     plugins.implements(plugins.IPackageController, inherit=True)
     plugins.implements(plugins.IResourceController, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
@@ -312,31 +312,12 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return facets_dict
 
     # IAuthenticator
-    def identify(self):
-        pass
-
-    def login(self):
-        pass
     
-    def logout(self):
-        pass
-    
-    # Copy and pasted from the abort function in https://github.com/ckan/ckan/blob/25cbcb9d69b2128a40f28c37bfd44a053e43a715/ckan/lib/base.py#L28
-    def abort(self,
-              status_code: int,
-              detail: str = '',
-              headers: Optional[dict[str, Any]] = None,
-              comment: Optional[str] = None) -> NoReturn:
-        if detail and status_code != 503:
-            flash_error(detail)
-
-        flask_abort(status_code, detail)
-    
-    # Copy and pasted from the default_authenticate function in https://github.com/ckan/ckan/blob/25cbcb9d69b2128a40f28c37bfd44a053e43a715/ckan/lib/authenticator.py#L15
-    # The only change is forcing username and email to be lowercase when authenticating
+    # Extend the default_authenticate() function
+    # Force username and email to be lowercase when a user tries to login
     def authenticate(
-        self, identity: dict[str, Any]
-    ) -> model.User | model.AnonymousUser | None:
+        self, identity: Mapping[str, Any]
+    ) -> Optional["User"]:
       if not ('login' in identity and 'password' in identity):
           return None
 
@@ -353,20 +334,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
       elif not user_obj.validate_password(identity['password']):
           log.debug('Login as %r failed - password not valid', login)
       else:
-          check_captcha = identity.get('check_captcha', True)
-          if check_captcha and g.recaptcha_publickey:
-              # Check for a valid reCAPTCHA response
-              try:
-                  client_ip_address = request.remote_addr or 'Unknown IP Address'
-                  captcha.check_recaptcha_v2_base(
-                      client_ip_address,
-                      request.form.get(u'g-recaptcha-response', '')
-                  )
-                  return user_obj
-              except captcha.CaptchaError:
-                  log.warning('Login as %r failed - failed reCAPTCHA', login)
-                  request.environ[u'captchaFailed'] = True
-          else:
-              return user_obj
+          return user_obj
       signals.failed_login.send(login)
       return None
