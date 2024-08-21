@@ -10,7 +10,8 @@ from ckan.types import Schema, Validator
 from markupsafe import Markup
 
 from . import auth, custom_fields, helpers, search, timestamps, views
-from .search_highlight import action, query
+from .search_highlight import (  # query is imported for initialisation, though not explicitly used
+    action, query)
 
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
@@ -65,7 +66,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 "hl.snippets": "1",
                 "hl.fragsize": "200",
                 "hl.bs.type": "SENTENCE",
-                "hl.fl": "title,extras_sanitized_notes,search_description",
+                "hl.fl": "title,extras_sanitized_notes,extras_sanitized_search_description",
                 "hl.simple.pre": "[[",
                 "hl.simple.post": "]]",
                 "hl.maxAnalyzedChars": "250000",  # only highlight matches occuring in the first 250k characters of a field we increase this from SOLRs default of 51k because some datasets have long descriptions and highlighting wasn't displaying
@@ -132,9 +133,15 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
             return highlighted_field
 
-        for result in search_results["results"]:
-            resources = result.get("resources", [])
+        def _get_extras_field(
+            field_name_in_extras_dict: str, extras_list: list[dict[str, str]]
+        ) -> str:
+            for extras_dict in extras_list:
+                if extras_dict["key"] == field_name_in_extras_dict:
+                    return extras_dict["value"]
+            return ""
 
+        for result in search_results["results"]:
             index_id = result.get("index_id", False)
             if index_id and index_id in search_results["highlighting"]:
                 highlighted_title = _get_highlighted_field("title", index_id)
@@ -149,9 +156,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 )
 
                 title = highlighted_title or result["title"]
-                notes = highlighted_notes or result.get("notes")
+                notes = highlighted_notes or result.get("sanitized_notes", "")
                 search_description = highlighted_search_description or result.get(
-                    "search_description"
+                    "sanitized_search_description", ""
                 )
                 organization = (
                     highlighted_organization_title or result["organization"]["title"]
@@ -193,7 +200,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                         sanitized_search_description_list.append(
                             markdown_extract(substring, extract_length=0)
                         )
-                result["search_description"] = sanitized_search_description_list
+                result["search_description"] = " ".join(
+                    sanitized_search_description_list
+                )
 
         return search_results
 
@@ -268,6 +277,14 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                     toolkit.get_validator("ignore_missing"),
                 ],
                 "harvest_source_frequency": [
+                    toolkit.get_converter("convert_from_extras"),
+                    toolkit.get_validator("ignore_missing"),
+                ],
+                "sanitized_search_description": [
+                    toolkit.get_converter("convert_from_extras"),
+                    toolkit.get_validator("ignore_missing"),
+                ],
+                "sanitized_notes": [
                     toolkit.get_converter("convert_from_extras"),
                     toolkit.get_validator("ignore_missing"),
                 ],

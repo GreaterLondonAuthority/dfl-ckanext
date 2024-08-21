@@ -106,9 +106,8 @@ Example:
     {% block notes %}
       {% if package.search_description %}
         <div class="dataset-notes">
-        {% for substring in package.search_description %}
-          {{substring|safe}}
-        {% endfor %}
+        {# Use "safe" filter to prevent escaping of HTML tags #}
+        {{ package.search_description|safe }}
         </div>
       {% else %}
       <p class="empty">{{ h.humanize_entity_type('package', package.type, 'no description') or _("There is no

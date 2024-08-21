@@ -111,13 +111,14 @@ def get_site_title(request):
 
 
 def _sanitise_markup(html: str, remove_tags: bool = True) -> str:
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(html, "lxml")
 
     for data in soup(["style", "script", "iframe", "br"]):
         data.decompose()
-
+    
     if remove_tags:
         return " ".join(soup.stripped_strings)
+    # return bleach.clean(str(soup), strip=True)
     return str(soup)
 
 
