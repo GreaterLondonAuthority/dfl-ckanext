@@ -18,7 +18,7 @@ TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
 GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
 
-# Add html template to password reset email
+# Override this function to add a html template to password reset link email
 Mailer.send_reset_link = send_reset_link
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):

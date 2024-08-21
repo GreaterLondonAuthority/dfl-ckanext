@@ -13,7 +13,7 @@ def get_reset_link_html_body(user: model.User) -> str:
     return render('emails/reset_password.html', extra_vars)
 
 # Override ckan's send_reset_link function to pass body_html into mail_user
-# So that the email will be sent as multipart/alternative with both a plain text version and a html version
+# So that the password reset link email will be sent as multipart/alternative with both a plain text version and a html version
 def send_reset_link(user: model.User) -> None:
     Mailer.create_reset_key(user)
     body = Mailer.get_reset_link_body(user)
