@@ -1694,11 +1694,11 @@ color: var(--t-colors-black);
 }
 
 .facet-details[open] .facet-toggle__show {
-  display: none;
+    display: none;
 }
 
 .facet-details:not([open]) .facet-toggle__hide {
-  display: none;
+    display: none;
 }
 
 .facet-toggle {
@@ -1712,7 +1712,7 @@ color: var(--t-colors-black);
 
 .facet-toggle__hide,
 .facet-toggle__show {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 p.filter {
