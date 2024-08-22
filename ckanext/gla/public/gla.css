@@ -1707,7 +1707,7 @@ color: var(--t-colors-black);
 }
 
 .facet-toggle::marker {
-      display: none;
+    display: none;
 }
 
 .facet-toggle__hide,
