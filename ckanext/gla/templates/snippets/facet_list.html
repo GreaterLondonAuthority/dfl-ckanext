@@ -15,34 +15,32 @@
     {% with items = items or h.get_facet_items_dict(name, search_facets) %}
     {% if items %}
 
-    {% if h.get_param_int('_%s_limit' % name) %}
-        <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="facet-toggle"><i class="fa fa-arrow-circle-down" aria-hidden="true"></i> Show</a>
-    {% else %}
-        <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="facet-toggle"><i class="fa fa-arrow-circle-up" aria-hidden="true"></i> Hide</a>
-
-    <nav aria-label="{{ title }}">
-    <ul class="list-unstyled nav nav-filter">
-        {% for item in items %}
-        {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
-        {% set label = label_function(item) if label_function else item.display_name %}
-        {% set label_truncated = label|truncate(30, True) if not label_function else label %}
-        {% set count = count_label(item['count']) if count_label else ('%d' % item['count']) %}
-        {% set id = item.name %}
-
-        <li class="nav-item">
-            <a href="{{ href }}" title="{{ label if label != label_truncated else '' }}">
-                <input class="checkbox-filter" type="checkbox" id="{{ id }}" onchange="window.location.href='{{ href }}'" name="{{ label }}"
-                    {% if item.active %} checked{% endif %}>
-                <label for="{{ id }}" class="label-filter"> {{ label }} ({{ count }})</label>
-
-                <!-- {% if item.active %}<span class="facet-close"> <i class="fa fa-solid fa-circle-xmark"></i></span>{% endif %} -->
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-    </nav>
-
-    {% endif %}
+    <details class="facet-details">
+      <summary class="facet-toggle">
+          <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
+          <span class="facet-toggle__show">Show</span>
+          <span class="facet-toggle__hide">Hide</span>
+      </summary>
+      <nav aria-label="{{ title }}">
+      <ul class="list-unstyled nav nav-filter">
+          {% for item in items %}
+          {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
+          {% set label = label_function(item) if label_function else item.display_name %}
+          {% set label_truncated = label|truncate(30, True) if not label_function else label %}
+          {% set count = count_label(item['count']) if count_label else ('%d' % item['count']) %}
+          {% set id = item.name %}
+          <li class="nav-item">
+              <a href="{{ href }}" title="{{ label if label != label_truncated else '' }}">
+                  <input class="checkbox-filter" type="checkbox" id="{{ id }}" onchange="window.location.href='{{ href }}'" name="{{ label }}"
+                      {% if item.active %} checked{% endif %}>
+                  <label for="{{ id }}" class="label-filter"> {{ label }} ({{ count }})</label>
+                  <!-- {% if item.active %}<span class="facet-close"> <i class="fa fa-solid fa-circle-xmark"></i></span>{% endif %} -->
+                  </a>
+              </li>
+              {% endfor %}
+          </ul>
+      </nav>
+    </details>
     {% else %}
     <p class="module-content empty">{{ _('No {facet_type} filters').format(facet_type=title.lower()) }}</p>
     {% endif %}
