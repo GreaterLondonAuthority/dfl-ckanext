@@ -1,15 +1,18 @@
 from collections import OrderedDict
-from typing import Any
+from typing import Any, Optional, Mapping
 
+import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.common import _
+from ckan.model import User
+from ckan.lib import signals
 from ckan.config.declaration import Declaration, Key
 from ckan.lib.helpers import dict_list_reduce, markdown_extract, ungettext
 from ckan.types import Schema, Validator
 from markupsafe import Markup
 
-from . import auth, custom_fields, helpers, search, timestamps, views
+from . import auth, custom_fields, helpers, search, timestamps, views, user
 from .search_highlight import (  # query is imported for initialisation, though not explicitly used
     action, query)
 
@@ -17,11 +20,13 @@ TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
 GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
 
+log = logging.getLogger(__name__)
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IConfigDeclaration)
     plugins.implements(plugins.IAuthFunctions, inherit=True)
+    plugins.implements(plugins.IAuthenticator, inherit=True)
     plugins.implements(plugins.IPackageController, inherit=True)
     plugins.implements(plugins.IResourceController, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
@@ -245,6 +250,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             "debug_dataset_search": search.debug,
             "log_chosen_search_result": search.log_selected_result,
             "package_search": action.package_search,
+            "user_create": user.user_create,
         }
 
     # IDatasetForm
@@ -320,3 +326,30 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def group_facets(self, facets_dict, *args):
         return facets_dict
+
+    # IAuthenticator
+    
+    # Extend the default_authenticate() function
+    # Force username and email to be lowercase when a user tries to login
+    def authenticate(
+        self, identity: Mapping[str, Any]
+    ) -> Optional["User"]:
+      if not ('login' in identity and 'password' in identity):
+          return None
+
+      login = identity['login']
+      # Force username and email to be lowercase
+      user_obj = User.by_name(login.lower())
+      if not user_obj:
+          user_obj = User.by_email(login.lower())
+
+      if user_obj is None:
+          log.debug('Login failed - username or email %r not found', login)
+      elif not user_obj.is_active:
+          log.debug('Login as %r failed - user isn\'t active', login)
+      elif not user_obj.validate_password(identity['password']):
+          log.debug('Login as %r failed - password not valid', login)
+      else:
+          return user_obj
+      signals.failed_login.send(login)
+      return None
