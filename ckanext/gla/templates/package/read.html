@@ -16,7 +16,7 @@
     {% if pkg.archived == 'true' %}
         [{{_('Archived')}}]
     {% endif %}
-    
+
 {% endblock %}
 
 {% block package_notes %}
@@ -59,7 +59,14 @@
     {% if pkg.search_description %}
         <p><strong>{{ pkg.search_description }}</strong></p>
     {% endif %}
-    {{ super() }}
+
+    {% if pkg.notes %}
+        <div class="notes embedded-content">
+            {{ h.render_markdown(h.get_translated(pkg, 'notes'), allow_html=True) }}
+        </div>
+    {% endif %}
+
+    {# {{ super() }} #}
 
 {% endblock %}
 
