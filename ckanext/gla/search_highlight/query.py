@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Any, Optional, cast
 
@@ -18,6 +19,15 @@ VALID_SOLR_PARAMETERS.update(
 
 
 class PatchedPackageSearchQuery(PackageSearchQuery):
+    def get_index(self, reference: str) -> dict[str, Any]:
+        result = super().get_index(reference)
+
+        validated_data_dict = json.loads(result["validated_data_dict"])
+        validated_data_dict["notes_with_markup"] = result.get("notes_with_markup")
+        result["validated_data_dict"] = json.dumps(validated_data_dict)
+
+        return result
+
     def run(
         self,
         query: dict[str, Any],
@@ -89,6 +99,7 @@ class PatchedPackageSearchQuery(PackageSearchQuery):
 
         # return the package ID and search scores
         query["fl"] = query.get("fl", "name")
+        query["fl"] += " notes_with_markup"
 
         # return results as json encoded string
         query["wt"] = query.get("wt", "json")

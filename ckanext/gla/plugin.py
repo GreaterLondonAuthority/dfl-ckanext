@@ -1,18 +1,20 @@
-from collections import OrderedDict
-from typing import Any, Optional, Mapping
-
+import json
 import logging
+from collections import OrderedDict
+from typing import Any, Mapping, Optional
+
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.common import _
-from ckan.model import User
-from ckan.lib import signals
 from ckan.config.declaration import Declaration, Key
+from ckan.lib import signals
 from ckan.lib.helpers import dict_list_reduce, markdown_extract, ungettext
+from ckan.logic.schema import default_show_package_schema
+from ckan.model import User
 from ckan.types import Schema, Validator
 from markupsafe import Markup
 
-from . import auth, custom_fields, helpers, search, timestamps, views, user
+from . import auth, custom_fields, helpers, search, timestamps, user, views
 from .search_highlight import (  # query is imported for initialisation, though not explicitly used
     action, query)
 
@@ -21,6 +23,7 @@ REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
 GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
 
 log = logging.getLogger(__name__)
+
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
@@ -71,7 +74,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 "hl.snippets": "1",
                 "hl.fragsize": "200",
                 "hl.bs.type": "SENTENCE",
-                "hl.fl": "title,extras_sanitized_notes,extras_sanitized_search_description",
+                "hl.fl": "title,notes,search_description",
                 "hl.simple.pre": "[[",
                 "hl.simple.post": "]]",
                 "hl.maxAnalyzedChars": "250000",  # only highlight matches occuring in the first 250k characters of a field we increase this from SOLRs default of 51k because some datasets have long descriptions and highlighting wasn't displaying
@@ -150,20 +153,18 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             index_id = result.get("index_id", False)
             if index_id and index_id in search_results["highlighting"]:
                 highlighted_title = _get_highlighted_field("title", index_id)
-                highlighted_notes = _get_highlighted_field(
-                    "extras_sanitized_notes", index_id
-                )
+                highlighted_notes = _get_highlighted_field("notes", index_id)
                 highlighted_search_description = _get_highlighted_field(
-                    "extras_search_description", index_id
+                    "search_description", index_id
                 )
                 highlighted_organization_title = _get_highlighted_field(
                     "organization", index_id
                 )
 
                 title = highlighted_title or result["title"]
-                notes = highlighted_notes or result.get("sanitized_notes", "")
+                notes = highlighted_notes or result.get("notes", "")
                 search_description = highlighted_search_description or result.get(
-                    "sanitized_search_description", ""
+                    "search_description", ""
                 )
                 organization = (
                     highlighted_organization_title or result["organization"]["title"]
@@ -221,6 +222,15 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         timestamps.set_to_now(ctx, resources)
 
     def before_dataset_index(self, pkg_dict: dict[str, Any]) -> dict[str, Any]:
+        pkg_dict["notes_with_markup"] = helpers.sanitise_markup(
+            pkg_dict["notes"], remove_tags=False
+        )
+        pkg_dict["notes"] = helpers.sanitise_markup(pkg_dict["notes"], remove_tags=True)
+
+        validated_data_dict = json.loads(pkg_dict.get("validated_data_dict", {}))
+        validated_data_dict["notes"] = pkg_dict["notes"]
+        pkg_dict["validated_data_dict"] = json.dumps(validated_data_dict)
+
         new_format_list = []
         for file_format in pkg_dict.get("res_format", []):
             if file_format.lower() in TABLE_FORMATS:
@@ -258,6 +268,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def create_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).create_package_schema()
         schema.update(custom_fields.custom_dataset_fields)
+        ic(schema)
         return schema
 
     def update_package_schema(self) -> Schema:
@@ -286,12 +297,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                     toolkit.get_converter("convert_from_extras"),
                     toolkit.get_validator("ignore_missing"),
                 ],
-                "sanitized_search_description": [
-                    toolkit.get_converter("convert_from_extras"),
-                    toolkit.get_validator("ignore_missing"),
-                ],
-                "sanitized_notes": [
-                    toolkit.get_converter("convert_from_extras"),
+                "notes_with_markup": [
                     toolkit.get_validator("ignore_missing"),
                 ],
             }
@@ -328,28 +334,26 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return facets_dict
 
     # IAuthenticator
-    
+
     # Extend the default_authenticate() function
     # Force username and email to be lowercase when a user tries to login
-    def authenticate(
-        self, identity: Mapping[str, Any]
-    ) -> Optional["User"]:
-      if not ('login' in identity and 'password' in identity):
-          return None
+    def authenticate(self, identity: Mapping[str, Any]) -> Optional["User"]:
+        if not ("login" in identity and "password" in identity):
+            return None
 
-      login = identity['login']
-      # Force username and email to be lowercase
-      user_obj = User.by_name(login.lower())
-      if not user_obj:
-          user_obj = User.by_email(login.lower())
+        login = identity["login"]
+        # Force username and email to be lowercase
+        user_obj = User.by_name(login.lower())
+        if not user_obj:
+            user_obj = User.by_email(login.lower())
 
-      if user_obj is None:
-          log.debug('Login failed - username or email %r not found', login)
-      elif not user_obj.is_active:
-          log.debug('Login as %r failed - user isn\'t active', login)
-      elif not user_obj.validate_password(identity['password']):
-          log.debug('Login as %r failed - password not valid', login)
-      else:
-          return user_obj
-      signals.failed_login.send(login)
-      return None
+        if user_obj is None:
+            log.debug("Login failed - username or email %r not found", login)
+        elif not user_obj.is_active:
+            log.debug("Login as %r failed - user isn't active", login)
+        elif not user_obj.validate_password(identity["password"]):
+            log.debug("Login as %r failed - password not valid", login)
+        else:
+            return user_obj
+        signals.failed_login.send(login)
+        return None
