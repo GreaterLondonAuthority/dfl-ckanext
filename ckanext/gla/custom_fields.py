@@ -58,7 +58,6 @@ custom_dataset_fields = {
 }
 
 
-
 fields_to_copy = {
     "extras_data_quality": {"type": "int", "name": "copy_data_quality"},
     "extras_dataset_boost": {"type": "double", "name": "copy_dataset_boost"}
@@ -129,7 +128,7 @@ def add_solr_config():
                                   "indexed": True,
                                   "stored": True,
                                   "multiValued": True}})
-    
+
     if not field_exists('dfl_title_sort'):
         add_schema({
             "add-field-type": {
@@ -165,13 +164,13 @@ def add_solr_config():
             }
         }})
 
-        add_schema({"add-field": {"name": "dfl_title_sort",
-                                  "type": "dfl_sortable_text_field"}})
-
-        add_schema({"add-copy-field": {"source": "title",
-                                       "dest": ["dfl_title_sort"]}})
-        add_schema({"add-field": {"name": "frequency",
-                                    "type": "text"}})
+        add_schema(
+            {"add-field": {"name": "dfl_title_sort", "type": "dfl_sortable_text_field"}}
+        )
+        add_schema({"add-copy-field": {"source": "title", "dest": ["dfl_title_sort"]}})
+        add_schema({"add-field": {"name": "frequency", "type": "text"}})
+    
+    if not field_exists("notes_with_markup"):
+        add_schema({"add-field": {"name": "notes_with_markup", "type": "text"}})
 
     add_copy_fields()
-

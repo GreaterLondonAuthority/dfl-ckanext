@@ -1,3 +1,4 @@
+import bleach
 import ckan.lib.formatters as formatters
 import ckan.plugins.toolkit as toolkit
 from bs4 import BeautifulSoup
@@ -108,6 +109,28 @@ def get_site_title(request):
         return "{} - {}".format(dataset_title, site_title)
     else:
         return None
+
+
+def sanitise_markup(html: str, remove_tags: bool = True) -> str:
+    """
+    Sanitise and fix markup in HTML strings.
+
+    :param remove_tags: If True then remove all html tags from the string and only return the text.
+    If False, keep all tags in bleach's ALLOWED_TAGS list and attributes in ALLOWED_ATTRIBUTES list.
+    """
+    soup = BeautifulSoup(html, "lxml")
+
+    for data in soup(["style", "script", "iframe", "br"]):
+        data.decompose()
+
+    # Bleach sanitises HTML string by removing unsafe tags and attributes.
+    # It also removes mismatched tags.
+    # NOTE: CSS in style arrtibutes isn't sanitised but can be added through additional dependencies, 
+    # see bleach.CSS_SANITIZER.
+    if remove_tags:
+        return bleach.clean(" ".join(soup.stripped_strings), strip=True)
+
+    return str(soup)
 
 
 def _sanitise_markup(html: str, remove_tags: bool = True) -> str:
