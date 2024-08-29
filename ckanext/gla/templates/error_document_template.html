@@ -1,0 +1,10 @@
+{% ckan_extends %}
+
+
+{% block primary %}
+  {% if code == 403 and _('Invalid reset key. Please try again.') in content %}
+    <p style="padding-top: 32px">Your reset password link has expired or already been used. Please {{ h.link_to('request another reset link', '/user/reset') }}.</p>
+  {% else %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
