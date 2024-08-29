@@ -24,10 +24,4 @@
     </section>
 </div>
 
-{# Hidden elements #}
-{# These are need because ckan make javascript queries for them in ckan/ckanext/activity/assets/dashboard.js. #}
-{# If they are missing, js errors are thrown, causing the follow/unfollow dataset buttons to break #}
-<div id="followee-filter" hidden><button class="btn" hidden></button></div>
-<div id="followee-content" hidden></div>
-
 {% endblock %}
