@@ -32,7 +32,7 @@
         {% endwith %}
     {% endfor %} 
         <p style="padding-top:20px">
-            <a href={% url_for 'dataset_search', q=request.args.get("q"), sort=request.args.get("sort") %}>Clear filters</a>
+            <a href={% url_for 'dataset_search' %}>Clear filters</a>
         </p><hr>
     {% else %}
     <p>No filters applied.</p>
