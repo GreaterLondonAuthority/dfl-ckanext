@@ -47,6 +47,8 @@
                     >{{ label }}</a>
                 {% endif %}
               {% endfor %}
+        {# A hidden input with name "sort" is needed to submit the sort by value when a user click on the search button #}
+        <input type="hidden" name="sort" value="{{sorting_selected.split(",")[0] if sorting_selected else ''}}" >
         {% endif %}
       {% endblock %}
     </div>
