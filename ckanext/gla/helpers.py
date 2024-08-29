@@ -98,7 +98,7 @@ def get_site_title(request):
         return None
     if path_parts == ["dataset"]:  # We're on the dataset search page
         search = request.args.get("q")
-        if search is not None:
+        if search is not None and search != '':
             page_title = search
         else:
             page_title = "Search"
