@@ -85,7 +85,7 @@ class PatchedPackageSearchQuery(PackageSearchQuery):
         query["facet.limit"] = query.get(
             "facet.limit", config.get("search.facets.limit")
         )
-        query["facet.mincount"] = query.get("facet.mincount", 0)
+        query["facet.mincount"] = query.get("facet.mincount", 1)
 
         # return the package ID and search scores
         query["fl"] = query.get("fl", "name")
