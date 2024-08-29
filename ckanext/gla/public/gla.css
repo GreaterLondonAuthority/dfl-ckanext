@@ -1689,8 +1689,30 @@ text-decoration: none;
 color: var(--t-colors-black);
 }
 
+.facet-details[open] i {
+    transform: rotate(180deg);
+}
+
+.facet-details[open] .facet-toggle__show {
+    display: none;
+}
+
+.facet-details:not([open]) .facet-toggle__hide {
+    display: none;
+}
+
 .facet-toggle {
     color: var(--t-colors-pink);
+    list-style: none;
+}
+
+.facet-toggle::marker {
+    display: none;
+}
+
+.facet-toggle__hide,
+.facet-toggle__show {
+    text-decoration: underline;
 }
 
 p.filter {
