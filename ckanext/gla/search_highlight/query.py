@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from typing import Any, Optional, cast
 
 import pysolr
@@ -14,7 +15,20 @@ from werkzeug.datastructures import MultiDict
 log = logging.getLogger(__name__)
 
 VALID_SOLR_PARAMETERS.update(
-    ["hl", "hl.fl", "hl.fragsize", "hl.simple.pre", "hl.simple.post", "hl.method", "hl.fragsizeIsMinimum", "hl.bs.type", "hl.requireFieldMatch", "hl.snippets", "hl.maxAnalyzedChars", "hl.fragAlignRatio"]
+    [
+        "hl",
+        "hl.fl",
+        "hl.fragsize",
+        "hl.simple.pre",
+        "hl.simple.post",
+        "hl.method",
+        "hl.fragsizeIsMinimum",
+        "hl.bs.type",
+        "hl.requireFieldMatch",
+        "hl.snippets",
+        "hl.maxAnalyzedChars",
+        "hl.fragAlignRatio",
+    ]
 )
 
 
@@ -22,9 +36,19 @@ class PatchedPackageSearchQuery(PackageSearchQuery):
     def get_index(self, reference: str) -> dict[str, Any]:
         result = super().get_index(reference)
 
+        # package_show extracts validated_data_dict and ignores everything else from the index,
+        # therefore we need to manually add notes_with_markup to validated_data_dict
+        # TODO: Investigate storing notes_with_markup in database (package table) during harvest
         validated_data_dict = json.loads(result["validated_data_dict"])
         validated_data_dict["notes_with_markup"] = result.get("notes_with_markup")
         result["validated_data_dict"] = json.dumps(validated_data_dict)
+
+        # package_show crudely compares first 22 characters of dates to determine whether to use
+        # data from validated_data_dict or directly from the database. Some datetimes fail this comparison
+        # due to timezone component, so we need to manually remove it for comparison to work as intended.
+        result["metadata_modified"] = re.sub(
+            r"Z|([+-]\d\d:?(\d\d)?)$", "", result["metadata_modified"]
+        )
 
         return result
 

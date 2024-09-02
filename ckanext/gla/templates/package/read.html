@@ -62,8 +62,7 @@
 
     {% if pkg.notes %}
         <div class="notes embedded-content">
-            {# {{ h.render_markdown(h.get_translated(pkg, 'notes'), allow_html=True) }} #}
-            {{ h.render_markdown(h.get_translated(pkg, 'notes_with_markup'), allow_html=True) }}
+            {{ pkg.notes_with_markup|safe }}
         </div>
     {% endif %}
 
