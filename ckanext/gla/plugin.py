@@ -3,20 +3,19 @@ import logging
 from collections import OrderedDict
 from typing import Any, Mapping, Optional
 
+import ckan.lib.mailer as Mailer
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-import ckan.lib.mailer as Mailer
 from ckan.common import _
 from ckan.config.declaration import Declaration, Key
 from ckan.lib import signals
 from ckan.lib.helpers import dict_list_reduce, markdown_extract, ungettext
-from ckan.logic.schema import default_show_package_schema
 from ckan.model import User
 from ckan.types import Schema, Validator
 from markupsafe import Markup
-from .email import send_reset_link
 
 from . import auth, custom_fields, helpers, search, timestamps, user, views
+from .email import send_reset_link
 from .search_highlight import (  # query is imported for initialisation, though not explicitly used
     action, query)
 
@@ -273,7 +272,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def create_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).create_package_schema()
         schema.update(custom_fields.custom_dataset_fields)
-        ic(schema)
         return schema
 
     def update_package_schema(self) -> Schema:
