@@ -279,7 +279,7 @@ small {
 
 .btn,
 .btn-default {
-    border: 2px solid #e7135d;
+    border: 2px solid #ae3b89;
     border-radius: 6px;
     display: inline-block;
     font-size: 1.125rem;
@@ -302,9 +302,9 @@ small {
 .btn:hover,
 .btn-default:focus,
 .btn-default:hover {
-    background-color: #e7135d !important;
+    background-color: #ae3b89 !important;
     color: #fff;
-    border-color: #e7135d;
+    border-color: #ae3b89;
 }
 
 .btn:focus .fa,
@@ -320,12 +320,12 @@ a .fa .btn.btn--white {
 .btn.btn--white:focus,
 .btn.btn--white:hover {
     background-color: #fff;
-    color: #e7135d
+    color: #ae3b89
 }
 
 .btn.btn--solid {
-    background-color: #e7135d;
-    border-color: #e7135d;
+    background-color: #ae3b89;
+    border-color: #ae3b89;
     color: #fff
 }
 
@@ -343,7 +343,7 @@ a .fa .btn.btn--white {
 
 .btn.btn--outline:focus,
 .btn.btn--outline:hover {
-    border-color: #e7135d
+    border-color: #ae3b89
 }
 
 .btn.btn--sm {
@@ -351,15 +351,15 @@ a .fa .btn.btn--white {
 }
 
 .btn.jump-link-btn {
-    background-color: #e7135d;
-    border-color: #e7135d;
+    background-color: #ae3b89;
+    border-color: #ae3b89;
     color: #fff
 }
 
 .btn.jump-link-btn:hover {
     background-color: #fff;
     border-color: #fff;
-    color: #e7135d;
+    color: #ae3b89;
     text-decoration: none;
     -webkit-text-decoration-style: solid;
     text-decoration-style: solid;
