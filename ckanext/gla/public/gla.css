@@ -1,3 +1,25 @@
+/* FONTS */
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    font-style: NORMAL;
+    font-weight: 400;
+    src: url(/PlusJakartaSans-Regular.ttf) format('truetype'), url(/plus-jakarta-sans-latin-400-normal.woff) format('woff'), url(/plus-jakarta-sans-latin-400-normal.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    font-style: NORMAL;
+    font-weight: 700;
+    src: url(PlusJakartaSans-Bold.ttf) format('truetype'), url(/plus-jakarta-sans-latin-700-normal.woff) format('woff'), url(/plus-jakarta-sans-latin-700-normal.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: "Plus Jakarta Sans";
+    font-style: ITALIC;
+    font-weight: 400;
+    src: url(PlusJakartaSans-Italic.ttf) format('truetype'), url(/plus-jakarta-sans-latin-400-italic.woff) format('woff'), url(/plus-jakarta-sans-latin-400-italic.woff2) format('woff2');
+}
+
 /* ***** Imported from GLA Site ***** */
 .masthead .debug {
     display: none !important;
@@ -235,7 +257,7 @@ h6,
 
 body {
     color: #333;
-    font-family: Arial, system-ui, -apple-system, Segoe UI, Helvetica, Roboto, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+    font-family: "Plus Jakarta Sans", Arial, system-ui, -apple-system, Segoe UI, Helvetica, Roboto, sans-serif, Apple Color Emoji, Segoe UI Emoji;
     font-size: 1.125rem;
     line-height: 1.875rem
 }
