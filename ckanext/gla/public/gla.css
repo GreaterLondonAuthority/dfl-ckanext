@@ -28,9 +28,9 @@
 :root {
     --t-colors-transparent: hsla(0, 0%, 100%, 0);
     --t-colors-current: currentColor;
-    --t-colors-pink: #e7135d;
-    --t-colors-pink-alternative: #e4035e;
-    --t-colors-pink-dark: #9e0059;
+    --t-colors-pink: #ae3b89;
+    --t-colors-pink-alternative: #c267a5;
+    --t-colors-pink-dark: #9E0059;
     --t-colors-grey: #353d42;
     --t-colors-grey-25: #d0d2d4;
     --t-colors-grey-50: #d6d6d6;
