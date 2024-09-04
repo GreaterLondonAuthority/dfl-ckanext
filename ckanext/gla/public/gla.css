@@ -437,7 +437,7 @@ button.navbar-toggler {
 }
 
 .masthead .navbar .logo img {
-    /* max-height: 1.6rem; */
+    max-height: 80px;
     width: 100%;
 }
 
