@@ -994,13 +994,16 @@ form.lang-select select {
 }
 
 .masthead .main-navbar ul li:hover a,
+.masthead .main-navbar ul li a:hover,
 .masthead .main-navbar ul li:focus a,
+.masthead .main-navbar ul li a:focus,
 .masthead .main-navbar ul li.active a {
     background: inherit;
     text-decoration: underline;
     text-decoration-color: var(--t-colors-pink);
     text-decoration-thickness: 2px;
     text-underline-offset: 4px;
+    color: var(--t-colors-pink);
 }
 
 /* Resource Item */
