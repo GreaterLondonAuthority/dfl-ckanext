@@ -57,7 +57,7 @@ def build_multi_select_facet_constraints() -> dict[str, Any]:
                     
     for key, vals in fields_grouped.items():
         quoted_vals = [f'"{val}"' for val in vals]
-        query_part = f"{key}:({' OR '.join(quoted_vals)})"
+        query_part = f"{{!tag={key}}}{key}:({' OR '.join(quoted_vals)})"
                         
         fq_parts.append(query_part)
 
@@ -107,7 +107,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         # We only want Showcases to show up when there is a search query
         search_params = search.add_quality_to_search(search_params)
 
-        search_params['facet.field'] = [item for item in search_params.get('facet.field',[])]
+        search_params['facet.field'] = [f'{{!ex={item}}}' + item for item in search_params.get('facet.field',[])]
         search_params.update(
             {
                 "fq": '',
