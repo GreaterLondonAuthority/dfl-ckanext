@@ -1,12 +1,31 @@
+import ckan.lib.helpers as h
+import ckan.model as model
 import ckan.plugins.toolkit as toolkit
+from ckan.common import logout_user, request
 from ckan.types import Response
 from ckan.views.user import RegisterView
+
+from . import email
 
 
 class GlaRegisterView(RegisterView):
     def post(self) -> Response | str:
-        response = super().post()
-        return response
+        super().post()
+
+        # Send verification email and log the user out
+        user_email = request.form.get("email")
+        if user_email:
+            user_obj = model.User.by_email(user_email)
+            if user_obj:
+                email.send_email_verification_link(user_obj)
+
+        logout_user()
+
+        h.flash_notice(
+            "A verification email has been sent to your email address. Please click the link in the email to verify your email address."
+        )
+
+        return h.redirect_to("user.login")
 
 
 @toolkit.chained_action

@@ -9,7 +9,7 @@ import ckan.plugins.toolkit as toolkit
 from ckan.common import _
 from ckan.config.declaration import Declaration, Key
 from ckan.lib import signals
-from ckan.lib.helpers import dict_list_reduce, markdown_extract, ungettext
+from ckan.lib.helpers import dict_list_reduce, flash_error, markdown_extract, ungettext
 from ckan.model import User
 from ckan.types import Schema, Validator
 from markupsafe import Markup
@@ -17,9 +17,9 @@ from markupsafe import Markup
 from . import auth, custom_fields, helpers, search, timestamps, user, views
 from .email import send_email_verification_link, send_reset_link
 from .search_highlight import (  # query is imported for initialisation, though not explicitly used
-    action, query)
-
-# from icecream import ic
+    action,
+    query,
+)
 
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
@@ -44,7 +44,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IDatasetForm)
     plugins.implements(plugins.IFacets)
     plugins.implements(plugins.IValidators)
-    # plugins.implements(plugins.ISignal)
 
     def get_validators(self) -> dict[str, Validator]:
         return {"user_password_validator": auth.user_password_validator}

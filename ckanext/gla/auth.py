@@ -146,10 +146,10 @@ def verify_user(token, expiration=86400) -> str:
 
         user_obj.save()
 
-        return True
+        return email
     except Exception as e:
         logger.error(e)
-        return False
+        return None
 
 
 def is_email_verified(user_obj: model.User) -> bool:
