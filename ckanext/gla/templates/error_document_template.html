@@ -4,6 +4,11 @@
 {% block primary %}
   {% if code == 403 and _('Invalid reset key. Please try again.') in content %}
     <p style="padding-top: 32px">Your reset password link has expired or already been used. Please {{ h.link_to('request another reset link', '/user/reset') }}.</p>
+  {% elif code == 403 and _('Email not verified') in content %}
+    <div style="padding-top: 32px">
+      <p>A verification email has been sent to your email address. Please click the link in the email to verify your email address.</p>
+      {# <p><a href="">Re-send verification email</a></p> #}
+    </div>
   {% else %}
     {{ super() }}
   {% endif %}

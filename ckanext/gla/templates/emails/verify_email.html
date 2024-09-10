@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify email</title>
+  </head>
+  <body>
+    <p>Dear {{ user_name }},</p>
+    <p>
+      Please click the following link to verify your email:
+      <a href="{{ verification_link }}" target="_blank">Verify email</a>
+    </p>
+    <p>Have a nice day.</p>
+    <p>--<br />Message sent by {{ site_title }} (<a href="{{ site_url }}" target="_blank">{{ site_url }}</a>)</p>
+  </body>
+</html>
