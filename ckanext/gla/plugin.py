@@ -100,18 +100,30 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     # IPackageController
     def before_dataset_search(self, search_params):
-        
-        multi_select_fqs = build_multi_select_facet_constraints()
-        
         # Include showcases *and* datasets in the search results:
         # We only want Showcases to show up when there is a search query
         search_params = search.add_quality_to_search(search_params)
 
-        search_params['facet.field'] = [f'{{!ex={item}}}' + item for item in search_params.get('facet.field',[])]
+        if not(str.startswith(request.path, '/api')):
+            # If we're not an API request trigger the multi-select
+            # faceted search behaviour.
+            #
+            # As the CKAN API allows API users to set the SOLR fq
+            # parameter themselves explicitly, we need to avoid doing
+            # this for API requests.
+            multi_select_fqs = build_multi_select_facet_constraints()
+            search_params['fq_init_list'] = multi_select_fqs
+
+            # NOTE the two search_params set below override settings
+            # set earlier by CKAN.
+            #
+            # fq can be replaced entirely with an empty string as our
+            # fq_init_list will later replace it.
+            search_params['facet.field'] = [f'{{!ex={item}}}' + item for item in search_params.get('facet.field',[])]
+            search_params['fq'] = ''
+            
         search_params.update(
             {
-                "fq": '',
-                "fq_init_list": multi_select_fqs, ## TODO NOTE stomping fq breaks fq API behaviour                
                 "hl": "on",
                 "hl.method": "unified",
                 "hl.fragsizeIsMinimum": "false",
