@@ -28,6 +28,21 @@ Mailer.send_reset_link = send_reset_link
 
 log = logging.getLogger(__name__)
 
+GLA_DATASET_FACETS = OrderedDict(
+            [
+                ("dfl_res_format_group", toolkit._("Format")),
+                ("res_format", toolkit._("File type")),
+                ("organization", toolkit._("Organisation")),
+                #("organization", facets_dict["organization"]),                
+                ("project_name", toolkit._("Projects")),
+                # Entry type is disabled for now as the value is null for harvested datasets
+                # The filter works, so enabling it will allow us to filter for datasets with
+                # the field set, either by manual edit, script, or updates to harvester
+                # ("entry_type", toolkit._("Type")),
+                ("london_smallest_geography", toolkit._("Smallest geography")),
+                ("update_frequency", toolkit._("Update frequency")),
+            ]
+        )
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
@@ -315,20 +330,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     # IFacets
     def dataset_facets(self, facets_dict, _):
-        return OrderedDict(
-            [
-                ("dfl_res_format_group", toolkit._("Format")),
-                ("res_format", toolkit._("File type")),
-                ("organization", facets_dict["organization"]),
-                ("project_name", toolkit._("Projects")),
-                # Entry type is disabled for now as the value is null for harvested datasets
-                # The filter works, so enabling it will allow us to filter for datasets with
-                # the field set, either by manual edit, script, or updates to harvester
-                # ("entry_type", toolkit._("Type")),
-                ("london_smallest_geography", toolkit._("Smallest geography")),
-                ("update_frequency", toolkit._("Update frequency")),
-            ]
-        )
+        return GLA_DATASET_FACETS
 
     def organization_facets(self, facets_dict, *args):
         return facets_dict
