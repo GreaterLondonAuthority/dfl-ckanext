@@ -26,6 +26,24 @@ from .search_highlight import (  # query is imported for initialisation, though 
 )
 from .search_highlight.action import dataset_facets_for_user, GLA_SYSADMIN_FACETS
 
+import csv
+import os
+
+from csv import DictReader
+# open file in read mode
+with open("organisation_mappings.csv", mode='r') as f:
+    dict_reader = DictReader(f)
+    list_of_dict = list(dict_reader)
+   
+
+with open("organisation_mappings.csv", mode='r') as csvfile:
+    ORGAINZATION_DICT = {}
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+         ORGAINZATION_DICT[row["Original ID"]] = row["Override ID"]
+
+
+
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
 GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
@@ -281,6 +299,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
                 search_description = highlighted_search_description or result.get(
                     "search_description", ""
                 )
+                
                 organization = (
                     highlighted_organization_title or result["organization"]["title"]
                 )
@@ -346,6 +365,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
         timestamps.set_to_now(ctx, resources)
 
     def before_dataset_index(self, pkg_dict: dict[str, Any]) -> dict[str, Any]:
+
         pkg_dict["notes_with_markup"] = helpers.sanitise_markup(
             pkg_dict["notes"], remove_tags=False
         )
@@ -353,6 +373,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
 
         validated_data_dict = json.loads(pkg_dict.get("validated_data_dict", {}))
         validated_data_dict["notes"] = pkg_dict["notes"]
+
+
+        pkg_dict["organization"] = ORGAINZATION_DICT.get(pkg_dict["organization"], pkg_dict["organization"])
         pkg_dict["validated_data_dict"] = json.dumps(validated_data_dict)
 
         new_format_list = []
