@@ -9,6 +9,8 @@ from ckan import authz, model
 from ckan.common import _
 from ckan.types import Context, FlattenDataDict, FlattenErrorDict, FlattenKey
 from itsdangerous import URLSafeTimedSerializer
+from sqlalchemy.orm.attributes import flag_modified
+
 
 logger = logging.getLogger(__name__)
 
@@ -141,8 +143,13 @@ def verify_user(token, expiration=86400) -> str:
 
         if not user_obj.plugin_extras:
             user_obj.plugin_extras = {"gla": {"verified_email": email.lower()}}
+        elif "gla" not in user_obj.plugin_extras:
+            user_obj.plugin_extras["gla"] = {"verified_email": email.lower()}
         else:
-            user_obj.plugin_extras["gla"]["verified_email"] = email.lower()
+            user_obj.plugin_extras["gla"].update({"verified_email": email.lower()})
+
+        # Postgres needs to be explicitly told to update a jsonb field
+        flag_modified(user_obj, "plugin_extras")
 
         user_obj.save()
 
