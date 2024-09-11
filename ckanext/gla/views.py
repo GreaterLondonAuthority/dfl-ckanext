@@ -1,20 +1,19 @@
+import logging
 from os.path import exists
-from flask import Blueprint, send_file
-
-import ckan
-import ckan.model as model
-import ckan.plugins.toolkit as tk
-
 from typing import Any, cast
 
-import ckan.logic as logic
+import ckan
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+import ckan.logic as logic
+import ckan.model as model
+import ckan.plugins.toolkit as tk
 from ckan import authz
-from ckan.common import _, g, current_user
+from ckan.common import _, current_user, g
 from ckan.types import Context
+from flask import Blueprint, send_file
 
-import logging
+from . import auth, email
 
 log = logging.getLogger(__name__)
 
@@ -89,6 +88,8 @@ def _extra_template_variables(
     }
     return extra
 
+from . import user
+
 
 # Copied from:
 # https://github.com/ckan/ckan/blob/3c676e3cf1f075c5e9bae3b625b86247edf3cc1d/ckan/views/user.py#L124
@@ -133,7 +134,33 @@ def view_user(id):
     return base.render("user/read.html", extra_vars)
 
 
+def verify_user(token, expiration=86400):
+    """
+    Verify a user's email address by checking that a GET request is made with a valid token.
+    """
+    # Has user already verified their email address?
+    # Was user redirected here?
+    user_email = auth.verify_user(token, expiration)
+    if user_email:
+        h.flash_success("Your email address has been verified, please login to continue.")
+        return tk.redirect_to("user.login")
+    
+    user_obj = model.User.by_email(user_email)
+    if user_obj:
+        email.send_email_verification_link(user_obj)
+        h.flash_error("Email verification failed. A new email has been sent to your email address, please check your inbox.")
+    return tk.redirect_to("user.login")
+
+
 users.add_url_rule("/user/<id>", methods=["GET"], view_func=view_user)
+users.add_url_rule("/user/register", methods=["POST"], view_func=user.GlaRegisterView.as_view("register"))
+users.add_url_rule(
+    "/user/verify/<token>",
+    methods=["GET"],
+    view_func=verify_user,
+    endpoint="verify_email",
+)
+
 ## Download routes:
 
 def get_server_search_logs():

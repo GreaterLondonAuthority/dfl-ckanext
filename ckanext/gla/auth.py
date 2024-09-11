@@ -1,11 +1,22 @@
-from ckan import authz, model
-from typing import Any
-import string
+import logging
 import re
+import string
+from typing import Any
 
 import ckan.lib.navl.dictization_functions as df
-from ckan.types import FlattenDataDict, FlattenKey, Context, FlattenErrorDict
+import ckan.plugins.toolkit as tk
+from ckan import authz, model
 from ckan.common import _
+from ckan.types import Context, FlattenDataDict, FlattenErrorDict, FlattenKey
+from itsdangerous import URLSafeTimedSerializer
+from sqlalchemy.orm.attributes import flag_modified
+
+
+logger = logging.getLogger(__name__)
+
+
+SECRET_KEY = tk.config.get("ckan.verification.security_key")
+SECURITY_PASSWORD_SALT = tk.config.get("ckan.verification.security_password_salt")
 
 
 def _requester_is_sysadmin(context):
@@ -73,8 +84,10 @@ def user_password_validator(
         pass
     if isinstance(value, str):
         if len(value) < 13:
-            errors[("password",)].append(_("Your password must be 13 characters or longer"))
-        
+            errors[("password",)].append(
+                _("Your password must be 13 characters or longer")
+            )
+
         rules = [
             any(x.isupper() for x in value),
             any(x.islower() for x in value),
@@ -88,22 +101,22 @@ def user_password_validator(
                     "Your password must contain at least one of each of the following: upper case character, lower case character, number and a non alpha character (e.g. !$#,%)"
                 )
             )
-        
+
         if data.get(("name",)) and data[("name",)].lower() in value.lower():
             errors[("password",)].append(
                 _("Your password shouldn't contain your username")
             )
-        
+
         if data.get(("fullname",)) and data[("fullname",)].lower() in value.lower():
             errors[("password",)].append(
                 _("Your password shouldn't contain your full name")
             )
-        
+
         if isinstance(value, str) and has_consecutive_numbers(value):
             errors[("password",)].append(
                 _("Your password must not contain consecutive numbers such as '123'")
             )
-        
+
         for password_char in value:
             if password_char * 3 in value:
                 errors[("password",)].append(
@@ -111,5 +124,46 @@ def user_password_validator(
                         'Your password must not contain repeating characters such as "aaa"'
                     )
                 )
-    
-    
+
+
+def generate_token(email: str) -> str:
+    serializer = URLSafeTimedSerializer(SECRET_KEY)
+    return serializer.dumps(email, salt=SECURITY_PASSWORD_SALT)
+
+
+def verify_user(token, expiration=86400) -> str:
+    serializer = URLSafeTimedSerializer(SECRET_KEY)
+
+    try:
+        email = serializer.loads(token, salt=SECURITY_PASSWORD_SALT, max_age=expiration)
+        user_obj = model.User.by_email(email.lower())
+
+        if not user_obj:
+            raise Exception("User not found")
+
+        if not user_obj.plugin_extras:
+            user_obj.plugin_extras = {"gla": {"verified_email": email.lower()}}
+        elif "gla" not in user_obj.plugin_extras:
+            user_obj.plugin_extras["gla"] = {"verified_email": email.lower()}
+        else:
+            user_obj.plugin_extras["gla"].update({"verified_email": email.lower()})
+
+        # Postgres needs to be explicitly told to update a jsonb field
+        flag_modified(user_obj, "plugin_extras")
+
+        user_obj.save()
+
+        return email
+    except Exception as e:
+        logger.error(e)
+        return None
+
+
+def is_email_verified(user_obj: model.User) -> bool:
+    if user_obj.plugin_extras:
+        return (
+            user_obj.plugin_extras.get("gla", {}).get("verified_email", False)
+            == user_obj.email.lower()
+        )
+    else:
+        return False
