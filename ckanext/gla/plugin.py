@@ -6,7 +6,7 @@ from typing import Any, Mapping, Optional
 import ckan.lib.mailer as Mailer
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-from ckan.common import _
+from ckan.common import _, request
 from ckan.config.declaration import Declaration, Key
 from ckan.lib import signals
 from ckan.lib.helpers import dict_list_reduce, markdown_extract, ungettext
@@ -43,6 +43,25 @@ GLA_DATASET_FACETS = OrderedDict(
                 ("update_frequency", toolkit._("Update frequency")),
             ]
         )
+
+def build_multi_select_facet_constraints() -> dict[str, Any]:
+    # fields_grouped will contain a dict of params containing
+    # a list of values eg {u'tags':[u'tag1', u'tag2']}
+    
+    fields_grouped = {}
+    for (facet_id) in GLA_DATASET_FACETS:
+        if facet_id in request.args:
+            fields_grouped[facet_id] = request.args.getlist(facet_id)
+            
+    fq_parts = []
+                    
+    for key, vals in fields_grouped.items():
+        quoted_vals = [f'"{val}"' for val in vals]
+        query_part = f"{key}:({' OR '.join(quoted_vals)})"
+                        
+        fq_parts.append(query_part)
+
+    return fq_parts
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
@@ -81,11 +100,18 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     # IPackageController
     def before_dataset_search(self, search_params):
+        
+        multi_select_fqs = build_multi_select_facet_constraints()
+        
         # Include showcases *and* datasets in the search results:
         # We only want Showcases to show up when there is a search query
         search_params = search.add_quality_to_search(search_params)
+
+        search_params['facet.field'] = [item for item in search_params.get('facet.field',[])]
         search_params.update(
             {
+                "fq": '',
+                "fq_init_list": multi_select_fqs, ## TODO NOTE stomping fq breaks fq API behaviour                
                 "hl": "on",
                 "hl.method": "unified",
                 "hl.fragsizeIsMinimum": "false",
