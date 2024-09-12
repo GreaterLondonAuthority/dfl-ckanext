@@ -14,8 +14,8 @@
     {% block facet_list_items %}
     {% with items = items or h.get_facet_items_dict(name, search_facets) %}
     {% if items %}
-
-    <details class="facet-details">
+    {% set active_items = items | selectattr('active') | list %}
+    <details class="facet-details" {% if active_items %}open="open"{% endif %}>
       <summary class="facet-toggle">
           <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
           <span class="facet-toggle__show">Show</span>
