@@ -373,10 +373,10 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return GLA_DATASET_FACETS
 
     def organization_facets(self, facets_dict, *args):
-        return facets_dict
+        return GLA_DATASET_FACETS
 
     def group_facets(self, facets_dict, *args):
-        return facets_dict
+        return GLA_DATASET_FACETS
 
     # IAuthenticator
 
