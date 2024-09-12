@@ -1,5 +1,12 @@
 {% ckan_extends %}
 
+{% if code == 403 and _('Email not verified') in content %}
+    {%- block title -%}
+        {%- block subtitle %}{% endblock -%}
+        {%- if self.subtitle()|trim %} {{ g.template_title_delimiter }} {% endif -%}
+        Verify Email
+      {%- endblock -%}
+{% endif %}
 
 {% block primary %}
   {% if code == 403 and _('Invalid reset key. Please try again.') in content %}
