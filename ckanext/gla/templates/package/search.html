@@ -5,7 +5,7 @@
 <aside class="secondary col-md-3">
     <div class="visually-hidden-focusable"><a href="#search-results">{{ _('Skip to results ') }}</a></div>
     {% block secondary_content %}
-    
+
     <!-- Figure out if there are filters enabled and show filters section if so -->
     {% set searchstate = namespace(filters_set=false) %}
     {% for filter_name in facet_titles.keys() %}
@@ -20,17 +20,19 @@
     {% if searchstate.filters_set %}
 
     {% for filter_name in facet_titles.keys() %}
-        {% with items = items or h.get_facet_items_dict(filter_name, search_facets) %}
-        {% for item in items %}
-            {% if item.active != False %}
-            <a class="btn-filter" href="{{ h.remove_url_param(filter_name,value=item.name) }}">
-                {{facet_titles[filter_name]}}: <strong>{{item.display_name}}</strong>
-                    <i class="fa-solid fa-circle-xmark fa-circle-xmark-black"></i>    
-            </a>
-            {% endif %}
-        {% endfor %} 
+       {% with items = items or h.get_facet_items_dict(filter_name, search_facets) %}
+
+    {% if items | selectattr('active') | list %}
+    <a class="btn-filter" href="{{ h.remove_url_param(filter_name) }}">
+      <span class="inner-btn-filter">
+        <div class='inner-btn-content'>{{facet_titles[filter_name]}} ({{ items | selectattr('active') | list | count}}) <strong>{{ items | selectattr('active') | map(attribute='display_name') | join(', ')}}</strong></div>
+      </span>
+      <i class="btn-filter-close fa-solid fa-circle-xmark fa-circle-xmark-black"></i>
+    </a>
+
+      {% endif %}
         {% endwith %}
-    {% endfor %} 
+    {% endfor %}
         <p style="padding-top:20px">
             <a href={% url_for 'dataset_search' %}>Reset search</a>
         </p><hr>
@@ -52,4 +54,3 @@
 
 {% block package_search_results_api %}
 {% endblock %}
-

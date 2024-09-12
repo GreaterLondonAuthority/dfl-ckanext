@@ -28,6 +28,7 @@ VALID_SOLR_PARAMETERS.update(
         "hl.snippets",
         "hl.maxAnalyzedChars",
         "hl.fragAlignRatio",
+        'fq_init_list'
     ]
 )
 
@@ -94,10 +95,12 @@ class PatchedPackageSearchQuery(PackageSearchQuery):
             rows_to_query = rows_to_return
         query["rows"] = rows_to_query
 
-        fq = []
+        fq = query.get("fq_init_list", [])
         if "fq" in query:
             fq.append(query["fq"])
         fq.extend(query.get("fq_list", []))
+
+        query.pop('fq_init_list',None)
 
         # show only results from this CKAN instance
         fq.append("+site_id:%s" % solr_literal(config.get("ckan.site_id")))

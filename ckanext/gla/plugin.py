@@ -8,7 +8,7 @@ from markupsafe import Markup
 import ckan.lib.mailer as Mailer
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-from ckan.common import _
+from ckan.common import _, request
 from ckan.config.declaration import Declaration, Key
 from ckan.lib import signals
 from ckan.lib.helpers import dict_list_reduce, markdown_extract, ungettext
@@ -31,6 +31,40 @@ Mailer.send_reset_link = send_reset_link
 
 log = logging.getLogger(__name__)
 
+GLA_DATASET_FACETS = OrderedDict(
+            [
+                ("dfl_res_format_group", toolkit._("Format")),
+                ("res_format", toolkit._("File type")),
+                ("organization", toolkit._("Organisation")),
+                #("organization", facets_dict["organization"]),                
+                ("project_name", toolkit._("Projects")),
+                # Entry type is disabled for now as the value is null for harvested datasets
+                # The filter works, so enabling it will allow us to filter for datasets with
+                # the field set, either by manual edit, script, or updates to harvester
+                # ("entry_type", toolkit._("Type")),
+                ("london_smallest_geography", toolkit._("Smallest geography")),
+                ("update_frequency", toolkit._("Update frequency")),
+            ]
+        )
+
+def build_multi_select_facet_constraints() -> dict[str, Any]:
+    # fields_grouped will contain a dict of params containing
+    # a list of values eg {u'tags':[u'tag1', u'tag2']}
+    
+    fields_grouped = {}
+    for (facet_id) in GLA_DATASET_FACETS:
+        if facet_id in request.args:
+            fields_grouped[facet_id] = request.args.getlist(facet_id)
+            
+    fq_parts = []
+                    
+    for key, vals in fields_grouped.items():
+        quoted_vals = [f'"{val}"' for val in vals]
+        query_part = f"{{!tag={key}}}{key}:({' OR '.join(quoted_vals)})"
+                        
+        fq_parts.append(query_part)
+
+    return fq_parts
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
@@ -72,6 +106,25 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         # Include showcases *and* datasets in the search results:
         # We only want Showcases to show up when there is a search query
         search_params = search.add_quality_to_search(search_params)
+
+        if not(str.startswith(request.path, '/api')):
+            # If we're not an API request trigger the multi-select
+            # faceted search behaviour.
+            #
+            # As the CKAN API allows API users to set the SOLR fq
+            # parameter themselves explicitly, we need to avoid doing
+            # this for API requests.
+            multi_select_fqs = build_multi_select_facet_constraints()
+            search_params['fq_init_list'] = multi_select_fqs
+
+            # NOTE the two search_params set below override settings
+            # set earlier by CKAN.
+            #
+            # fq can be replaced entirely with an empty string as our
+            # fq_init_list will later replace it.
+            search_params['facet.field'] = [f'{{!ex={item}}}' + item for item in search_params.get('facet.field',[])]
+            search_params['fq'] = ''
+            
         search_params.update(
             {
                 "hl": "on",
@@ -317,20 +370,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     # IFacets
     def dataset_facets(self, facets_dict, _):
-        return OrderedDict(
-            [
-                ("dfl_res_format_group", toolkit._("Format")),
-                ("res_format", toolkit._("File type")),
-                ("organization", facets_dict["organization"]),
-                ("project_name", toolkit._("Projects")),
-                # Entry type is disabled for now as the value is null for harvested datasets
-                # The filter works, so enabling it will allow us to filter for datasets with
-                # the field set, either by manual edit, script, or updates to harvester
-                # ("entry_type", toolkit._("Type")),
-                ("london_smallest_geography", toolkit._("Smallest geography")),
-                ("update_frequency", toolkit._("Update frequency")),
-            ]
-        )
+        return GLA_DATASET_FACETS
 
     def organization_facets(self, facets_dict, *args):
         return facets_dict
