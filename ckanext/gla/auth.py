@@ -1,22 +1,22 @@
 import logging
+import os
 import re
 import string
 from typing import Any
 
-import ckan.lib.navl.dictization_functions as df
-import ckan.plugins.toolkit as tk
-from ckan import authz, model
-from ckan.common import _
-from ckan.types import Context, FlattenDataDict, FlattenErrorDict, FlattenKey
 from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy.orm.attributes import flag_modified
 
+import ckan.lib.navl.dictization_functions as df
+from ckan import authz, model
+from ckan.common import _
+from ckan.types import Context, FlattenDataDict, FlattenErrorDict, FlattenKey
 
 logger = logging.getLogger(__name__)
 
 
-SECRET_KEY = tk.config.get("ckan.verification.security_key")
-SECURITY_PASSWORD_SALT = tk.config.get("ckan.verification.security_password_salt")
+SECRET_KEY = os.environ.get("EMAIL_VERIFICATION_SECURITY_KEY")
+SECURITY_PASSWORD_SALT = os.environ.get("EMAIL_VERIFICATION_SECURITY_PASSWORD_SALT")
 
 
 def _requester_is_sysadmin(context):

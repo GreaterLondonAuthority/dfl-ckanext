@@ -1,12 +1,20 @@
 {% ckan_extends %}
 
+{% if code == 403 and _('Email not verified') in content %}
+    {%- block title -%}
+        {%- block subtitle %}{% endblock -%}
+        {%- if self.subtitle()|trim %} {{ g.template_title_delimiter }} {% endif -%}
+        Verify Email
+      {%- endblock -%}
+{% endif %}
 
 {% block primary %}
   {% if code == 403 and _('Invalid reset key. Please try again.') in content %}
     <p style="padding-top: 32px">Your reset password link has expired or already been used. Please {{ h.link_to('request another reset link', '/user/reset') }}.</p>
   {% elif code == 403 and _('Email not verified') in content %}
     <div style="padding-top: 32px">
-      <p>A verification email has been sent to your email address. Please click the link in the email to verify your email address.</p>
+      <h3>Please verify your email address before logging in. </h3>
+      <p>A verification email has been sent to your email address. In order to log in again, please click the verification link in the email.</p>
       {# <p><a href="">Re-send verification email</a></p> #}
     </div>
   {% else %}

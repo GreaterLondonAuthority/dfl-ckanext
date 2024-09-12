@@ -3,16 +3,17 @@ import logging
 from collections import OrderedDict
 from typing import Any, Mapping, Optional
 
+from markupsafe import Markup
+
 import ckan.lib.mailer as Mailer
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.common import _
 from ckan.config.declaration import Declaration, Key
 from ckan.lib import signals
-from ckan.lib.helpers import dict_list_reduce, flash_error, markdown_extract, ungettext
+from ckan.lib.helpers import dict_list_reduce, markdown_extract, ungettext
 from ckan.model import User
 from ckan.types import Schema, Validator
-from markupsafe import Markup
 
 from . import auth, custom_fields, helpers, search, timestamps, user, views
 from .email import send_email_verification_link, send_reset_link
@@ -134,7 +135,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def after_dataset_search(
         self, search_results: dict[str, Any], search_params: dict[str, Any]
     ):
-
         def _get_highlighted_field(
             field_name_in_highlight_dict: str, index_id: str
         ) -> str | None:
