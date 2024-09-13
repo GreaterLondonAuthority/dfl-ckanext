@@ -75,7 +75,42 @@
 
 {% block secondary_content %}
 <div class="filters">
-    <h2 class="filters__header">Filter by:</h2>
+
+    <!-- Figure out if there are filters enabled and show filters section if so -->
+    {% set searchstate = namespace(filters_set=false) %}
+    {% for filter_name in facet_titles.keys() %}
+        {% if filter_name in request.args %}
+            {% set searchstate.filters_set = true %}
+            {% break %}
+        {% endif %}
+    {% endfor %}
+
+    <h2 class="filter">Filter by:</h2>
+    <p class="filter">Filters narrow down results.</p>
+    {% if searchstate.filters_set %}
+
+    {% for filter_name in facet_titles.keys() %}
+       {% with items = items or h.get_facet_items_dict(filter_name, search_facets) %}
+
+    {% if items | selectattr('active') | list %}
+    <a class="btn-filter" href="{{ h.remove_url_param(filter_name) }}">
+      <span class="inner-btn-filter">
+        <div class='inner-btn-content'>{{facet_titles[filter_name]}} ({{ items | selectattr('active') | list | count}}) <strong>{{ items | selectattr('active') | map(attribute='display_name') | join(', ')}}</strong></div>
+      </span>
+      <i class="btn-filter-close fa-solid fa-circle-xmark fa-circle-xmark-black"></i>
+    </a>
+
+      {% endif %}
+        {% endwith %}
+    {% endfor %}
+        <p style="padding-top:20px">
+          <a href={% url_for 'organization.read', id=group_dict.name %}>Reset search</a>
+        </p><hr>
+    {% else %}
+    <p>No filters applied.</p>
+    {% endif %}
+
+
     <div>
         {% for facet in facet_titles|reject('==', 'organization')|list %}
         {{ h.snippet('snippets/facet_list.html', title=facet_titles[facet], name=facet, search_facets=search_facets) }}
