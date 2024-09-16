@@ -6,13 +6,16 @@ from markupsafe import Markup
 
 import ckan.lib.mailer as Mailer
 import ckan.plugins as plugins
+from ckan.lib.plugins import DefaultPermissionLabels
 import ckan.plugins.toolkit as toolkit
 from ckan.common import _, request
 from ckan.config.declaration import Declaration, Key
 from ckan.lib import signals
 from ckan.lib.helpers import dict_list_reduce, markdown_extract, ungettext
-from ckan.model import User
+from ckan.model import User, AnonymousUser, Group
+from ckan.model.meta import Session
 from ckan.types import Schema, Validator
+from ckan.plugins.toolkit import get_action
 
 from . import auth, custom_fields, helpers, search, timestamps, user, views
 from .email import send_email_verification_link, send_reset_link
@@ -25,6 +28,17 @@ from .search_highlight.action import GLA_DATASET_FACETS
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
 GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
+
+def load_config_as_list(key):
+    val = toolkit.config.get(key,'')
+    if val:
+        return list(filter(lambda x: x != '', val.split(' ')))
+    else:
+        return []
+        
+
+TRUSTED_EMAIL_REGEXES = load_config_as_list("dfl.trusted-email-access.regexes")
+TRUSTED_EMAIL_ORG_OPT_OUTS = set(load_config_as_list("dfl.trusted-email-access.optout-org-slugs"))
 
 # Override this function to add a html template to password reset link email
 Mailer.send_reset_link = send_reset_link
@@ -50,7 +64,9 @@ def build_multi_select_facet_constraints() -> dict[str, Any]:
 
     return fq_parts
 
-class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
+import re
+
+class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPermissionLabels):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IConfigDeclaration)
     plugins.implements(plugins.IAuthFunctions, inherit=True)
@@ -63,7 +79,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IDatasetForm)
     plugins.implements(plugins.IFacets)
     plugins.implements(plugins.IValidators)
-
+    plugins.implements(plugins.IPermissionLabels)
+    
     def get_validators(self) -> dict[str, Validator]:
         return {"user_password_validator": auth.user_password_validator}
 
@@ -395,3 +412,78 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         signals.failed_login.send(login)
 
         return None
+
+
+    def get_dataset_labels(self, dataset_obj: Any) -> list[str]:
+        u'''
+
+        This method works with the corresponding method
+        `get_user_dataset_labels`, it is part of CKANs extension API
+        it is hooked into by DFL to provide the
+        `dfl_trusted_email_access` label, which allows users with
+        eligible email addresses to view all private datasets in the
+        system published by organisations who have not opted out.
+
+        Organisations who have opted out, as identified by their
+        organisation slug, should be space separated in the ckan
+        config value `dfl.trusted-email-access.optout-org-slugs`.
+        Datasets published by organisations with these identifiers
+        will not be tagged with the `dfl_trusted_email_access` tag.
+       
+        This method is called during indexing of a dataset, to
+        return a list of permission_labels to be associated
+        with the supplied dataset.  These labels are then stored
+        in the search index and form part of CKANs SOLR queries to ensure
+        only datasets that a user has permission to access are returned.
+
+        The algorithm is simple; datasets have many permission_labels
+        and users have many permission_labels, and if there is a non
+        empty set intersection between a datasets labels and a users
+        labels then the user has permission to view that dataset.
+
+        '''
+
+        default_labels = super(GlaPlugin, self).get_dataset_labels(dataset_obj)
+        
+        if not dataset_obj.private:
+            return default_labels
+        else:
+            dataset_org_name = Session.query(Group).filter(Group.id==dataset_obj.owner_org).first().name
+            if dataset_org_name in TRUSTED_EMAIL_ORG_OPT_OUTS:
+                return default_labels
+            else: 
+                return default_labels + [u'dfl_trusted_email_access']        
+        
+
+    def get_user_dataset_labels(self, user_obj: Any) -> list[str]:
+        u'''
+        This method works with the corresponding `get_dataset_labels`
+        method, and forms part of CKANs extension API.
+
+        This method may be called before datasets are loaded from the
+        SOLR index or before candidate datasets are shown to a user.
+
+        The set of labels returned are compared against a
+        corresponding set of labels on a dataset and if they return a
+        non empty intersection then the dataset can be viewed by the
+        given user.
+
+        We hook into this method to dynamically determine whether a
+        users verified email address matches one of the regexes in
+        `dfl.trusted-email-access.regexes` if so they are given the
+        `dfl_trusted_email_access` label which means they can view
+        private datasets from any organisation that has not opted out
+        of this feature.
+
+        Opt outs are handled in the corresponding `get_dataset_labels`
+        method.
+        '''
+        labels = super(GlaPlugin, self).get_user_dataset_labels(user_obj)        
+        
+        if user_obj and not isinstance(user_obj, AnonymousUser):
+            has_matching_email = any(re.search(pattern, user_obj.email) for pattern in TRUSTED_EMAIL_REGEXES) 
+            
+            if(has_matching_email and auth.is_email_verified(user_obj)):
+                labels.append(u'dfl_trusted_email_access')
+            
+        return labels
