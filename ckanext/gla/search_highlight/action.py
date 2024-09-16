@@ -32,6 +32,26 @@ GLA_DATASET_FACETS = OrderedDict(
         )
 
 
+def selected_facets():
+    facets_selected = {}
+    for (facet_id) in GLA_DATASET_FACETS:
+        if facet_id in request.args:
+            facets_selected[facet_id] = request.args.getlist(facet_id)
+    return facets_selected
+
+# Filter facets so values are only provided for those that have
+# either counts > 0 or are selected on the users requested.
+def filtered_facets(all_facets):
+    non_zero_or_selected_facets = {k: {ik: iv for ik, iv in v.items() if iv > 0} for k, v in all_facets.items() if isinstance(v, dict)}
+
+    for (facet, vals) in selected_facets().items():
+        for v in vals:
+            if v not in non_zero_or_selected_facets[facet]:
+                non_zero_or_selected_facets[facet][v] = 0
+    
+    return non_zero_or_selected_facets
+
+
 def package_search(context: Context, data_dict: DataDict) -> ActionResult.PackageSearch:
     """
     This is a copy of the original package_search function from ckan.logic.action.get
@@ -174,6 +194,9 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         "highlighting": highlighting,
     }
 
+    facets = filtered_facets(search_results['facets'])
+    search_results['facets'] = facets
+    
     # create a lookup table of group name to title for all the groups and
     # organizations in the current search's facets.
     group_names = []
