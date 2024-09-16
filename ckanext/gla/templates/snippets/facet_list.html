@@ -1,5 +1,5 @@
 {% block facet_list %}
-{% set hide_empty = true %}
+{% set hide_empty = false %}
 {% with items = items or h.get_facet_items_dict(name, search_facets) %}
 {% if items or not hide_empty %}
 
@@ -13,8 +13,8 @@
 
     {% block facet_list_items %}
     {% with items = items or h.get_facet_items_dict(name, search_facets) %}
-    {% if items %}
     {% set active_items = items | selectattr('active') | list %}
+
     <details class="facet-details" {% if active_items %}open="open"{% endif %}>
       <summary class="facet-toggle">
           <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
@@ -22,6 +22,8 @@
           <span class="facet-toggle__hide">Hide</span>
       </summary>
       <nav aria-label="{{ title }}">
+      {% if items %}
+
       <ul class="list-unstyled nav nav-filter">
           {% for item in items %}
           {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
@@ -38,12 +40,12 @@
                   </a>
               </li>
               {% endfor %}
-          </ul>
+      </ul>
+    {% else %}
+    <p class="module-content empty">{{ _('No filters available based on your current search. Try changing your search term or filter selection.') }}</p>
+    {% endif %}
       </nav>
     </details>
-    {% else %}
-    <p class="module-content empty">{{ _('No {facet_type} filters').format(facet_type=title.lower()) }}</p>
-    {% endif %}
     {% endwith %}
     <hr>
     {% endblock %}

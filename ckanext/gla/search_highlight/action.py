@@ -6,12 +6,50 @@ import ckan
 import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
-from ckan.common import asbool, config
+import ckan.plugins.toolkit as toolkit
+from ckan.common import asbool, config, request
 from ckan.lib import search
 from ckan.logic.action.get import ValidationError, _check_access, _validate
 from ckan.types import ActionResult, Context, DataDict
+from collections import OrderedDict
 
 log = logging.getLogger(__name__)
+
+GLA_DATASET_FACETS = OrderedDict(
+            [
+                ("dfl_res_format_group", toolkit._("Format")),
+                ("res_format", toolkit._("File type")),
+                ("organization", toolkit._("Organisation")),
+                #("organization", facets_dict["organization"]),                
+                ("project_name", toolkit._("Projects")),
+                # Entry type is disabled for now as the value is null for harvested datasets
+                # The filter works, so enabling it will allow us to filter for datasets with
+                # the field set, either by manual edit, script, or updates to harvester
+                # ("entry_type", toolkit._("Type")),
+                ("london_smallest_geography", toolkit._("Smallest geography")),
+                ("update_frequency", toolkit._("Update frequency")),
+            ]
+        )
+
+
+def selected_facets():
+    facets_selected = {}
+    for (facet_id) in GLA_DATASET_FACETS:
+        if facet_id in request.args:
+            facets_selected[facet_id] = request.args.getlist(facet_id)
+    return facets_selected
+
+# Filter facets so values are only provided for those that have
+# either counts > 0 or are selected on the users requested.
+def filtered_facets(all_facets):
+    non_zero_or_selected_facets = {k: {ik: iv for ik, iv in v.items() if iv > 0} for k, v in all_facets.items() if isinstance(v, dict)}
+
+    for (facet, vals) in selected_facets().items():
+        for v in vals:
+            if v not in non_zero_or_selected_facets[facet]:
+                non_zero_or_selected_facets[facet][v] = 0
+    
+    return non_zero_or_selected_facets
 
 
 def package_search(context: Context, data_dict: DataDict) -> ActionResult.PackageSearch:
@@ -156,6 +194,9 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         "highlighting": highlighting,
     }
 
+    facets = filtered_facets(search_results['facets'])
+    search_results['facets'] = facets
+    
     # create a lookup table of group name to title for all the groups and
     # organizations in the current search's facets.
     group_names = []
