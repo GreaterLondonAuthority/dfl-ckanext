@@ -138,6 +138,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 "hl.simple.pre": "[[",
                 "hl.simple.post": "]]",
                 "hl.maxAnalyzedChars": "250000",  # only highlight matches occuring in the first 250k characters of a field we increase this from SOLRs default of 51k because some datasets have long descriptions and highlighting wasn't displaying
+                "facet.mincount": 0
             }
         )
 
