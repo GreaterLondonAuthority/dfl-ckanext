@@ -1,6 +1,5 @@
 import json
 import logging
-from collections import OrderedDict
 from typing import Any, Mapping, Optional
 
 from markupsafe import Markup
@@ -21,6 +20,7 @@ from .search_highlight import (  # query is imported for initialisation, though 
     action,
     query,
 )
+from .search_highlight.action import GLA_DATASET_FACETS
 
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
@@ -30,22 +30,6 @@ GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").sp
 Mailer.send_reset_link = send_reset_link
 
 log = logging.getLogger(__name__)
-
-GLA_DATASET_FACETS = OrderedDict(
-            [
-                ("dfl_res_format_group", toolkit._("Format")),
-                ("res_format", toolkit._("File type")),
-                ("organization", toolkit._("Organisation")),
-                #("organization", facets_dict["organization"]),                
-                ("project_name", toolkit._("Projects")),
-                # Entry type is disabled for now as the value is null for harvested datasets
-                # The filter works, so enabling it will allow us to filter for datasets with
-                # the field set, either by manual edit, script, or updates to harvester
-                # ("entry_type", toolkit._("Type")),
-                ("london_smallest_geography", toolkit._("Smallest geography")),
-                ("update_frequency", toolkit._("Update frequency")),
-            ]
-        )
 
 def build_multi_select_facet_constraints() -> dict[str, Any]:
     # fields_grouped will contain a dict of params containing
