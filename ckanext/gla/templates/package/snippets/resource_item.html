@@ -55,7 +55,11 @@
                         License
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        <a href="{{ pkg.license_url }}">{{pkg.license_title}}</a>
+                        {% if pkg.license_title %}
+                          {{pkg.license_title}}
+                        {% else %}
+                          Unknown License
+                        {% endif %}
                     </dd>
                 </div>
                 </dl>
@@ -76,7 +80,7 @@
     </td>
 
     {# Add from and to dates here #}
-    
+
     <td class="govuk-table__cell">
         <a href="{{ res.url }}" class="btn btn-default">Download</a>
     </td>
