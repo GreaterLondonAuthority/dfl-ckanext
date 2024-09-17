@@ -116,8 +116,26 @@ def get_site_title(request):
     else:
         return None
 
-
-def sanitise_markup(html: str, remove_tags: bool = True) -> str:
+allow_listed_tag_attrs = {
+        'a': ['href'],
+        'p': [],
+        'strong': [],
+        'em': [],
+        'img': ['alt','src'],
+        'ul': [],
+        'li': [],
+        'ol': [],
+        'table': [],
+        'tr': [],
+        'th': [],
+        'td': [],
+        'thead': [],
+        'tbody': [],
+        'tfoot': [],
+        'caption': []
+}
+    
+def sanitise_markup(html: str, pkg_dict: dict[str, Any], remove_tags: bool = True) -> str:
     """
     Sanitise and fix markup in HTML strings.
 
@@ -126,8 +144,37 @@ def sanitise_markup(html: str, remove_tags: bool = True) -> str:
     """
     soup = BeautifulSoup(html, "lxml")
 
-    for data in soup(["style", "script", "iframe", "br"]):
-        data.decompose()
+    
+    for data in soup(["style", "script", "iframe", "br", "img"]):
+        # If the tag is in the whitelist, filter its attributes
+        if data.name == 'iframe':
+            print(f'Replacing iframe data URLs %s' % pkg_dict.get('name'))
+            # Replace iframe with a link
+            iframe_src = data.get('src', '#')
+            replacement_tag = soup.new_tag('a', href=iframe_src)
+            replacement_tag.string = '[embedded content]'
+            data.replace_with(replacement_tag)
+        elif data.name == 'img' and data.get('src','').startswith('data:'):
+            print(f'Replacing img data URLs %s' % pkg_dict.get('name'))
+            replacement_div = soup.new_tag('div', **{'class': 'dfl_replaced_image'})
+            replacement_div.append("[an embedded image cannot be displayed here - ")
+            a_tag = soup.new_tag('a', href=pkg_dict['upstream_url'])
+            a_tag.string = 'view on source site'
+            replacement_div.append(a_tag)
+            replacement_div.append(']')
+            data.replace_with(replacement_div)
+        else:
+            data.decompose()  # Remove the tag completely
+
+    for data in soup.find_all(True):
+        allowed_attrs = allow_listed_tag_attrs.get(data.name,[])
+        attrs = dict(data.attrs or [])  # Copy tag attributes
+        for attr in attrs:
+            if attr not in allowed_attrs:
+                print(f'removing tag %s attr %s in %s' % (data.name, attr, pkg_dict['name']))
+                del data[attr]  # Remove non-whitelisted attributes 
+        
+            
 
     # Bleach sanitises HTML string by removing unsafe tags and attributes.
     # It also removes mismatched tags.
