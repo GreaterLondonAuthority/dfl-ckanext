@@ -1,10 +1,16 @@
+import os
+import re
+from typing import Any
+
 import bleach
+from bs4 import BeautifulSoup
+from markupsafe import Markup
+
 import ckan.lib.formatters as formatters
 import ckan.plugins.toolkit as toolkit
-from bs4 import BeautifulSoup
-from ckan.common import config
+from ckan.common import _, config
+from ckan.lib.helpers import get_translated
 from ckan.lib.helpers import render_markdown as original_render_markdown
-from markupsafe import Markup
 
 site_title = config.get("ckan.site_title", "Default Site Title")
 
@@ -98,7 +104,7 @@ def get_site_title(request):
         return None
     if path_parts == ["dataset"]:  # We're on the dataset search page
         search = request.args.get("q")
-        if search is not None and search != '':
+        if search is not None and search != "":
             page_title = search
         else:
             page_title = "Search"
@@ -125,7 +131,7 @@ def sanitise_markup(html: str, remove_tags: bool = True) -> str:
 
     # Bleach sanitises HTML string by removing unsafe tags and attributes.
     # It also removes mismatched tags.
-    # NOTE: CSS in style arrtibutes isn't sanitised but can be added through additional dependencies, 
+    # NOTE: CSS in style arrtibutes isn't sanitised but can be added through additional dependencies,
     # see bleach.CSS_SANITIZER.
     if remove_tags:
         return bleach.clean(" ".join(soup.stripped_strings), strip=True)
@@ -138,7 +144,7 @@ def _sanitise_markup(html: str, remove_tags: bool = True) -> str:
 
     for data in soup(["style", "script", "iframe", "br"]):
         data.decompose()
-    
+
     if remove_tags:
         return " ".join(soup.stripped_strings)
     # return bleach.clean(str(soup), strip=True)
@@ -164,6 +170,30 @@ def render_markdown(
     return original_render_markdown(data, auto_link, allow_html)
 
 
+def resource_display_name(resource_dict: dict[str, Any]) -> str:
+    name = get_translated(resource_dict, "name")
+    description = get_translated(resource_dict, "description")
+    if name:
+        # Remove file extension from name
+        file_path, _junk = os.path.splitext(name)
+        file_name_without_extension = os.path.basename(file_path)
+
+        # Remove non-alphanumeric characters from name
+        file_name_without_extension = re.sub(
+            "[^0-9a-zA-Z ]+", " ", file_name_without_extension
+        )
+
+        return file_name_without_extension
+    elif description:
+        description = description.split(".")[0]
+        max_len = 60
+        if len(description) > max_len:
+            description = description[:max_len] + "..."
+        return description
+    else:
+        return _("Unnamed resource")
+
+
 def get_helpers():
     return {
         "get_followed_datasets": followed,
@@ -175,4 +205,5 @@ def get_helpers():
         "get_site_title": get_site_title,
         "humanise_file_size": humanise_file_size,
         "render_markdown": render_markdown,
+        "resource_display_name": resource_display_name,
     }

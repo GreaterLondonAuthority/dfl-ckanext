@@ -1,46 +1,88 @@
-{% ckan_extends %}
-{% block resource_item_title %}
+<tr class="govuk-table__row">
+    <td scope="row" class="govuk-table__cell">
+        <p>
+            {{ h.resource_display_name(res) | truncate(50) }}
+        </p>
 
-    <div class="resource-icon">
-        <span class="format-label" property="dc:format" data-format="{{ h.extract_resource_format(res) }}">{{ h.get_translated(res, 'format') }}</span>
-    </div>
-    <div class="resource-title">
-        <a href="{{ res.url }}">
-            {% if (res.title) %}
-                {{ h.get_translated(res, 'title') }}
-            {% else %}
-                {% if res.url_type == 'upload' %}
-                    {{ h.resource_display_name(res) | truncate(90) }}
-                    
-                {% else %}
-                    {{ res.url }}
+        {% if res.description %}
+            <p>
+                {{ h.markdown_extract(h.get_translated(res, 'description')) }}
+            </p>
+        {% endif %}
+
+        <details>
+            <summary class="gla-details__summary">More details</summary>
+            <div class="gla-details__content">
+                {% set data_modified=res.created %}
+                {% if res.last_modified %}
+                    {% set data_modified=res.last_modified %}
                 {% endif %}
-            {% endif %}
-            
-        </a>
 
-    </div>
-    {% if res.description %}
-    <div class="resource-description">
-        {{ h.markdown_extract(h.get_translated(res, 'description'), extract_length=80) }}
-    </div>
-    {% endif %}
-    <div class="resource-meta">
+                {% set metadata_modified=res.created %}
+                {% if res.metadata_modified %}
+                    {% set metadata_modified=res.metadata_modified %}
+                {% endif %}
+
+                {% set format= res.format or res.mimetype_inner or res.mimetype %}
+
+                <dl class="govuk-summary-list"></dl>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Data last updated
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% snippet 'snippets/local_friendly_datetime.html', datetime_obj=data_modified %}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Metadata last updated
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% snippet 'snippets/local_friendly_datetime.html', datetime_obj=metadata_modified %}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Created
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% snippet 'snippets/local_friendly_datetime.html', datetime_obj=res.created %}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row govuk-summary-list__row--no-border">
+                    <dt class="govuk-summary-list__key">
+                        Licence
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {% if pkg.license_title %}
+                          {{pkg.license_title}}
+                        {% else %}
+                          Unknown Licence
+                        {% endif %}
+                    </dd>
+                </div>
+                </dl>
+            </div>
+        </details>
+    </td>
+
+    <td class="govuk-table__cell">
         {% if res.format %}
-        {{ h.get_translated(res, 'format') }}, {% endif %}
+            {{ h.get_translated(res, 'format') }}
+        {% endif %}
+    </td>
+
+    <td class="govuk-table__cell" style="white-space: nowrap;">
         {% if res.size %}
-        {{ h.humanise_file_size(res.size) }}, {% endif %}
-         <a href="{{ url }}">Details</a>
+            {{ h.humanise_file_size(res.size) }}
+        {% endif %}
+    </td>
 
-    </div>
+    {# Add from and to dates here #}
 
+    <td class="govuk-table__cell">
+        <a href="{{ res.url }}" class="btn btn-default">Download</a>
+    </td>
 
-
-
-{% endblock %}
-
-{% block resource_item_description %}
-{% endblock %}
-
-{% block resource_item_explore %}
-{% endblock %}
+</tr>
