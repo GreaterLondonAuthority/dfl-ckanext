@@ -9,6 +9,8 @@
           <th>Email</th>
           <th>Email Verified</th>
           <th>Has Trusted Email</th>
+          <th>Organisations</th>
+
         </tr>
       </thead>
       <tbody>
@@ -19,7 +21,7 @@
               <td>{{ user['email'] }}</td>
               <td>{{ h.is_email_verified(user) }}</td>
               <td>{{ h.is_trusted_email(user) }}</td>
-
+              <td>{{ user.organization_name }}</td>
             </tr>
       {% endfor %}
       {% endblock %}
