@@ -25,9 +25,9 @@ from .search_highlight import (  # query is imported for initialisation, though 
 )
 from .search_highlight.action import GLA_DATASET_FACETS
 
-TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
-REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
-GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
+TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats","csv xls xlsx xlsm tsv spreadsheet tab google-sheet").split(" ")
+REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats","zip html htm pdf docx doc odw").split(" ")
+GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats","geojson shp mbtiles kml").split(" ")
 
 def load_config_as_list(key):
     val = toolkit.config.get(key,'')
