@@ -166,13 +166,13 @@ def sanitise_markup(html: str, pkg_dict: dict[str, Any], remove_tags: bool = Tru
         else:
             data.decompose()  # Remove the tag completely
 
-    for data in soup.find_all(True):
-        allowed_attrs = allow_listed_tag_attrs.get(data.name,[])
-        attrs = dict(data.attrs or [])  # Copy tag attributes
-        for attr in attrs:
-            if attr not in allowed_attrs:
-                print(f'removing tag %s attr %s in %s' % (data.name, attr, pkg_dict['name']))
-                del data[attr]  # Remove non-whitelisted attributes 
+    # for data in soup.find_all(True):
+    #     allowed_attrs = allow_listed_tag_attrs.get(data.name,[])
+    #     attrs = dict(data.attrs or [])  # Copy tag attributes
+    #     for attr in attrs:
+    #         if attr not in allowed_attrs:
+    #             print(f'removing tag %s attr %s in %s' % (data.name, attr, pkg_dict['name']))
+    #             del data[attr]  # Remove non-whitelisted attributes 
         
             
 
@@ -181,7 +181,7 @@ def sanitise_markup(html: str, pkg_dict: dict[str, Any], remove_tags: bool = Tru
     # NOTE: CSS in style arrtibutes isn't sanitised but can be added through additional dependencies,
     # see bleach.CSS_SANITIZER.
     if remove_tags:
-        return bleach.clean(" ".join(soup.stripped_strings), strip=True)
+        return bleach.clean(" ".join(soup.stripped_strings), strip=True, strip_comments=True)
 
     return str(soup)
 
