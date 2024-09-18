@@ -309,7 +309,14 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
 
     # ITemplateHelpers
     def get_helpers(self):
-        return helpers.get_helpers()
+
+        def is_trusted_email(user_obj):
+            return any(re.search(pattern, user_obj.email) for pattern in TRUSTED_EMAIL_REGEXES)
+        
+        h = {'is_trusted_email': is_trusted_email,
+             'is_email_verified': auth.is_email_verified}
+        
+        return helpers.get_helpers() | h
 
     # IBlueprint
     def get_blueprint(self):
@@ -322,6 +329,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
             "log_chosen_search_result": search.log_selected_result,
             "package_search": action.package_search,
             "user_create": user.user_create,
+            "user_list": user.user_list
         }
 
     # IDatasetForm
@@ -487,3 +495,4 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
                 labels.append(u'dfl_trusted_email_access')
             
         return labels
+
