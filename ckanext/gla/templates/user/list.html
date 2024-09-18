@@ -2,13 +2,30 @@
 {% block users_list %}
   {% set no_results_text = _('No matching result for "{q}".').format(q=q) %}
   {% if page.items %}
-    <ul class="user-list">
-      {% block users_list_inner %}
-        {% for user in page.items %}
-          <li>{{ h.linked_user(user['name'], maxlength=20) }}</li>
-        {% endfor %}
+    <table class="table table-header table-hover table-bordered">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Email Verified</th>
+          <th>Has Trusted Email</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% block users_list_inner %}
+          {% for user in page.items %}
+            <tr>
+              <td class="media">{{ h.linked_user(user['name'], maxlength=20) }}</td>
+              <td>{{ user['email'] }}</td>
+              <td>{{ h.is_email_verified(user) }}</td>
+              <td>{{ h.is_trusted_email(user) }}</td>
+
+            </tr>
+      {% endfor %}
       {% endblock %}
-    </ul>
+
+    </tbody>
+  </table>
   {% else %}
     <p>{{ _(no_results_text) }}</p>
   {% endif %}

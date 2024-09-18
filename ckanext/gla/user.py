@@ -1,9 +1,15 @@
 import ckan.lib.helpers as h
 import ckan.model as model
+from ckan.model.user import User
+
 import ckan.plugins.toolkit as toolkit
 from ckan.common import logout_user, request
 from ckan.types import Response
 from ckan.views.user import RegisterView
+
+import sqlalchemy as sa
+from sqlalchemy.sql import exists
+
 
 from . import email
 
@@ -35,3 +41,13 @@ def user_create(original_action, context, data_dict):
     data_dict["name"] = data_dict.get("name").lower()
     result = original_action(context, data_dict)
     return result
+
+
+@toolkit.chained_action
+def user_list(original_action, context, data_dict):
+    query = original_action(context, data_dict)
+    
+    # Modify the query to add the 'plugin_extras' field from the User model
+    query = query.add_columns(User.plugin_extras)
+
+    return query
