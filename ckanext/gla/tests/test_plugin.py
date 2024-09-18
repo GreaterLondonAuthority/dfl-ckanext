@@ -48,9 +48,15 @@ To temporary patch the CKAN configuration for the duration of a test you can use
         pass
 """
 import ckanext.gla.plugin as plugin
-
+import pytest
+import ckan.plugins as p
 
 @pytest.mark.ckan_config("ckan.plugins", "gla")
 @pytest.mark.usefixtures("with_plugins")
 def test_plugin():
-    assert plugin_loaded("gla")
+    assert p.plugin_loaded("gla")
+
+import ckanext.gla.helpers as h
+def test_html_sanitiser():
+    assert 'foo' == h.sanitise_markup('<html><body><h2>heading</h2></body></html>',
+                                      {'name':'my-dataset','upstream_url':'http://upstream/url'})
