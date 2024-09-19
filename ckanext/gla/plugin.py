@@ -325,6 +325,15 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
                     sanitized_search_description_list
                 )
 
+        search_facets = search_results['search_facets']
+
+        if 'private' in search_facets:
+            for i in search_facets['private']['items']:
+                if i['display_name'] == 'true':
+                    i['display_name'] = 'Private'
+                else:
+                    i['display_name'] = 'Public'
+
         return search_results
 
     def after_dataset_create(self, ctx, package):
