@@ -20,22 +20,12 @@ from .search_highlight import (  # query is imported for initialisation, though 
     action, query)
 
 import csv
-import os
-
-from csv import DictReader
-# open file in read mode
-with open("organisation_mappings.csv", mode='r') as f:
-    dict_reader = DictReader(f)
-    list_of_dict = list(dict_reader)
-   
 
 with open("organisation_mappings.csv", mode='r') as csvfile:
     ORGAINZATION_DICT = {}
     reader = csv.DictReader(csvfile)
     for row in reader:
          ORGAINZATION_DICT[row["Original ID"]] = row["Override ID"]
-
-
 
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
@@ -76,6 +66,23 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         toolkit.add_public_directory(config_, "public")
         toolkit.add_resource("assets", "gla")
         custom_fields.add_solr_config()
+
+    # Plugin
+    def after_load(service: plugins.Plugin):
+        #organizations = toolkit
+        # 1 - Get all orgs
+        organizations = toolkit.get.action("organization_list")
+
+        # 2 - loop over and see if there are any old ones that are in the mapping
+        for org_id in organizations:
+
+            org_mapping = ORGAINZATION_DICT.get(org_id, org_id)
+
+            if org_mapping != org_id:
+
+                # 3 - Mark it as deleted
+                toolkit.get_action("organization_delete")(org_id)
+                log.info("Organization %s has been deleted", org_id)
 
     # IAuthFunctions
     def get_auth_functions(self):
@@ -254,8 +261,12 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         validated_data_dict = json.loads(pkg_dict.get("validated_data_dict", {}))
         validated_data_dict["notes"] = pkg_dict["notes"]
 
-
+        # Map organizations if they are in mapping CSV
+        data_dict = json.loads(pkg_dict.get("data_dict", {}))
+        data_dict["organization"]["name"] = ORGAINZATION_DICT.get(pkg_dict["organization"], data_dict["organization"]["name"])
+        pkg_dict["data_dict"] = json.dumps(data_dict)
         pkg_dict["organization"] = ORGAINZATION_DICT.get(pkg_dict["organization"], pkg_dict["organization"])
+
         pkg_dict["validated_data_dict"] = json.dumps(validated_data_dict)
 
         new_format_list = []
@@ -270,6 +281,9 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 continue  # new_format_list.append("Other")
 
         pkg_dict["dfl_res_format_group"] = new_format_list
+
+        if willBreak:
+            breakpoint()
 
         return pkg_dict
 
