@@ -6,9 +6,12 @@
       <thead>
         <tr>
           <th>User</th>
+          <th>User Type</th>
           <th>Email</th>
-          <th>Email Verified</th>
-          <th>Has Trusted Email</th>
+          <th>Verified Email</th>
+          <th>Trusted Email</th>
+          <th>Organisation Member</th>
+          <th>Dataset Collaborator</th>
         </tr>
       </thead>
       <tbody>
@@ -16,10 +19,12 @@
           {% for user in page.items %}
             <tr>
               <td class="media">{{ h.linked_user(user['name'], maxlength=20) }}</td>
+              <td>{% if user.sysadmin %} Sys Admin {% else %} Standard {% endif %}</td>
               <td>{{ user['email'] }}</td>
               <td>{{ h.is_email_verified(user) }}</td>
               <td>{{ h.is_trusted_email(user) }}</td>
-
+              <td>{{ user.is_organization_member }}</td>
+              <td>{{ user.is_collaborator }}</td>
             </tr>
       {% endfor %}
       {% endblock %}

@@ -1,6 +1,8 @@
 import ckan.lib.helpers as h
 import ckan.model as model
 from ckan.model.user import User
+from ckan.model.group import Member, Group
+from ckan.model.package import PackageMember
 
 import ckan.plugins.toolkit as toolkit
 from ckan.common import logout_user, request
@@ -46,8 +48,23 @@ def user_create(original_action, context, data_dict):
 @toolkit.chained_action
 def user_list(original_action, context, data_dict):
     query = original_action(context, data_dict)
+
+    # Modify CKAN query to return extra information to assist admins in auditing users
+    is_org_member = sa.case(
+        [(sa.exists().where(sa.and_(
+            Member.table_id == sa.cast(User.id, sa.String),
+            Member.table_name == 'user',
+            Member.state == 'active',            
+            Member.group_id.isnot(None)            
+        )), True)], else_=False).label('is_organization_member')
+
+    is_collaborator = sa.case(
+        [(sa.exists().where(sa.and_(        
+            PackageMember.user_id == sa.cast(User.id, sa.String),
+            PackageMember.capacity == 'member',
+            PackageMember.package_id.isnot(None)
+        )), True)], else_=False).label('is_collaborator')
     
-    # Modify the query to add the 'plugin_extras' field from the User model
-    query = query.add_columns(User.plugin_extras)
+    query = query.add_columns(User.sysadmin, User.plugin_extras, is_org_member, is_collaborator)    
 
     return query
