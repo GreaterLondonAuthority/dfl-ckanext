@@ -154,7 +154,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
 
     # Plugin
     def after_load(service: plugins.Plugin):
-        #organizations = toolkit
+
         # 1 - Get all orgs
         organizations = toolkit.get.action("organization_list")
 
@@ -401,9 +401,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
                 continue  # new_format_list.append("Other")
 
         pkg_dict["dfl_res_format_group"] = new_format_list
-
-        if willBreak:
-            breakpoint()
 
         return pkg_dict
 
