@@ -2,12 +2,12 @@
 {% block users_list %}
   {% set no_results_text = _('No matching result for "{q}".').format(q=q) %}
   {% if page.items %}
-    <table class="table table-header table-hover table-bordered">
+    <table class="table table-header table-hover table-bordered dfl-scroll-table">
       <thead>
         <tr>
-          <th>User</th>
-          <th>User Type</th>
+          <th>Username</th>
           <th>Email</th>
+          <th>User Type</th>
           <th>Verified Email</th>
           <th>Trusted Email</th>
           <th>Organisation Member</th>
@@ -17,10 +17,10 @@
       <tbody>
           {% block users_list_inner %}
           {% for user in page.items %}
-            <tr>
-              <td class="media">{{ h.linked_user(user['name'], maxlength=20) }}</td>
-              <td>{% if user.sysadmin %} Sys Admin {% else %} Standard {% endif %}</td>
+          <tr>
+              <td><a href="{{ url_for('user.read', id=user['name'])}}"> {{ user['name'] }}</a></td>
               <td>{{ user['email'] }}</td>
+              <td>{% if user.sysadmin %} Sys&nbsp;Admin {% else %} Standard {% endif %}</td>
               <td>{{ h.is_email_verified(user) }}</td>
               <td>{{ h.is_trusted_email(user) }}</td>
               <td>{{ user.is_organization_member }}</td>
@@ -28,7 +28,6 @@
             </tr>
       {% endfor %}
       {% endblock %}
-
     </tbody>
   </table>
   {% else %}
