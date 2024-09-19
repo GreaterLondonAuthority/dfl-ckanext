@@ -20,7 +20,7 @@ from .search_highlight import (  # query is imported for initialisation, though 
     action,
     query,
 )
-from .search_highlight.action import GLA_DATASET_FACETS
+from .search_highlight.action import dataset_facets_for_user
 
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
@@ -36,7 +36,7 @@ def build_multi_select_facet_constraints() -> dict[str, Any]:
     # a list of values eg {u'tags':[u'tag1', u'tag2']}
     
     fields_grouped = {}
-    for (facet_id) in GLA_DATASET_FACETS:
+    for (facet_id) in dataset_facets_for_user():
         if facet_id in request.args:
             fields_grouped[facet_id] = request.args.getlist(facet_id)
             
@@ -354,14 +354,14 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return []
 
     # IFacets
-    def dataset_facets(self, facets_dict, _):
-        return GLA_DATASET_FACETS
+    def dataset_facets(self, facets_dict, _):        
+        return dataset_facets_for_user()
 
     def organization_facets(self, facets_dict, *args):
-        return GLA_DATASET_FACETS
+        return dataset_facets_for_user()
 
     def group_facets(self, facets_dict, *args):
-        return GLA_DATASET_FACETS
+        return dataset_facets_for_user()
 
     # IAuthenticator
 
