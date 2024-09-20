@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from typing import Any, Mapping, Optional
 
 from markupsafe import Markup
@@ -20,7 +21,7 @@ from .search_highlight import (  # query is imported for initialisation, though 
     action,
     query,
 )
-from .search_highlight.action import dataset_facets_for_user
+from .search_highlight.action import dataset_facets_for_user, GLA_SYSADMIN_FACETS
 
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
@@ -49,6 +50,34 @@ def build_multi_select_facet_constraints() -> dict[str, Any]:
         fq_parts.append(query_part)
 
     return fq_parts
+
+def build_fq_regex(keys):
+    # build alternation string for regex e.g. "res_format|organization|dfl_res_format_group"
+    keys_to_remove = '|'.join(re.escape(key) for key in keys)
+    values = r'(?:[^\s"]+|"[^"]*")' # quoted or unquoted values
+    return r'\b(' + keys_to_remove + r'):' + values
+
+
+# GLA_SYSADMIN_FACETS has the complete set of facets we display on the
+# UI, so these are the ones we need to clean up from the fq parameter.
+FQ_REMOVE_PATTERN = build_fq_regex(GLA_SYSADMIN_FACETS.keys())
+
+# CKAN builds the fq parameter before passing it to
+# before_dataset_search.
+# 
+# However the way it builds the fq parameter assumes AND within a
+# facet, and is also used for introducing extra constraints as per the
+# view. Hence we need to preserve some of the items from fq, and
+# ultimately rebuild it to support multi select.
+#
+# In this part of the query we remove anything from the supplied fq
+# string that is targetting one of our explicit facets (where we want
+# multi-select). Anything else in fq is left alone to ensure those
+# constraints are kept.
+def cleanup_fq(fq):
+    result = re.sub(FQ_REMOVE_PATTERN, '', fq)
+    result = re.sub(r'\s+', ' ', result).strip()
+    return result
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
@@ -99,6 +128,13 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             # parameter themselves explicitly, we need to avoid doing
             # this for API requests.
             multi_select_fqs = build_multi_select_facet_constraints()
+
+            fq = search_params.get('fq','')
+            cleaned_fq = cleanup_fq(fq)
+            
+            search_params['fq'] = ''
+            multi_select_fqs = [cleaned_fq] + multi_select_fqs 
+
             search_params['fq_init_list'] = multi_select_fqs
 
             # NOTE the two search_params set below override settings
@@ -107,7 +143,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             # fq can be replaced entirely with an empty string as our
             # fq_init_list will later replace it.
             search_params['facet.field'] = [f'{{!ex={item}}}' + item for item in search_params.get('facet.field',[])]
-            search_params['fq'] = ''
             
         search_params.update(
             {
