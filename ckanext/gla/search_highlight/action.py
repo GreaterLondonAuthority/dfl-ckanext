@@ -56,8 +56,9 @@ def filtered_facets(all_facets):
 
     for (facet, vals) in selected_facets().items():
         for v in vals:
-            if v not in non_zero_or_selected_facets[facet]:
-                non_zero_or_selected_facets[facet][v] = 0
+            if v not in non_zero_or_selected_facets.get('facet',[]):
+                if non_zero_or_selected_facets.get('facet'):
+                    non_zero_or_selected_facets['facet'][v] = 0
     
     return non_zero_or_selected_facets
 
