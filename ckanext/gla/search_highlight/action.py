@@ -7,7 +7,9 @@ import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-from ckan.common import asbool, config, request
+
+from ckan.model.user import AnonymousUser
+from ckan.common import asbool, config, request, current_user
 from ckan.lib import search
 from ckan.logic.action.get import ValidationError, _check_access, _validate
 from ckan.types import ActionResult, Context, DataDict
@@ -31,10 +33,18 @@ GLA_DATASET_FACETS = OrderedDict(
             ]
         )
 
+GLA_SYSADMIN_FACETS = GLA_DATASET_FACETS.copy()
+GLA_SYSADMIN_FACETS.update({'private': toolkit._("Dataset Visibility")})
+
+def dataset_facets_for_user():
+    if not isinstance(current_user, AnonymousUser) and current_user.sysadmin:
+        return GLA_SYSADMIN_FACETS
+    else:
+        return GLA_DATASET_FACETS
 
 def selected_facets():
     facets_selected = {}
-    for (facet_id) in GLA_DATASET_FACETS:
+    for (facet_id) in dataset_facets_for_user():
         if facet_id in request.args:
             facets_selected[facet_id] = request.args.getlist(facet_id)
     return facets_selected
@@ -46,8 +56,9 @@ def filtered_facets(all_facets):
 
     for (facet, vals) in selected_facets().items():
         for v in vals:
-            if v not in non_zero_or_selected_facets[facet]:
-                non_zero_or_selected_facets[facet][v] = 0
+            if v not in non_zero_or_selected_facets.get('facet',[]):
+                if non_zero_or_selected_facets.get('facet'):
+                    non_zero_or_selected_facets['facet'][v] = 0
     
     return non_zero_or_selected_facets
 
