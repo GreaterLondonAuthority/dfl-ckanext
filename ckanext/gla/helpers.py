@@ -6,9 +6,16 @@ import bleach
 from bs4 import BeautifulSoup
 from markupsafe import Markup
 
+from typing import (
+    Any, Callable, Match, NoReturn, cast, Dict,
+    Iterable, Optional, TypeVar, Union)
+
+import ckan.logic as logic
+
 import ckan.lib.formatters as formatters
 import ckan.plugins.toolkit as toolkit
-from ckan.common import _, config
+from ckan.common import _, config, current_user
+from ckan.model.user import AnonymousUser
 from ckan.lib.helpers import get_translated
 from ckan.lib.helpers import render_markdown as original_render_markdown
 
@@ -193,7 +200,21 @@ def resource_display_name(resource_dict: dict[str, Any]) -> str:
     else:
         return _("Unnamed resource")
 
+def orgs_list_for_user(user: str, permission: str = 'read') -> list[dict[str, Any]]:
+    '''Return a list of organizations that the current user has the specified
+    permission for.
+    '''
+    context: Context = {'user': user}
+    data_dict = { 'permission': permission}
+    orgs = logic.get_action('organization_list_for_user')(context, data_dict)    
+    return orgs
 
+def is_sysadmin():
+    if not isinstance(current_user, AnonymousUser) and current_user.sysadmin:
+        return True
+    else:
+        return False
+    
 def get_helpers():
     return {
         "get_followed_datasets": followed,
@@ -206,4 +227,6 @@ def get_helpers():
         "humanise_file_size": humanise_file_size,
         "render_markdown": render_markdown,
         "resource_display_name": resource_display_name,
+        "orgs_list_for_user": orgs_list_for_user,
+        "is_sysadmin": is_sysadmin
     }

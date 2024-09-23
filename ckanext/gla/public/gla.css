@@ -649,6 +649,10 @@ ul.inline-list {
         content: ", ";
     }
 
+li.no-bullet {
+    list-style-type: none;
+}
+
 /* Pagination */
 
 ul.pagination {

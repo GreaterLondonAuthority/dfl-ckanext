@@ -400,7 +400,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
             "log_chosen_search_result": search.log_selected_result,
             "package_search": action.package_search,
             "user_create": user.user_create,
-            "user_list": user.user_list
+            "user_list": user.user_list        
         }
 
     # IDatasetForm
