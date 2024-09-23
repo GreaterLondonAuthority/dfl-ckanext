@@ -29,7 +29,7 @@ GLA_DATASET_FACETS = OrderedDict(
                 # the field set, either by manual edit, script, or updates to harvester
                 # ("entry_type", toolkit._("Type")),
                 ("london_smallest_geography", toolkit._("Smallest geography")),
-                ("update_frequency", toolkit._("Update frequency")),
+                ("update_frequency", toolkit._("Update frequency"))
             ]
         )
 

@@ -79,6 +79,26 @@ def cleanup_fq(fq):
     result = re.sub(r'\s+', ' ', result).strip()
     return result
 
+# Allow list of routes that support multi-select facets. Routes not
+# matched by these expressions will not have their SOLR queries
+# altered by the multi-select query logic.
+#
+# This ensures routes like /api and /harvest and any others we have
+# not opted in are not affected by our custom facet logic.
+MULTI_SELECT_ROUTES = [
+    r'^/dataset\/?$',
+    r'^/organization(/[^/]+/?)?$', # matches /organization, /organization/foo and /organization/foo/
+                                   # but not /organization/foo/anything-else
+    r'^/organization/bulk_process(/[^/]+/?)?$'
+]
+
+def is_multi_select_route(path):
+    for r in MULTI_SELECT_ROUTES:        
+        if re.match(r,path):            
+            return True
+    return False
+    
+
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IConfigDeclaration)
@@ -119,9 +139,10 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         # Include showcases *and* datasets in the search results:
         # We only want Showcases to show up when there is a search query
         search_params = search.add_quality_to_search(search_params)
-
-        if not(str.startswith(request.path, '/api')):
-            # If we're not an API request trigger the multi-select
+        
+        if is_multi_select_route(request.path):        
+            # If we're not an API request or a query running on the
+            # harvester extension routes trigger the multi-select
             # faceted search behaviour.
             #
             # As the CKAN API allows API users to set the SOLR fq
@@ -130,13 +151,13 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             multi_select_fqs = build_multi_select_facet_constraints()
 
             fq = search_params.get('fq','')
-            cleaned_fq = cleanup_fq(fq)
             
+            cleaned_fq = cleanup_fq(fq)
             search_params['fq'] = ''
             multi_select_fqs = [cleaned_fq] + multi_select_fqs 
 
-            search_params['fq_init_list'] = multi_select_fqs
-
+            search_params['fq_init_list'] = multi_select_fqs            
+            
             # NOTE the two search_params set below override settings
             # set earlier by CKAN.
             #
