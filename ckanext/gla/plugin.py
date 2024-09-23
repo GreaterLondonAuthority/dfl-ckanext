@@ -375,9 +375,17 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
 
         def is_trusted_email(user_obj):
             return any(re.search(pattern, user_obj.email) for pattern in TRUSTED_EMAIL_REGEXES)
+
+        def org_opt_outs():
+            return TRUSTED_EMAIL_ORG_OPT_OUTS
+
+        def is_org_opted_out(org):
+            return org in TRUSTED_EMAIL_ORG_OPT_OUTS
         
         h = {'is_trusted_email': is_trusted_email,
-             'is_email_verified': auth.is_email_verified}
+             'is_email_verified': auth.is_email_verified,
+             'is_org_opted_out': is_org_opted_out,
+             'org_opt_outs': org_opt_outs}
         
         return helpers.get_helpers() | h
 

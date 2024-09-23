@@ -19,9 +19,14 @@
 {% block upper_content %}
 <div class="row">
     <div class="col-md-3">
-        <img class=org-page-image src="{{group_dict.image_display_url}}" />
+      <img class=org-page-image src="{{group_dict.image_display_url}}" />
     </div>
     <div class="col-md-9 col-xs-12">
+      {% if h.is_org_opted_out(group_dict.name) and h.check_access('organization_update', {'id': group_dict.id}) %}
+      <div class="alert alert-success">
+        <strong>Private Data Sharing: </strong> This organisation has opted out from sharing information on private datasets with users with trusted email addresses.
+      </div>
+      {% endif %}
         {% block form %}
         {% set facets = {
           'fields': fields_grouped,

@@ -632,6 +632,23 @@ input[type="checkbox"] {
     right: 10px;
 }
 
+ul.inline-list {
+      list-style-type: none; /* Remove default list styling */
+      /* padding: 0; */
+      /* margin: 0;     */
+}
+
+
+    /* Display list items inline */
+    ul.inline-list li {
+        display: inline;
+    }
+
+    /* Add comma after each list item except the last one */
+    ul.inline-list li:not(:last-child)::after {
+        content: ", ";
+    }
+
 /* Pagination */
 
 ul.pagination {

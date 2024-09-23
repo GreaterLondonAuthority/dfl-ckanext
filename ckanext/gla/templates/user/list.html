@@ -34,3 +34,24 @@
     <p>{{ _(no_results_text) }}</p>
   {% endif %}
 {% endblock %}
+
+{% block page_pagination %}
+    {{ page.pager(q=q, order_by=order_by) }}
+
+<p>
+  <strong>Note:</strong>
+  {% if h.org_opt_outs() %}
+  The following organisations have opted out of sharing private datasets with users with trusted email addresses:
+
+  <ul class='inline-list'>
+    {% for opt_out in h.org_opt_outs()|sort %}
+      <li><a href="{{ url_for('organization.read',id=opt_out)}}">{{ opt_out }}</a></li>
+    {% endfor %}
+  </ul>
+
+  {% else %}
+    No organisations have opted out of sharing private datasets with users with trusted email addresses.
+  {% endif %}
+</p>
+
+{% endblock %}
