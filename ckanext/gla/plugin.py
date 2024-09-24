@@ -50,6 +50,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IDatasetForm)
     plugins.implements(plugins.IFacets)
     plugins.implements(plugins.IValidators)
+    plugins.implements(plugins.Plugin)
 
     def get_validators(self) -> dict[str, Validator]:
         return {"user_password_validator": auth.user_password_validator}
@@ -260,13 +261,13 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
         validated_data_dict = json.loads(pkg_dict.get("validated_data_dict", {}))
         validated_data_dict["notes"] = pkg_dict["notes"]
+        validated_data_dict["organization"]["name"] = ORGAINZATION_DICT.get(pkg_dict["organization"], validated_data_dict["organization"]["name"])
 
         # Map organizations if they are in mapping CSV
         data_dict = json.loads(pkg_dict.get("data_dict", {}))
         data_dict["organization"]["name"] = ORGAINZATION_DICT.get(pkg_dict["organization"], data_dict["organization"]["name"])
         pkg_dict["data_dict"] = json.dumps(data_dict)
         pkg_dict["organization"] = ORGAINZATION_DICT.get(pkg_dict["organization"], pkg_dict["organization"])
-
         pkg_dict["validated_data_dict"] = json.dumps(validated_data_dict)
 
         new_format_list = []
