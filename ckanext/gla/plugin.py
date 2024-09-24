@@ -5,6 +5,7 @@ from typing import Any, Mapping, Optional
 
 from markupsafe import Markup
 
+from ckan import model
 import ckan.lib.mailer as Mailer
 import ckan.plugins as plugins
 from ckan.lib.plugins import DefaultPermissionLabels
@@ -134,7 +135,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
     plugins.implements(plugins.IDatasetForm)
     plugins.implements(plugins.IFacets)
     plugins.implements(plugins.IValidators)
-    plugins.implements(plugins.Plugin)
     plugins.implements(plugins.IPermissionLabels)
     
     def get_validators(self) -> dict[str, Validator]:
@@ -153,22 +153,50 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
         toolkit.add_resource("assets", "gla")
         custom_fields.add_solr_config()
 
+        base_context = {
+            "model": model,
+            "session": model.Session,
+            "user": self._get_user_name(),
+        }
+
+        self.delete_mapping_organization(base_context)
+
     # Plugin
-    def after_load(service: plugins.Plugin):
+    def delete_mapping_organization(self, base_context):
 
-        # 1 - Get all orgs
-        organizations = toolkit.get.action("organization_list")
+        organizations = toolkit.get_action("organization_list")(data_dict={})
 
-        # 2 - loop over and see if there are any old ones that are in the mapping
-        for org_id in organizations:
+        for organization in organizations:
 
-            org_mapping = ORGAINZATION_DICT.get(org_id, org_id)
+            org_mapping = ORGAINZATION_DICT.get(organization, "")
 
-            if org_mapping != org_id:
+            if org_mapping != "":
 
-                # 3 - Mark it as deleted
-                toolkit.get_action("organization_delete")(org_id)
-                log.info("Organization %s has been deleted", org_id)
+                new_org = None
+
+                try:
+                    new_org = toolkit.get_action('organization_show')(data_dict={'id': org_mapping})
+                except toolkit.ObjectNotFound:
+                    org_data_dict = {
+                        'name': org_mapping,
+                        'title': org_mapping, 
+                        "id": org_mapping,
+                        'description': '',
+                        'is_organization': True,
+                        'state': 'active'
+                    }
+                    new_org = toolkit.get_action('organization_create')(base_context.copy(), org_data_dict)
+                    log.info("Organization %s has been newly created", org_mapping)
+
+
+                datasets = toolkit.get_action('package_search')(data_dict={'fq': f'organization:{organization}', 'rows': 1000})['results']
+
+                for dataset in datasets:
+                    dataset['owner_org'] = new_org['id'] 
+                    toolkit.get_action('package_update')(data_dict=dataset)
+
+                toolkit.get_action('organization_delete')(data_dict={'id': organization})
+                log.info("Organization %s has been deleted", organization)
 
     # IAuthFunctions
     def get_auth_functions(self):
