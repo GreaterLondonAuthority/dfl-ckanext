@@ -632,6 +632,27 @@ input[type="checkbox"] {
     right: 10px;
 }
 
+ul.inline-list {
+      list-style-type: none; /* Remove default list styling */
+      /* padding: 0; */
+      /* margin: 0;     */
+}
+
+
+    /* Display list items inline */
+    ul.inline-list li {
+        display: inline;
+    }
+
+    /* Add comma after each list item except the last one */
+    ul.inline-list li:not(:last-child)::after {
+        content: ", ";
+    }
+
+li.no-bullet {
+    list-style-type: none;
+}
+
 /* Pagination */
 
 ul.pagination {
@@ -1014,11 +1035,11 @@ form.lang-select select {
 }
 
 
-.resource-item .resource-description { 
+.resource-item .resource-description {
     color: var(--t-colors-grey);
 }
-.resource-item .resource-meta { 
-    
+.resource-item .resource-meta {
+
     color: var(--t-colors-grey);
     font-size: 0.8rem;}
 
@@ -1595,10 +1616,10 @@ div#followee-filter {
 #dataset-resources, #additional-info {
     margin-top: 3em;
     padding-top: 1.5rem;
-    
+
 }
 
-#dataset-resources { 
+#dataset-resources {
     border-top: 1px solid var(--t-colors-grey-50);
 }
 
@@ -1685,7 +1706,7 @@ padding-top: 24px;
 margin-bottom: 16px;
 }
 
-.checkbox-filter { 
+.checkbox-filter {
 cursor: pointer;
 }
 
@@ -1708,6 +1729,11 @@ justify-content: space-between;
 padding-left: 15px;
 padding-right: 15px;
 position: relative;
+}
+
+table.dfl-scroll-table {
+    display: block;
+    overflow-x: auto;
 }
 
 .inner-btn-content {

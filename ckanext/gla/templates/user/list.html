@@ -2,14 +2,56 @@
 {% block users_list %}
   {% set no_results_text = _('No matching result for "{q}".').format(q=q) %}
   {% if page.items %}
-    <ul class="user-list">
-      {% block users_list_inner %}
-        {% for user in page.items %}
-          <li>{{ h.linked_user(user['name'], maxlength=20) }}</li>
-        {% endfor %}
+    <table class="table table-header table-hover table-bordered dfl-scroll-table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>User Type</th>
+          <th>Verified Email</th>
+          <th>Trusted Email</th>
+          <th>Organisation Member</th>
+          <th>Dataset Collaborator</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% block users_list_inner %}
+          {% for user in page.items %}
+          <tr>
+              <td><a href="{{ url_for('user.read', id=user['name'])}}"> {{ user['name'] }}</a></td>
+              <td>{{ user['email'] }}</td>
+              <td>{% if user.sysadmin %} Sys&nbsp;Admin {% else %} Standard {% endif %}</td>
+              <td>{{ h.is_email_verified(user) }}</td>
+              <td>{{ h.is_trusted_email(user) }}</td>
+              <td>{{ user.is_organization_member }}</td>
+              <td>{{ user.is_collaborator }}</td>
+            </tr>
+      {% endfor %}
       {% endblock %}
-    </ul>
+    </tbody>
+  </table>
   {% else %}
     <p>{{ _(no_results_text) }}</p>
   {% endif %}
+{% endblock %}
+
+{% block page_pagination %}
+    {{ page.pager(q=q, order_by=order_by) }}
+
+<p>
+  <strong>Note:</strong>
+  {% if h.org_opt_outs() %}
+  The following organisations have opted out of sharing private datasets with users with trusted email addresses:
+
+  <ul class='inline-list'>
+    {% for opt_out in h.org_opt_outs()|sort %}
+      <li><a href="{{ url_for('organization.read',id=opt_out)}}">{{ opt_out }}</a></li>
+    {% endfor %}
+  </ul>
+
+  {% else %}
+    No organisations have opted out of sharing private datasets with users with trusted email addresses.
+  {% endif %}
+</p>
+
 {% endblock %}

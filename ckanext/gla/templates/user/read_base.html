@@ -3,13 +3,11 @@
 {% endblock %}
 
 {% block content_primary_nav %}
-{% if orgs_available %}
-        {{ h.build_nav_icon('user.read_organizations', h.humanize_entity_type('organization', org_type, 'content tab') or _('Organizations'), id=user.name, icon='building') }}
-    {% endif %}
-    {% if h.check_access('api_token_list', {'user': user['name']}) %}
-        {{ h.build_nav_icon('user.api_tokens', _('API Tokens'), id=user.name, icon='key') }}
-    {% endif %}
+  {% if h.is_sysadmin() %}
+    {{ h.build_nav_icon('user.read', _('Organisations'), id=user.name, icon='building') }}
+  {% endif %}
+
+  {% if h.check_access('api_token_list', {'user': user['name']}) %}
+    {{ h.build_nav_icon('user.api_tokens', _('API Tokens'), id=user.name, icon='key') }}
+  {% endif %}
 {% endblock %}
-
-
-

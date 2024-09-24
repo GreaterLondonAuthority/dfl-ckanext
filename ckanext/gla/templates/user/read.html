@@ -7,6 +7,22 @@
 </li>
 {% endblock %}
 
-{% block primary_content_inner %}
-{% endblock %}
 
+{% block primary_content_inner %}
+
+{% if h.is_sysadmin() %}
+  {% set orgs = h.orgs_list_for_user(user.name)|sort(attribute='title') %}
+
+{% if orgs %}
+    <p>This user is a member of the following organisations:</p>
+    <ul>
+    {% for org in orgs %}
+      <li class="no-bullet"><a href="{{ url_for('organization.read',id=org.name)}}">{{ org.title }}</a></li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    <p>This user is not a member of any organisations</p>
+  {% endif %}
+
+{% endif %}
+{% endblock %}
