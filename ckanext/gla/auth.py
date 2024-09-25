@@ -16,8 +16,6 @@ logger = logging.getLogger(__name__)
 
 
 SECRET_KEY = os.environ.get("EMAIL_VERIFICATION_SECURITY_KEY")
-SECURITY_PASSWORD_SALT = os.environ.get("EMAIL_VERIFICATION_SECURITY_PASSWORD_SALT")
-
 
 def _requester_is_sysadmin(context):
     requester = context.get("user", None)
@@ -128,11 +126,11 @@ def user_password_validator(
 
 def generate_token(email: str) -> str:
     serializer = URLSafeTimedSerializer(SECRET_KEY)
-    return serializer.dumps(email, salt=SECURITY_PASSWORD_SALT)
+    return serializer.dumps(email, salt="email-verification-token")
 
 def read_email_from_token(token,max_age=None):
     serializer = URLSafeTimedSerializer(SECRET_KEY)
-    email = serializer.loads(token, salt=SECURITY_PASSWORD_SALT, max_age=max_age)
+    email = serializer.loads(token, salt="email-verification-token", max_age=max_age)
     return email 
 
 def verify_user(token, expiration=86400) -> str:
