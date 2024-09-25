@@ -30,6 +30,18 @@ from typing import Any, Optional, Union
 import ckan.lib.captcha as captcha
 import ckan.lib.navl.dictization_functions as dictization_functions
 
+# The front end machinery only has the capacity to display one
+# validation error per field. So this function roles multiple errors
+# that might occur with e.g. the password policy into one combined
+# error.
+def clean_up_errors(e: logic.ValidationError):
+    for k, v in e.error_dict.items():
+        # dedupe any replicated errors and sort by length,
+        # shortest first
+        deduped_v = sorted(set(v),key=len)                
+        e.error_dict[k][0] = '. '.join(deduped_v)
+    
+
 class GlaRegisterView(RegisterView):
     # Code taken from:
     # https://github.com/ckan/ckan/blob/9915ba0022b9a74a65e61c097b2fee584b044087/ckan/views/user.py#L420-L476
@@ -61,6 +73,7 @@ class GlaRegisterView(RegisterView):
         except logic.NotFound:
             base.abort(404, _(u'User not found'))
         except logic.ValidationError as e:
+            clean_up_errors(e)
             errors = e.error_dict
             error_summary = e.error_summary
                 
@@ -83,6 +96,7 @@ class GlaRegisterView(RegisterView):
                 return h.redirect_to(u'user.read', id=data_dict[u'name'])
             else:
                 return base.render(u'user/logout_first.html')
+
         # log the user in programatically
         userobj = model.User.get(user_dict["id"])
         if userobj:
@@ -90,6 +104,7 @@ class GlaRegisterView(RegisterView):
             rotate_token()
         resp = h.redirect_to(u'user.me')
         return resp    
+
 
     
 @toolkit.chained_action
