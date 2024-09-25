@@ -40,6 +40,14 @@ def clean_up_errors(e: logic.ValidationError):
         # shortest first
         deduped_v = sorted(set(v),key=len)                
         e.error_dict[k][0] = '. '.join(deduped_v)
+
+def send_verification_link_to_email(user_email):
+    user_obj = model.User.by_email(user_email)
+    email.send_email_verification_link(user_obj)
+    # if user_email:
+    #     user_obj = model.User.by_email(user_email)
+    #     if user_obj:
+    #         email.send_email_verification_link(user_obj)
     
 
 class GlaRegisterView(RegisterView):
@@ -83,10 +91,16 @@ class GlaRegisterView(RegisterView):
         if user:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.
+
+            send_verification_link_to_email(request.form.get("email"))
+
             h.flash_success(
                 _(u'User "%s" is now registered but you are still '
-                  u'logged in as "%s" from before') % (data_dict[u'name'],
-                                                       user))
+                  u'logged in as "%s" from before.  '
+                  u'A verification link has been sent to their email address.') %
+                (data_dict[u'name'],
+                 user))
+            
             if authz.is_sysadmin(user):
                 # the sysadmin created a new user. We redirect him to the
                 # activity page for the newly created user
@@ -97,14 +111,13 @@ class GlaRegisterView(RegisterView):
             else:
                 return base.render(u'user/logout_first.html')
 
-        # log the user in programatically
-        userobj = model.User.get(user_dict["id"])
-        if userobj:
-            login_user(userobj)
-            rotate_token()
-        resp = h.redirect_to(u'user.me')
-        return resp    
+        send_verification_link_to_email(request.form.get("email"))
+      
+        h.flash_notice(
+            "A verification email has been sent to your email address. Please click the link in the email to verify your email address."
+        )
 
+        return h.redirect_to("user.login")
 
     
 @toolkit.chained_action
