@@ -59,13 +59,12 @@ To install ckanext-gla:
 
 ## Config settings
 
-None at present
+This plugin exposes the following configuration options via
+environment variables:
 
-**TODO:** Document any optional config settings here. For example:
+- `EMAIL_VERIFICATION_SECURITY_KEY` Secret key used for cryptographic tokens.
+- `EMAIL_VERIFICATION_TOKEN_EXPIRY` Expiry time in seconds for email verification tokens default `86400`
 
-	# The minimum number of hours to wait before re-checking a resource
-	# (optional, default: 24).
-	ckanext.gla.some_setting = some_default_value
 
 
 ## Developer installation

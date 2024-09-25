@@ -1,4 +1,5 @@
 import logging
+import os
 from os.path import exists
 from typing import Any, cast
 
@@ -22,6 +23,10 @@ favourites = Blueprint("favourites_blueprint", __name__)
 users = Blueprint("users_blueprint", __name__)
 search_log_download = Blueprint("search_log_download_blueprint", __name__)
 undelete = Blueprint("undelete_blueprint", __name__)
+
+# Note this expiry time is measured in seconds
+# Default is 2 days
+EMAIL_VERIFICATION_TOKEN_EXPIRY = int(os.environ.get("EMAIL_VERIFICATION_TOKEN_EXPIRY","86400"))
 
 
 def show_favourites():
@@ -134,7 +139,7 @@ def view_user(id):
     return base.render("user/read.html", extra_vars)
 
 
-def verify_user(token, expiration=86400):
+def verify_user(token, expiration=EMAIL_VERIFICATION_TOKEN_EXPIRY):
     """
     Verify a user's email address by checking that a GET request is made with a valid token.
     """
