@@ -68,16 +68,16 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         toolkit.add_resource("assets", "gla")
         custom_fields.add_solr_config()
 
+        self.migrate_organization()
+
+    # Plugin
+    def migrate_organization(self):
+
         base_context = {
             "model": model,
             "session": model.Session,
-            "user": self._get_user_name(),
+            "user": "ckan_admin",
         }
-
-        self.delete_mapping_organization(base_context)
-
-    # Plugin
-    def delete_mapping_organization(self, base_context):
 
         organizations = toolkit.get_action("organization_list")(data_dict={})
 
@@ -96,23 +96,39 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                         'name': org_mapping,
                         'title': org_mapping, 
                         "id": org_mapping,
-                        'description': '',
+                        'description': '', #organization -get desc etc
                         'is_organization': True,
                         'state': 'active'
                     }
-                    new_org = toolkit.get_action('organization_create')(base_context.copy(), org_data_dict)
+                    new_org = toolkit.get_action('organization_create')(base_context, org_data_dict)
                     log.info("Organization %s has been newly created", org_mapping)
 
 
-                datasets = toolkit.get_action('package_search')(data_dict={'fq': f'organization:{organization}', 'rows': 1000})['results']
-
+                datasets = self.get_datasets_by_org(organization, base_context)
                 for dataset in datasets:
+                    log.debug(dataset)
                     dataset['owner_org'] = new_org['id'] 
-                    toolkit.get_action('package_update')(data_dict=dataset)
+                    toolkit.get_action('package_update')(base_context, data_dict=dataset)
 
-                toolkit.get_action('organization_delete')(data_dict={'id': organization})
-                log.info("Organization %s has been deleted", organization)
+                remaining_datasets = self.get_datasets_by_org(organization, base_context)
+                if not remaining_datasets:
+                    #toolkit.get_action('organization_delete')(base_context, {'id': organization})
+                    log.info(f"Old organization '{organization}' deleted.")
+                else:
+                    log.warning(f"Old organization '{organization}' still has datasets and cannot be deleted.")
 
+    def get_datasets_by_org(self, org_name, context):
+        search_result = toolkit.get_action('package_search')(
+        context, {
+            'fq': f'organization:{org_name}', 
+            'rows': 1000,
+            'include_private': True,   # Include private datasets
+            'include_drafts': True,    # Include drafts or inactive datasets
+            'include_deleted': True    # Include deleted datasets
+            }
+        )
+        return search_result['results']
+    
     # IAuthFunctions
     def get_auth_functions(self):
         auth_functions = {"user_list": auth.user_list, "user_show": auth.user_show}
