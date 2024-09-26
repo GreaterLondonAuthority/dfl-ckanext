@@ -19,26 +19,107 @@ from .auth import is_email_verified
 from . import email
 
 
+import ckan.logic as logic
+import ckan.lib.base as base
+from ckan import authz
+from ckan.common import (
+    _, config, g, current_user, login_user
+)
+
+from typing import Any, Optional, Union
+import ckan.lib.captcha as captcha
+import ckan.lib.navl.dictization_functions as dictization_functions
+
+# The front end machinery only has the capacity to display one
+# validation error per field. So this function roles multiple errors
+# that might occur with e.g. the password policy into one combined
+# error.
+def clean_up_errors(e: logic.ValidationError):
+    for k, v in e.error_dict.items():
+        # dedupe any replicated errors and sort by length,
+        # shortest first
+        deduped_v = sorted(set(v),key=len)                
+        e.error_dict[k][0] = '. '.join(deduped_v)
+
+def send_verification_link_to_email(user_email):
+    user_obj = model.User.by_email(user_email)
+    email.send_email_verification_link(user_obj)
+    # if user_email:
+    #     user_obj = model.User.by_email(user_email)
+    #     if user_obj:
+    #         email.send_email_verification_link(user_obj)
+    
+
 class GlaRegisterView(RegisterView):
-    def post(self) -> Response | str:
-        super().post()
+    # Code taken from:
+    # https://github.com/ckan/ckan/blob/9915ba0022b9a74a65e61c097b2fee584b044087/ckan/views/user.py#L420-L476
+    def post(self) -> Union[Response, str]:        
+        context = self._prepare()
+        try:
+            data_dict = logic.clean_dict(
+                dictization_functions.unflatten(
+                    logic.tuplize_dict(logic.parse_params(request.form))))
+            data_dict.update(logic.clean_dict(
+                dictization_functions.unflatten(
+                    logic.tuplize_dict(logic.parse_params(request.files)))
+            ))
 
-        # Send verification email and log the user out
-        user_email = request.form.get("email")
-        if user_email:
-            user_obj = model.User.by_email(user_email)
-            if user_obj:
-                email.send_email_verification_link(user_obj)
+        except dictization_functions.DataError:
+            base.abort(400, _(u'Integrity Error'))
 
-        logout_user()
+        try:
+            captcha.check_recaptcha(request)
+        except captcha.CaptchaError:
+            error_msg = _(u'Bad Captcha. Please try again.')
+            h.flash_error(error_msg)
+            return self.get(data_dict)
 
+        try:
+            user_dict = logic.get_action(u'user_create')(context, data_dict)
+        except logic.NotAuthorized:
+            base.abort(403, _(u'Unauthorized to create user %s') % u'')
+        except logic.NotFound:
+            base.abort(404, _(u'User not found'))
+        except logic.ValidationError as e:
+            clean_up_errors(e)
+            errors = e.error_dict
+            error_summary = e.error_summary
+                
+            return self.get(data_dict, errors, error_summary)
+
+        user = current_user.name
+        if user:
+            # #1799 User has managed to register whilst logged in - warn user
+            # they are not re-logged in as new user.
+
+            send_verification_link_to_email(request.form.get("email"))
+
+            h.flash_success(
+                _(u'User "%s" is now registered but you are still '
+                  u'logged in as "%s" from before.  '
+                  u'A verification link has been sent to their email address.') %
+                (data_dict[u'name'],
+                 user))
+            
+            if authz.is_sysadmin(user):
+                # the sysadmin created a new user. We redirect him to the
+                # activity page for the newly created user
+                if "activity" in g.plugins:
+                    return h.redirect_to(
+                        u'activity.user_activity', id=data_dict[u'name'])
+                return h.redirect_to(u'user.read', id=data_dict[u'name'])
+            else:
+                return base.render(u'user/logout_first.html')
+
+        send_verification_link_to_email(request.form.get("email"))
+      
         h.flash_notice(
             "A verification email has been sent to your email address. Please click the link in the email to verify your email address."
         )
 
         return h.redirect_to("user.login")
 
-
+    
 @toolkit.chained_action
 def user_create(original_action, context, data_dict):
     # Force username and email to be lower case

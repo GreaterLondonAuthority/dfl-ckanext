@@ -2,8 +2,23 @@
 
 # ckanext-gla
 
-**TODO:** Put a description of your extension here:  What does it do? What features does it have? Consider including some screenshots or embedding a video!
+CKAN customisations for the Data for London datastore.
 
+## Config settings
+
+This plugin exposes the following configuration options via
+environment variables:
+
+- `EMAIL_VERIFICATION_SECURITY_KEY` Secret key used for cryptographic tokens.
+- `EMAIL_VERIFICATION_TOKEN_EXPIRY` Expiry time in seconds for email verification tokens default `86400`
+
+through `ckan.ini` and `custom_options.ini` you can customise the following options:
+
+- `ckan.harvesters.table_formats` space separated list of file formats to classify as "Tables" under the "Format" facet.
+- `ckan.harvesters.report_formats` space separated list of file formats to classify as "Reports" under the "Format" facet.
+- `ckan.harvesters.geospatial_formats` space separated list of file formats to classify as "Geospatial" under the "Format" facet.
+- `dfl.trusted-email-access.regexes` space separated list of regular expressions to determine if a verified email address is trusted (and can access private datasets).
+- `dfl.trusted-email-access.optout-org-slugs` space separated list of organisation slugs to determine if an organisation opts out of the above trusted email access feature.
 
 ## Requirements
 
@@ -55,17 +70,6 @@ To install ckanext-gla:
 4. Restart CKAN. For example if you've deployed CKAN with Apache on Ubuntu:
 
      sudo service apache2 reload
-
-
-## Config settings
-
-None at present
-
-**TODO:** Document any optional config settings here. For example:
-
-	# The minimum number of hours to wait before re-checking a resource
-	# (optional, default: 24).
-	ckanext.gla.some_setting = some_default_value
 
 
 ## Developer installation
