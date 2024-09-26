@@ -65,7 +65,13 @@ environment variables:
 - `EMAIL_VERIFICATION_SECURITY_KEY` Secret key used for cryptographic tokens.
 - `EMAIL_VERIFICATION_TOKEN_EXPIRY` Expiry time in seconds for email verification tokens default `86400`
 
+through `ckan.ini` and `custom_options.ini` you can customise the following options:
 
+- `ckan.harvesters.table_formats` space separated list of file formats to classify as "Tables" under the "Format" facet.
+- `ckan.harvesters.report_formats` space separated list of file formats to classify as "Reports" under the "Format" facet.
+- `ckan.harvesters.geospatial_formats` space separated list of file formats to classify as "Geospatial" under the "Format" facet.
+- `dfl.trusted-email-access.regexes` space separated list of regular expressions to determine if a verified email address is trusted (and can access private datasets).
+- `dfl.trusted-email-access.optout-org-slugs` space separated list of organisation slugs to determine if an organisation opts out of the above trusted email access feature.
 
 ## Developer installation
 
