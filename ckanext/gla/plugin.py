@@ -26,6 +26,8 @@ from .search_highlight import (  # query is imported for initialisation, though 
 )
 from .search_highlight.action import dataset_facets_for_user, GLA_SYSADMIN_FACETS
 
+from .login import ( login )
+
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
 GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
@@ -492,6 +494,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
 
         return None
 
+    def login(self):
+        return login.login() 
 
     def get_dataset_labels(self, dataset_obj: Any) -> list[str]:
         u'''
