@@ -44,11 +44,6 @@ def clean_up_errors(e: logic.ValidationError):
 def send_verification_link_to_email(user_email):
     user_obj = model.User.by_email(user_email)
     email.send_email_verification_link(user_obj)
-    # if user_email:
-    #     user_obj = model.User.by_email(user_email)
-    #     if user_obj:
-    #         email.send_email_verification_link(user_obj)
-    
 
 class GlaRegisterView(RegisterView):
     # Code taken from:
