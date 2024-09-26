@@ -130,33 +130,32 @@ def generate_token(email: str) -> str:
     serializer = URLSafeTimedSerializer(SECRET_KEY)
     return serializer.dumps(email, salt=SECURITY_PASSWORD_SALT)
 
+def read_email_from_token(token,max_age=None):
+    serializer = URLSafeTimedSerializer(SECRET_KEY)
+    email = serializer.loads(token, salt=SECURITY_PASSWORD_SALT, max_age=max_age)
+    return email 
 
 def verify_user(token, expiration=86400) -> str:
-    serializer = URLSafeTimedSerializer(SECRET_KEY)
+    email = read_email_from_token(token, max_age=expiration)
+       
+    user_obj = model.User.by_email(email.lower())
 
-    try:
-        email = serializer.loads(token, salt=SECURITY_PASSWORD_SALT, max_age=expiration)
-        user_obj = model.User.by_email(email.lower())
+    if not user_obj:
+        raise Exception("User not found")
 
-        if not user_obj:
-            raise Exception("User not found")
+    if not user_obj.plugin_extras:
+        user_obj.plugin_extras = {"gla": {"verified_email": email.lower()}}
+    elif "gla" not in user_obj.plugin_extras:
+        user_obj.plugin_extras["gla"] = {"verified_email": email.lower()}
+    else:
+        user_obj.plugin_extras["gla"].update({"verified_email": email.lower()})
 
-        if not user_obj.plugin_extras:
-            user_obj.plugin_extras = {"gla": {"verified_email": email.lower()}}
-        elif "gla" not in user_obj.plugin_extras:
-            user_obj.plugin_extras["gla"] = {"verified_email": email.lower()}
-        else:
-            user_obj.plugin_extras["gla"].update({"verified_email": email.lower()})
+    # Postgres needs to be explicitly told to update a jsonb field
+    flag_modified(user_obj, "plugin_extras")
 
-        # Postgres needs to be explicitly told to update a jsonb field
-        flag_modified(user_obj, "plugin_extras")
-
-        user_obj.save()
-
-        return email
-    except Exception as e:
-        logger.error(e)
-        return None
+    user_obj.save()
+    
+    return email
 
 
 def is_email_verified(user_obj: model.User) -> bool:

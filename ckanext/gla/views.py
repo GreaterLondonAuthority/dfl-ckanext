@@ -12,7 +12,7 @@ from ckan import authz
 from ckan.common import _, current_user, g
 from ckan.types import Context
 from flask import Blueprint, send_file
-
+from itsdangerous.exc import SignatureExpired, BadData
 from . import auth, email
 
 log = logging.getLogger(__name__)
@@ -140,16 +140,33 @@ def verify_user(token, expiration=86400):
     """
     # Has user already verified their email address?
     # Was user redirected here?
-    user_email = auth.verify_user(token, expiration)
-    if user_email:
-        h.flash_success("Your email address has been verified, please login to continue.")
+
+    try:
+        user_email = auth.verify_user(token, expiration=expiration)
+        if user_email:
+            h.flash_success("Your email address has been verified, please login to continue.")
+            return tk.redirect_to("user.login")
+        
+    except SignatureExpired as e:
+        user_email = auth.read_email_from_token(token,max_age=None)
+
+        user_obj = model.User.by_email(user_email)
+        if user_obj:
+            email.send_email_verification_link(user_obj)
+            h.flash_error("Your email verification link has expired. A new verification link has been sent to your email address, please check your inbox, and click it.")
+            return tk.redirect_to("user.login")
+        else:
+            # This case shouldn't normally happen, it would likely
+            # mean we had sent out a verification link, but did not
+            # have the corresponding account stored in our database.
+            h.flash_error("User account could not be found, please report this to an administrator")
+            return tk.redirect_to("user.login")
+
+    except BadData as ex:
+        log.error('Supplied verification link raised an error',ex)
+        
+        h.flash_error("The verification link you have supplied is invalid/untrusted; please try again or contact us.")
         return tk.redirect_to("user.login")
-    
-    user_obj = model.User.by_email(user_email)
-    if user_obj:
-        email.send_email_verification_link(user_obj)
-        h.flash_error("Email verification failed. A new email has been sent to your email address, please check your inbox.")
-    return tk.redirect_to("user.login")
 
 
 users.add_url_rule("/user/<id>", methods=["GET"], view_func=view_user)
