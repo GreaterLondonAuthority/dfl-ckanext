@@ -22,11 +22,6 @@ from ckan.views.user import next_page_or_default, rotate_token
 # Originally from:
 # https://github.com/ckan/ckan/blob/9915ba0022b9a74a65e61c097b2fee584b044087/ckan/views/user.py#L521-L582
 def login() -> Union[Response, str]:
-    for item in plugins.PluginImplementations(plugins.IAuthenticator):
-        response = item.login()
-        if response:
-            return response
-    
     extra_vars: dict[str, Any] = {}
 
     if current_user.is_authenticated:
@@ -49,7 +44,7 @@ def login() -> Union[Response, str]:
                 from datetime import timedelta
                 duration_time = timedelta(milliseconds=int(_remember))
                 login_user(user_obj, remember=True, duration=duration_time)
-                rotate_token()            
+                rotate_token()
                 return next_page_or_default(next)
             else:
                 login_user(user_obj)
@@ -69,10 +64,6 @@ def login() -> Union[Response, str]:
 ## code that goes with the above for logging in is here:
 ##
 # def logout() -> Response:
-#     for item in plugins.PluginImplementations(plugins.IAuthenticator):
-#         response = item.logout()
-#         if response:
-#             return response
 #     user = current_user.name
 #     if not user:
 #         return h.redirect_to('user.login')
