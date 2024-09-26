@@ -92,31 +92,32 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 try:
                     new_org = toolkit.get_action('organization_show')(data_dict={'id': org_mapping})
                 except toolkit.ObjectNotFound:
+                    current_org = toolkit.get_action('organization_show')(data_dict={'id': organization})
                     org_data_dict = {
                         'name': org_mapping,
                         'title': org_mapping, 
                         "id": org_mapping,
-                        'description': '', #organization -get desc etc
+                        'description': current_org["description"],
+                        'image_url' : current_org["image_url"],
                         'is_organization': True,
                         'state': 'active'
                     }
                     new_org = toolkit.get_action('organization_create')(base_context, org_data_dict)
                     log.info("Organization %s has been newly created", org_mapping)
 
-
                 datasets = self.get_datasets_by_org(organization, base_context)
+
                 for dataset in datasets:
-                    log.debug(dataset)
                     dataset['owner_org'] = new_org['id'] 
                     toolkit.get_action('package_update')(base_context, data_dict=dataset)
 
                 remaining_datasets = self.get_datasets_by_org(organization, base_context)
                 if not remaining_datasets:
-                    #toolkit.get_action('organization_delete')(base_context, {'id': organization})
+                    toolkit.get_action('organization_delete')(base_context, {'id': organization})
                     log.info(f"Old organization '{organization}' deleted.")
                 else:
                     log.warning(f"Old organization '{organization}' still has datasets and cannot be deleted.")
-
+    
     def get_datasets_by_org(self, org_name, context):
         search_result = toolkit.get_action('package_search')(
         context, {
