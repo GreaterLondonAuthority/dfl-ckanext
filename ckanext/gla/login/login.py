@@ -46,15 +46,21 @@ def login() -> Union[Response, str]:
                 login_user(user_obj, remember=True, duration=duration_time)
                 rotate_token()
                 return next_page_or_default(next)
+            # TODO: reinstate login code below once we have the token
+            ## else:
+            ##     login_user(user_obj)
+            ##     rotate_token()
+            ##     return next_page_or_default(next)
             else:
-                login_user(user_obj)
-                rotate_token()
-                return next_page_or_default(next)
+                # TODO send link to users email with token
+                h.flash_success(u"We have emailed you a link to sign in")                
+                return base.render("user/login.html", {"display_mfa_token_message":True})
         else:
             err = _(u"Login failed. Bad username or password.")
             h.flash_error(err)
             return base.render("user/login.html", extra_vars)
 
+    #extra_vars['login_with_token'] = True
     return base.render("user/login.html", extra_vars)
 
 ## Originally from:
