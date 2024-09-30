@@ -123,6 +123,15 @@ def user_password_validator(
                     )
                 )
 
+def generate_mfa_login_token(email: str) -> str:
+    serializer = URLSafeTimedSerializer(SECRET_KEY)
+    return serializer.dumps(email, salt="mfa-login-token")
+
+def read_email_from_login_token(token,max_age=None):
+    serializer = URLSafeTimedSerializer(SECRET_KEY)
+    email = serializer.loads(token, salt="mfa-login-token", max_age=max_age)
+    return email
+
 
 def generate_token(email: str) -> str:
     serializer = URLSafeTimedSerializer(SECRET_KEY)
@@ -131,11 +140,11 @@ def generate_token(email: str) -> str:
 def read_email_from_token(token,max_age=None):
     serializer = URLSafeTimedSerializer(SECRET_KEY)
     email = serializer.loads(token, salt="email-verification-token", max_age=max_age)
-    return email 
+    return email
 
 def verify_user(token, expiration=86400) -> str:
     email = read_email_from_token(token, max_age=expiration)
-       
+
     user_obj = model.User.by_email(email.lower())
 
     if not user_obj:
@@ -152,7 +161,7 @@ def verify_user(token, expiration=86400) -> str:
     flag_modified(user_obj, "plugin_extras")
 
     user_obj.save()
-    
+
     return email
 
 
