@@ -15,7 +15,7 @@ from ckan.types import Context, FlattenDataDict, FlattenErrorDict, FlattenKey
 logger = logging.getLogger(__name__)
 
 
-SECRET_KEY = os.environ.get("EMAIL_VERIFICATION_SECURITY_KEY")
+SECRET_KEY = os.environ.get("SECURE_TOKEN_GENERATION_SECURITY_KEY")
 
 def _requester_is_sysadmin(context):
     requester = context.get("user", None)
