@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login link</title>
+  </head>
+  <body>
+    <p>Dear {{ user_name }},</p>
+    <p>
+      Please click the following link to complete the sign in process
+      and log in to the Greater London Authority Datastore:
+    </p>
+    <p>
+      <a href="{{ login_link_with_token }}" target="_blank">Log in to the Datastore</a>
+    </p>
+    <p>Have a nice day.</p>
+    <p>--<br />Message sent by {{ site_title }} (<a href="{{ site_url }}" target="_blank">{{ site_url }}</a>)</p>
+  </body>
+</html>

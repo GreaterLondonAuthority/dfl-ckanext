@@ -50,3 +50,22 @@ def send_email_verification_link(user_obj) -> None:
         body=body,
         body_html=body,
     )
+
+def send_mfa_login_link(user_obj: model.User) -> None:
+    mfa_link = config.get("ckan.site_url") + url_for(
+        "user.login", token=auth.generate_mfa_login_token(user_obj.email)
+    )
+
+    extra_vars = {
+        "login_link_with_token": mfa_link,
+        "site_title": config.get("ckan.site_title"),
+        "site_url": config.get("ckan.site_url"),
+        "user_name": user_obj.name,
+    }
+    body = render("emails/login_link_email.html", extra_vars)
+    Mailer.mail_user(
+        recipient=user_obj,
+        subject="Greater London Authority Datastore: Login link",
+        body=body,
+        body_html=body,
+    )
