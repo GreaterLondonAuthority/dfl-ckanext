@@ -6,6 +6,7 @@ from typing import Any, Mapping, Optional
 from markupsafe import Markup
 
 from ckan import model
+from ckan import model
 import ckan.lib.mailer as Mailer
 import ckan.plugins as plugins
 from ckan.lib.plugins import DefaultPermissionLabels
@@ -26,6 +27,14 @@ from .search_highlight import (  # query is imported for initialisation, though 
     query,
 )
 from .search_highlight.action import dataset_facets_for_user, GLA_SYSADMIN_FACETS
+
+import csv
+
+with open("organisation_mappings.csv", mode='r') as csvfile:
+    ORGAINZATION_DICT = {}
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+         ORGAINZATION_DICT[row["Original ID"]] = row["Override ID"]
 
 import csv
 
