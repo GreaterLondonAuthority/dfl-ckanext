@@ -20,10 +20,9 @@ import csv
 
 log = logging.getLogger(__name__)
 
-
+ORGAINZATION_DICT = {}
 try:
     with open("organisation_mappings.csv", mode='r') as csvfile:
-        ORGAINZATION_DICT = {}
         reader = csv.DictReader(csvfile)
         for row in reader:
             ORGAINZATION_DICT[row["Original ID"]] = row["Override ID"]

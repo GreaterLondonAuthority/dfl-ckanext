@@ -30,12 +30,16 @@ from .search_highlight.action import dataset_facets_for_user, GLA_SYSADMIN_FACET
 
 import csv
 
-with open("organisation_mappings.csv", mode='r') as csvfile:
-    ORGAINZATION_DICT = {}
-    reader = csv.DictReader(csvfile)
-    for row in reader:
-         ORGAINZATION_DICT[row["Original ID"]] = row["Override ID"]
+log = logging.getLogger(__name__)
 
+ORGAINZATION_DICT = {}
+try:
+    with open("organisation_mappings.csv", mode='r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            ORGAINZATION_DICT[row["Original ID"]] = row["Override ID"]
+except:
+    log.warning("unable to open CSV")
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
 GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
@@ -54,7 +58,6 @@ TRUSTED_EMAIL_ORG_OPT_OUTS = set(load_config_as_list("dfl.trusted-email-access.o
 # Override this function to add a html template to password reset link email
 Mailer.send_reset_link = send_reset_link
 
-log = logging.getLogger(__name__)
 
 def build_multi_select_facet_constraints() -> dict[str, Any]:
     # fields_grouped will contain a dict of params containing
