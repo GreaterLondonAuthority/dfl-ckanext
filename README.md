@@ -11,6 +11,7 @@ environment variables:
 
 - `SECURE_TOKEN_GENERATION_SECURITY_KEY` Secret key used for all cryptographic tokens.
 - `EMAIL_VERIFICATION_TOKEN_EXPIRY` Expiry time in seconds for email verification tokens default `86400`
+- `MFA_LOGIN_TOKEN_EXPIRY` Expiry time in seconds for MFA login links (default `300` (5 minutes))
 
 through `ckan.ini` and `custom_options.ini` you can customise the following options:
 
