@@ -12,17 +12,30 @@ import ckan.plugins.toolkit as tk
 from ckan import authz
 from ckan.common import _, current_user, g
 from ckan.types import Context
-from flask import Blueprint, send_file
+from flask import Blueprint, send_file, jsonify
 from itsdangerous.exc import SignatureExpired, BadData
 from . import auth, email
+import ckan.plugins.toolkit as toolkit
+import csv
 
 log = logging.getLogger(__name__)
+
+
+try:
+    with open("organisation_mappings.csv", mode='r') as csvfile:
+        ORGAINZATION_DICT = {}
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            ORGAINZATION_DICT[row["Original ID"]] = row["Override ID"]
+except:
+    log.debug("Opening CSV failed")
 
 
 favourites = Blueprint("favourites_blueprint", __name__)
 users = Blueprint("users_blueprint", __name__)
 search_log_download = Blueprint("search_log_download_blueprint", __name__)
 undelete = Blueprint("undelete_blueprint", __name__)
+migrate_organizations = Blueprint("migrate_organizations_blueprint", __name__)
 
 # Note this expiry time is measured in seconds
 # Default is 2 days
@@ -225,5 +238,72 @@ lang_redirect.add_url_rule(
     endpoint="lang_redirect"
 )
 
+def get_migrate_organizations(): 
+    base_context = {
+        "model": model,
+        "session": model.Session,
+        "user": "ckan_admin",
+    }
+
+    organizations = toolkit.get_action("organization_list")(data_dict={})
+
+    for organization in organizations:
+
+        org_mapping = ORGAINZATION_DICT.get(organization, "")
+
+        if org_mapping != "":
+
+            new_org = None
+
+            try:
+                new_org = toolkit.get_action('organization_show')(data_dict={'id': org_mapping})
+            except toolkit.ObjectNotFound:
+                current_org = toolkit.get_action('organization_show')(data_dict={'id': organization})
+                org_data_dict = {
+                    'name': org_mapping,
+                    'title': org_mapping, 
+                    "id": org_mapping,
+                    'description': current_org["description"],
+                    'image_url' : current_org["image_url"],
+                    'is_organization': True,
+                    'state': 'active'
+                }
+                new_org = toolkit.get_action('organization_create')(base_context, org_data_dict)
+                log.info("Organization %s has been newly created", org_mapping)
+
+            datasets = get_datasets_by_org(organization, base_context)
+
+            for dataset in datasets:
+                dataset['owner_org'] = new_org['id'] 
+                toolkit.get_action('package_update')(base_context, data_dict=dataset)
+
+            remaining_datasets = get_datasets_by_org(organization, base_context)
+            if not remaining_datasets:
+                try:
+                    toolkit.get_action('organization_delete')(base_context, {'id': organization})
+                    log.info(f"Old organization '{organization}' deleted.")
+                except:
+                     log.warning(f"FAILED to delete old organization '{organization}' as it still has datasets.")
+            else:
+                log.warning(f"Old organization '{organization}' still has datasets and cannot be deleted.")
+    
+    return "get_migrate_organizations completed"
+
+def get_datasets_by_org(org_name, context):
+    search_result = toolkit.get_action('package_search')(
+    context, {
+        'fq': f'organization:{org_name}', 
+        'rows': 1000,
+        'include_private': True,   # Include private datasets
+        'include_drafts': True,    # Include drafts or inactive datasets
+        'include_deleted': True    # Include deleted datasets
+        }
+    )
+    return search_result['results']
+    
+migrate_organizations.add_url_rule(
+    "/migrate_organizations", methods=["GET"], view_func=get_migrate_organizations
+)
+
 def get_blueprints():
-    return [favourites, users, search_log_download, undelete, lang_redirect]
+    return [favourites, users, search_log_download, undelete, lang_redirect, migrate_organizations]

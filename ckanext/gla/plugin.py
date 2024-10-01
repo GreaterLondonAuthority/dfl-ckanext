@@ -36,14 +36,6 @@ with open("organisation_mappings.csv", mode='r') as csvfile:
     for row in reader:
          ORGAINZATION_DICT[row["Original ID"]] = row["Override ID"]
 
-import csv
-
-with open("organisation_mappings.csv", mode='r') as csvfile:
-    ORGAINZATION_DICT = {}
-    reader = csv.DictReader(csvfile)
-    for row in reader:
-         ORGAINZATION_DICT[row["Original ID"]] = row["Override ID"]
-
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
 GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
@@ -161,68 +153,6 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
         toolkit.add_public_directory(config_, "public")
         toolkit.add_resource("assets", "gla")
         custom_fields.add_solr_config()
-
-        self.migrate_organization()
-
-    # Plugin
-    def migrate_organization(self):
-
-        base_context = {
-            "model": model,
-            "session": model.Session,
-            "user": "ckan_admin",
-        }
-
-        organizations = toolkit.get_action("organization_list")(data_dict={})
-
-        for organization in organizations:
-
-            org_mapping = ORGAINZATION_DICT.get(organization, "")
-
-            if org_mapping != "":
-
-                new_org = None
-
-                try:
-                    new_org = toolkit.get_action('organization_show')(data_dict={'id': org_mapping})
-                except toolkit.ObjectNotFound:
-                    current_org = toolkit.get_action('organization_show')(data_dict={'id': organization})
-                    org_data_dict = {
-                        'name': org_mapping,
-                        'title': org_mapping, 
-                        "id": org_mapping,
-                        'description': current_org["description"],
-                        'image_url' : current_org["image_url"],
-                        'is_organization': True,
-                        'state': 'active'
-                    }
-                    new_org = toolkit.get_action('organization_create')(base_context, org_data_dict)
-                    log.info("Organization %s has been newly created", org_mapping)
-
-                datasets = self.get_datasets_by_org(organization, base_context)
-
-                for dataset in datasets:
-                    dataset['owner_org'] = new_org['id'] 
-                    toolkit.get_action('package_update')(base_context, data_dict=dataset)
-
-                remaining_datasets = self.get_datasets_by_org(organization, base_context)
-                if not remaining_datasets:
-                    toolkit.get_action('organization_delete')(base_context, {'id': organization})
-                    log.info(f"Old organization '{organization}' deleted.")
-                else:
-                    log.warning(f"Old organization '{organization}' still has datasets and cannot be deleted.")
-    
-    def get_datasets_by_org(self, org_name, context):
-        search_result = toolkit.get_action('package_search')(
-        context, {
-            'fq': f'organization:{org_name}', 
-            'rows': 1000,
-            'include_private': True,   # Include private datasets
-            'include_drafts': True,    # Include drafts or inactive datasets
-            'include_deleted': True    # Include deleted datasets
-            }
-        )
-        return search_result['results']
     
     # IAuthFunctions
     def get_auth_functions(self):
