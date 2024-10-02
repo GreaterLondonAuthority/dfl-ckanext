@@ -238,6 +238,7 @@ lang_redirect.add_url_rule(
 )
 
 def get_migrate_organizations(): 
+
     base_context = {
         "model": model,
         "session": model.Session,
@@ -273,8 +274,19 @@ def get_migrate_organizations():
             datasets = get_datasets_by_org(organization, base_context)
 
             for dataset in datasets:
-                dataset['owner_org'] = new_org['id'] 
-                toolkit.get_action('package_update')(base_context, data_dict=dataset)
+                    try:
+                        toolkit.get_action('package_owner_org_update')(
+                            base_context,
+                            {
+                                'id': dataset["id"],  # Dataset ID
+                                'organization_id': new_org["id"]  # New organization ID
+                            }
+                        )
+                        print(f"dataset updated '{dataset['id']}'")
+                    except BaseException as e:
+                        log.warning(f"FAILED to update dataset for org '{dataset['owner_org']}' for ID '{dataset['id']}'.")
+                        print(e)
+
 
             remaining_datasets = get_datasets_by_org(organization, base_context)
             if not remaining_datasets:
@@ -282,7 +294,7 @@ def get_migrate_organizations():
                     toolkit.get_action('organization_delete')(base_context, {'id': organization})
                     log.info(f"Old organization '{organization}' deleted.")
                 except:
-                     log.warning(f"FAILED to delete old organization '{organization}' as it still has datasets.")
+                    log.warning(f"FAILED to delete old organization '{organization}' as it still has datasets.")
             else:
                 log.warning(f"Old organization '{organization}' still has datasets and cannot be deleted.")
     
