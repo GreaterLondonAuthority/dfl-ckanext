@@ -10,14 +10,12 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins.toolkit as tk
 from ckan import authz
-from ckan.common import _, current_user, g
+from ckan.common import _, current_user, g, request
 from ckan.types import Context
 from flask import Blueprint, send_file
 from itsdangerous.exc import SignatureExpired, BadData
 from . import auth, email
-
 log = logging.getLogger(__name__)
-
 
 favourites = Blueprint("favourites_blueprint", __name__)
 users = Blueprint("users_blueprint", __name__)
