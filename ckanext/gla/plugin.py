@@ -159,7 +159,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
     
     # IAuthFunctions
     def get_auth_functions(self):
-        auth_functions = {"user_list": auth.user_list, "user_show": auth.user_show}
+        auth_functions = {"user_list": auth.user_list, "user_show": auth.user_show, "migrate_organization": auth.migrate_organization}
         return auth_functions
 
     # IPackageController
