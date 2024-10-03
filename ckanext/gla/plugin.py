@@ -20,7 +20,7 @@ from ckan.model.meta import Session
 from ckan.types import Schema, Validator
 from ckan.plugins.toolkit import get_action
 
-from . import auth, custom_fields, helpers, search, timestamps, user, views
+from . import auth, custom_fields, helpers, search, timestamps, user, views, organization
 from .email import send_email_verification_link, send_reset_link
 from .search_highlight import (  # query is imported for initialisation, though not explicitly used
     action,
@@ -159,7 +159,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
     
     # IAuthFunctions
     def get_auth_functions(self):
-        auth_functions = {"user_list": auth.user_list, "user_show": auth.user_show}
+        auth_functions = {"user_list": auth.user_list, "user_show": auth.user_show, "migrate_organization": auth.migrate_organization}
         return auth_functions
 
     # IPackageController
@@ -416,7 +416,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
             "log_chosen_search_result": search.log_selected_result,
             "package_search": action.package_search,
             "user_create": user.user_create,
-            "user_list": user.user_list        
+            "user_list": user.user_list,
+            "migrate_organization": organization.migrate     
         }
 
     # IDatasetForm
