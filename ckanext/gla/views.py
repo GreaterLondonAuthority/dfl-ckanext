@@ -10,7 +10,7 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins.toolkit as tk
 from ckan import authz
-from ckan.common import _, current_user, g
+from ckan.common import _, current_user, g, request
 from ckan.types import Context
 from flask import Blueprint, send_file
 from itsdangerous.exc import SignatureExpired, BadData
