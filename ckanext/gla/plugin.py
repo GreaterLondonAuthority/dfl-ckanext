@@ -20,7 +20,7 @@ from ckan.types import Schema, Validator
 from ckan.plugins.toolkit import get_action
 from ckan.logic.validators import isodate
 
-from . import auth, custom_fields, helpers, search, timestamps, user, views
+from . import auth, custom_fields, helpers, search, timestamps, user, views, organization
 from .email import send_email_verification_link, send_reset_link
 from .search_highlight import (  # query is imported for initialisation, though not explicitly used
     action,
@@ -427,7 +427,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
             "log_chosen_search_result": search.log_selected_result,
             "package_search": action.package_search,
             "user_create": user.user_create,
-            "user_list": user.user_list
+            "user_list": user.user_list,
+            "migrate_organization": organization.migrate     
         }
 
 
