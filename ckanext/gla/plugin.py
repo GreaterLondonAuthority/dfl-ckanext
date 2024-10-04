@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import re
@@ -248,6 +249,20 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
                 break
 
         package_dict["gla_result_summary"] = " • ".join(gla_information)
+
+        def convert_iso_to_ddmmyyyy(date_str):
+            try:
+                date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                return date_obj.strftime('%d/%m/%Y')
+            except ValueError:
+                return None
+
+        for resource in package_dict.get("resources",[]):
+            if resource.get('temporal_coverage_from'):
+                resource['temporal_coverage_from'] = convert_iso_to_ddmmyyyy(resource.get('temporal_coverage_from'))
+            if resource.get('temporal_coverage_to'):
+                resource['temporal_coverage_to'] = convert_iso_to_ddmmyyyy(resource.get('temporal_coverage_to'))
+        
         return package_dict
 
     def after_dataset_search(
@@ -473,7 +488,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
             'temporal_coverage_to' : [ toolkit.get_validator('ignore_missing'),
                                        toolkit.get_validator('isodate_string')]
         })
-        #breakpoint()
+        
         return schema
 
     def is_fallback(self):

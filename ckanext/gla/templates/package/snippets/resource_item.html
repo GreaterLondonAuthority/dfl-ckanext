@@ -79,10 +79,19 @@
         {% endif %}
     </td>
 
-    {# Add from and to dates here #}
+    <td class="govuk-table__cell" style="white-space: nowrap;">
+        {% if res.temporal_coverage_from %}
+            {{ res.temporal_coverage_from }}
+        {% endif %}
+    </td>
+
+   <td class="govuk-table__cell" style="white-space: nowrap;">
+       {% if res.temporal_coverage_to %}
+          {{ res.temporal_coverage_to }}
+       {% endif %}
+    </td>
 
     <td class="govuk-table__cell">
         <a href="{{ res.url }}" class="btn btn-default">Download</a>
     </td>
-
 </tr>
