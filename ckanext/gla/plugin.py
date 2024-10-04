@@ -1,7 +1,7 @@
 import json
 import logging
 import re
-from typing import Any, Mapping, Optional
+from typing import Any, Mapping, Optional, cast
 
 from markupsafe import Markup
 
@@ -17,6 +17,7 @@ from ckan.model import User, AnonymousUser, Group
 from ckan.model.meta import Session
 from ckan.types import Schema, Validator
 from ckan.plugins.toolkit import get_action
+from ckan.logic.validators import isodate
 
 from . import auth, custom_fields, helpers, search, timestamps, user, views
 from .email import send_email_verification_link, send_reset_link
@@ -38,7 +39,7 @@ def load_config_as_list(key):
         return list(filter(lambda x: x != '', val.split(' ')))
     else:
         return []
-        
+
 
 TRUSTED_EMAIL_REGEXES = load_config_as_list("dfl.trusted-email-access.regexes")
 TRUSTED_EMAIL_ORG_OPT_OUTS = set(load_config_as_list("dfl.trusted-email-access.optout-org-slugs"))
@@ -51,18 +52,18 @@ log = logging.getLogger(__name__)
 def build_multi_select_facet_constraints() -> dict[str, Any]:
     # fields_grouped will contain a dict of params containing
     # a list of values eg {u'tags':[u'tag1', u'tag2']}
-    
+
     fields_grouped = {}
     for (facet_id) in dataset_facets_for_user():
         if facet_id in request.args:
             fields_grouped[facet_id] = request.args.getlist(facet_id)
-            
+
     fq_parts = []
-                    
+
     for key, vals in fields_grouped.items():
         quoted_vals = [f'"{val}"' for val in vals]
         query_part = f"{{!tag={key}}}{key}:({' OR '.join(quoted_vals)})"
-                        
+
         fq_parts.append(query_part)
 
     return fq_parts
@@ -80,7 +81,7 @@ FQ_REMOVE_PATTERN = build_fq_regex(GLA_SYSADMIN_FACETS.keys())
 
 # CKAN builds the fq parameter before passing it to
 # before_dataset_search.
-# 
+#
 # However the way it builds the fq parameter assumes AND within a
 # facet, and is also used for introducing extra constraints as per the
 # view. Hence we need to preserve some of the items from fq, and
@@ -109,11 +110,15 @@ MULTI_SELECT_ROUTES = [
 ]
 
 def is_multi_select_route(path):
-    for r in MULTI_SELECT_ROUTES:        
-        if re.match(r,path):            
+    for r in MULTI_SELECT_ROUTES:
+        if re.match(r,path):
             return True
     return False
-    
+
+def isodate_string(value, context):
+    date = isodate(value,context) # this will raise an invalid exception for us
+    return value
+
 
 class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPermissionLabels):
     plugins.implements(plugins.IConfigurer)
@@ -129,9 +134,11 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
     plugins.implements(plugins.IFacets)
     plugins.implements(plugins.IValidators)
     plugins.implements(plugins.IPermissionLabels)
-    
+
     def get_validators(self) -> dict[str, Validator]:
-        return {"user_password_validator": auth.user_password_validator}
+        return {"user_password_validator": auth.user_password_validator,
+                "isodate_string" : isodate_string
+                }
 
     # IConfigDeclaration
     def declare_config_options(self, declaration: Declaration, key: Key):
@@ -156,8 +163,8 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
         # Include showcases *and* datasets in the search results:
         # We only want Showcases to show up when there is a search query
         search_params = search.add_quality_to_search(search_params)
-        
-        if is_multi_select_route(request.path):        
+
+        if is_multi_select_route(request.path):
             # If we're not an API request or a query running on the
             # harvester extension routes trigger the multi-select
             # faceted search behaviour.
@@ -168,20 +175,20 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
             multi_select_fqs = build_multi_select_facet_constraints()
 
             fq = search_params.get('fq','')
-            
+
             cleaned_fq = cleanup_fq(fq)
             search_params['fq'] = ''
-            multi_select_fqs = [cleaned_fq] + multi_select_fqs 
+            multi_select_fqs = [cleaned_fq] + multi_select_fqs
 
-            search_params['fq_init_list'] = multi_select_fqs            
-            
+            search_params['fq_init_list'] = multi_select_fqs
+
             # NOTE the two search_params set below override settings
             # set earlier by CKAN.
             #
             # fq can be replaced entirely with an empty string as our
             # fq_init_list will later replace it.
             search_params['facet.field'] = [f'{{!ex={item}}}' + item for item in search_params.get('facet.field',[])]
-            
+
         search_params.update(
             {
                 "hl": "on",
@@ -383,12 +390,12 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
 
         def is_org_opted_out(org):
             return org in TRUSTED_EMAIL_ORG_OPT_OUTS
-        
+
         h = {'is_trusted_email': is_trusted_email,
              'is_email_verified': auth.is_email_verified,
              'is_org_opted_out': is_org_opted_out,
              'org_opt_outs': org_opt_outs}
-        
+
         return helpers.get_helpers() | h
 
     # IBlueprint
@@ -402,19 +409,34 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
             "log_chosen_search_result": search.log_selected_result,
             "package_search": action.package_search,
             "user_create": user.user_create,
-            "user_list": user.user_list        
+            "user_list": user.user_list
         }
+
+
+    def _modify_package_schema(self, schema: Schema):
+        # Add our custom_resource_text metadata field to the schema
+        cast(Schema, schema['resources']).update({
+            'temporal_coverage_from' : [ toolkit.get_validator('ignore_missing'),
+                                         toolkit.get_validator('isodate_string')],
+            'temporal_coverage_to' : [ toolkit.get_validator('ignore_missing'),
+                                       toolkit.get_validator('isodate_string')]
+        })
+        return schema
 
     # IDatasetForm
     # Follows https://docs.ckan.org/en/2.10/extensions/adding-custom-fields.html
     def create_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).create_package_schema()
         schema.update(custom_fields.custom_dataset_fields)
+        schema = self._modify_package_schema(schema)
+        #breakpoint()
         return schema
 
     def update_package_schema(self) -> Schema:
         schema = super(GlaPlugin, self).update_package_schema()
         schema.update(custom_fields.custom_dataset_fields)
+        schema = self._modify_package_schema(schema)
+        #breakpoint()
         return schema
 
     def show_package_schema(self) -> Schema:
@@ -443,6 +465,14 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
                 ],
             }
         )
+
+        cast(Schema, schema['resources']).update({
+            'temporal_coverage_from' : [ toolkit.get_validator('ignore_missing'),
+                                         toolkit.get_validator('isodate_string')],
+            'temporal_coverage_to' : [ toolkit.get_validator('ignore_missing'),
+                                       toolkit.get_validator('isodate_string')]
+        })
+        #breakpoint()
         return schema
 
     def is_fallback(self):
@@ -452,7 +482,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
         return []
 
     # IFacets
-    def dataset_facets(self, facets_dict, _):        
+    def dataset_facets(self, facets_dict, _):
         return dataset_facets_for_user()
 
     def organization_facets(self, facets_dict, *args):
@@ -495,7 +525,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
         return None
 
     def login(self):
-        return login.login() 
+        return login.login()
 
     def get_dataset_labels(self, dataset_obj: Any) -> list[str]:
         u'''
@@ -512,7 +542,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
         config value `dfl.trusted-email-access.optout-org-slugs`.
         Datasets published by organisations with these identifiers
         will not be tagged with the `dfl_trusted_email_access` tag.
-       
+
         This method is called during indexing of a dataset, to
         return a list of permission_labels to be associated
         with the supplied dataset.  These labels are then stored
@@ -527,16 +557,16 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
         '''
 
         default_labels = super(GlaPlugin, self).get_dataset_labels(dataset_obj)
-        
+
         if not dataset_obj.private:
             return default_labels
         else:
             dataset_org_name = Session.query(Group).filter(Group.id==dataset_obj.owner_org).first().name
             if dataset_org_name in TRUSTED_EMAIL_ORG_OPT_OUTS:
                 return default_labels
-            else: 
-                return default_labels + [u'dfl_trusted_email_access']        
-        
+            else:
+                return default_labels + [u'dfl_trusted_email_access']
+
 
     def get_user_dataset_labels(self, user_obj: Any) -> list[str]:
         u'''
@@ -561,13 +591,12 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
         Opt outs are handled in the corresponding `get_dataset_labels`
         method.
         '''
-        labels = super(GlaPlugin, self).get_user_dataset_labels(user_obj)        
-        
+        labels = super(GlaPlugin, self).get_user_dataset_labels(user_obj)
+
         if user_obj and not isinstance(user_obj, AnonymousUser):
-            has_matching_email = any(re.search(pattern, user_obj.email) for pattern in TRUSTED_EMAIL_REGEXES) 
-            
+            has_matching_email = any(re.search(pattern, user_obj.email) for pattern in TRUSTED_EMAIL_REGEXES)
+
             if(has_matching_email and auth.is_email_verified(user_obj)):
                 labels.append(u'dfl_trusted_email_access')
-            
-        return labels
 
+        return labels
