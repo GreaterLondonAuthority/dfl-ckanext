@@ -16,13 +16,15 @@
         {% endif %}
 
         {% set can_edit = can_edit or h.check_access('package_update', {'id':pkg.id }) %}
-        
+
         <table class="govuk-table">
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
                     <th scope="col" class="govuk-table__header"></th>
                     <th scope="col" class="govuk-table__header">Type</th>
                     <th scope="col" class="govuk-table__header">Size</th>
+                    <th scope="col" class="govuk-table__header">From</th>
+                    <th scope="col" class="govuk-table__header">To</th>
                     <th scope="col" class="govuk-table__header"></th>
                 </tr>
             </thead>
