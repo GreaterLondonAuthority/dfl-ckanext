@@ -30,6 +30,8 @@ from .search_highlight.action import dataset_facets_for_user, GLA_SYSADMIN_FACET
 
 from .login import ( login )
 
+from flask import has_request_context
+
 TABLE_FORMATS = toolkit.config.get("ckan.harvesters.table_formats").split(" ")
 REPORT_FORMATS = toolkit.config.get("ckan.harvesters.report_formats").split(" ")
 GEOSPATIAL_FORMATS = toolkit.config.get("ckan.harvesters.geospatial_formats").split(" ")
@@ -110,10 +112,11 @@ MULTI_SELECT_ROUTES = [
     r'^/organization/bulk_process(/[^/]+/?)?$'
 ]
 
-def is_multi_select_route(path):
-    for r in MULTI_SELECT_ROUTES:
-        if re.match(r,path):
-            return True
+def is_multi_select_route(request):
+    if has_request_context(): # be mindful that some API requests are not over HTTP but via the python action API
+       for r in MULTI_SELECT_ROUTES:
+           if re.match(r,request.path):
+               return True
     return False
 
 def isodate_string(value, context):
@@ -165,7 +168,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
         # We only want Showcases to show up when there is a search query
         search_params = search.add_quality_to_search(search_params)
 
-        if is_multi_select_route(request.path):
+        if is_multi_select_route(request):
             # If we're not an API request or a query running on the
             # harvester extension routes trigger the multi-select
             # faceted search behaviour.
