@@ -1,8 +1,6 @@
 <tr class="govuk-table__row">
-    <td scope="row" class="govuk-table__cell">
-        <p>
-            {{ h.resource_display_name(res) | truncate(50) }}
-        </p>
+  <td scope="row" class="govuk-table__cell">
+        <p><strong>{{ h.resource_display_name(res) | truncate(50) }}</strong></p>
 
         {% if res.description %}
             <p>
@@ -79,10 +77,19 @@
         {% endif %}
     </td>
 
-    {# Add from and to dates here #}
+    <td class="govuk-table__cell" style="white-space: nowrap;">
+        {% if res.temporal_coverage_from %}
+            {{ res.temporal_coverage_from }}
+        {% endif %}
+    </td>
+
+   <td class="govuk-table__cell" style="white-space: nowrap;">
+       {% if res.temporal_coverage_to %}
+          {{ res.temporal_coverage_to }}
+       {% endif %}
+    </td>
 
     <td class="govuk-table__cell">
         <a href="{{ res.url }}" class="btn btn-default">Download</a>
     </td>
-
 </tr>
