@@ -15,6 +15,8 @@ from ckan.logic.action.get import ValidationError, _check_access, _validate
 from ckan.types import ActionResult, Context, DataDict
 from collections import OrderedDict
 
+from flask import has_request_context
+
 log = logging.getLogger(__name__)
 
 GLA_DATASET_FACETS = OrderedDict(
@@ -37,6 +39,8 @@ GLA_SYSADMIN_FACETS = GLA_DATASET_FACETS.copy()
 GLA_SYSADMIN_FACETS.update({'private': toolkit._("Dataset Visibility")})
 
 def dataset_facets_for_user():
+    # Note this function assumes we have checked has_request_context
+    # before triggering it.
     if not isinstance(current_user, AnonymousUser) and current_user.sysadmin:
         return GLA_SYSADMIN_FACETS
     else:
@@ -44,9 +48,10 @@ def dataset_facets_for_user():
 
 def selected_facets():
     facets_selected = {}
-    for (facet_id) in dataset_facets_for_user():
-        if facet_id in request.args:
-            facets_selected[facet_id] = request.args.getlist(facet_id)
+    if has_request_context():
+       for (facet_id) in dataset_facets_for_user():
+           if facet_id in request.args:
+               facets_selected[facet_id] = request.args.getlist(facet_id)
     return facets_selected
 
 # Filter facets so values are only provided for those that have
