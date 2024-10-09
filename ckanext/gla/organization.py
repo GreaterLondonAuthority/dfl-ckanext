@@ -37,13 +37,9 @@ def migrate(context, data_dict={}):
         "user": "ckan_admin",
     }
 
-    print("START")
-
     organizations = toolkit.get_action("organization_list")(data_dict={})
 
     for organization in organizations:
-
-        print(organization)
 
         org_mapping = ORGAINZATION_DICT.get(organization, "")
 
@@ -74,15 +70,13 @@ def migrate(context, data_dict={}):
                         toolkit.get_action('package_owner_org_update')(
                             base_context,
                             {
-                                'id': dataset["id"],  # Dataset ID
-                                'organization_id': new_org["id"]  # New organization ID
+                                'id': dataset["id"], 
+                                'organization_id': new_org["id"]
                             }
                         )
                         print(f"dataset updated '{dataset['id']}'")
                     except BaseException as e:
                         log.warning(f"FAILED to update dataset for org '{dataset['owner_org']}' for ID '{dataset['id']}'.")
-                        print(e)
-
 
             remaining_datasets = get_datasets_by_org(organization, base_context)
             if not remaining_datasets:
@@ -101,9 +95,9 @@ def get_datasets_by_org(org_name, context):
     context, {
         'fq': f'organization:{org_name}', 
         'rows': 1000,
-        'include_private': True,   # Include private datasets
-        'include_drafts': True,    # Include drafts or inactive datasets
-        'include_deleted': True    # Include deleted datasets
+        'include_private': True,
+        'include_drafts': True,
+        'include_deleted': True
         }
     )
     return search_result['results']
