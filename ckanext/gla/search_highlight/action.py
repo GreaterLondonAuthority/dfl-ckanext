@@ -57,14 +57,15 @@ def selected_facets():
 # Filter facets so values are only provided for those that have
 # either counts > 0 or are selected on the users requested.
 def filtered_facets(all_facets):
+    # first filter out all zero count facets
     non_zero_or_selected_facets = {k: {ik: iv for ik, iv in v.items() if iv > 0} for k, v in all_facets.items() if isinstance(v, dict)}
-
-    for (facet, vals) in selected_facets().items():
+    # insert into non_zero facets any selected facets (including ones with count 0)
+    for (selected_facet, vals) in selected_facets().items():
         for v in vals:
-            if v not in non_zero_or_selected_facets.get('facet',[]):
-                if non_zero_or_selected_facets.get('facet'):
-                    non_zero_or_selected_facets['facet'][v] = 0
-    
+            if v not in non_zero_or_selected_facets.get(selected_facet,[]):
+                non_zero_or_selected_facets[selected_facet] = {v:0}
+                #non_zero_or_selected_facets[facet][v] = 0
+                    
     return non_zero_or_selected_facets
 
 
