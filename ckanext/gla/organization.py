@@ -74,7 +74,7 @@ def migrate(context, data_dict={}):
                                 'organization_id': new_org["id"]
                             }
                         )
-                        print(f"dataset updated '{dataset['id']}'")
+                        log.info(f"dataset updated '{dataset['id']}'")
                     except BaseException as e:
                         log.warning(f"FAILED to update dataset for org '{dataset['owner_org']}' for ID '{dataset['id']}'.")
 
