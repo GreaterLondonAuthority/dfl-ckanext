@@ -52,33 +52,55 @@ def migrate(context, data_dict={}):
             try:
                 new_org = toolkit.get_action('organization_show')(data_dict={'id': org_mapping})
             except toolkit.ObjectNotFound:
-                current_org = toolkit.get_action('organization_show')(data_dict={'id': organization})
-                org_data_dict = {
+                current_org = toolkit.get_action('organization_show')(data_dict={'id': organization, "include_users": True, "include_datasets": False})
+
+                # create new organization
+                new_org_dict = {
                     'name': org_mapping,
                     'title': org_mapping, 
                     "id": org_mapping,
                     'description': current_org["description"],
                     'image_url' : current_org["image_url"],
                     'is_organization': True,
-                    'state': 'active'
+                    'state': 'active',
+                    "extras": current_org.get("extras", [])
                 }
-                new_org = toolkit.get_action('organization_create')(base_context, org_data_dict)
+                new_org = toolkit.get_action('organization_create')(base_context, new_org_dict)
+
+                # migrate the subgroups
+                for subgroup in current_org["groups"]:
+                    toolkit.get_action("group_create")(context, {
+                        "name": subgroup["name"],
+                        "title": subgroup["title"],
+                        "description": subgroup.get("description", ""),
+                        "state": "active",
+                        "organization_id": new_org["id"]
+                    })
+
+                 # migrate users and their roles
+                for user in current_org["users"]:
+                    toolkit.get_action("organization_member_create")(context, {
+                        "id": new_org["id"],
+                        "username": user["name"],
+                        "role": user["capacity"]
+                    })
+
                 log.info("Organization %s has been newly created", org_mapping)
 
             datasets = get_datasets_by_org(organization, base_context)
 
             for dataset in datasets:
-                    try:
-                        toolkit.get_action('package_owner_org_update')(
-                            base_context,
-                            {
-                                'id': dataset["id"], 
-                                'organization_id': new_org["id"]
-                            }
-                        )
-                        log.info(f"dataset updated '{dataset['id']}'")
-                    except BaseException as e:
-                        log.warning(f"FAILED to update dataset for org '{dataset['owner_org']}' for ID '{dataset['id']}'.")
+                try:
+                    toolkit.get_action('package_owner_org_update')(
+                        base_context,
+                        {
+                            'id': dataset["id"], 
+                            'organization_id': new_org["id"]
+                        }
+                    )
+                    log.info(f"dataset updated '{dataset['id']}'")
+                except BaseException as e:
+                    log.warning(f"FAILED to update dataset for org '{dataset['owner_org']}' for ID '{dataset['id']}'.")
 
             remaining_datasets = get_datasets_by_org(organization, base_context)
             if not remaining_datasets:
