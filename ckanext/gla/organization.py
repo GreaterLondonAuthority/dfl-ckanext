@@ -15,13 +15,16 @@ from ckan.common import _
 log = logging.getLogger(__name__)
 
 ORGANIZATION_DICT = {}
+
 try:
     with open("organisation_mappings.csv", mode='r',encoding='utf-8-sig') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             ORGANIZATION_DICT[row["Original ID"]] = row["Override ID"]
-except:
-    log.debug("Opening CSV failed")
+    log.info("organisation_mappings.csv is loaded, run ckan_action_migrate_organization.sh to canonicalise organisation mappings")
+
+except FileNotFoundError:
+    log.info("No organisation_mappings.csv are available")
 
 @toolkit.auth_disallow_anonymous_access
 def migrate(context, data_dict={}):     
