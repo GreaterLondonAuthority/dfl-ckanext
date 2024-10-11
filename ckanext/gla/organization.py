@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 ORGAINZATION_DICT = {}
 try:
-    with open("organisation_mappings.csv", mode='r') as csvfile:
+    with open("organisation_mappings.csv", mode='r',encoding='utf-8-sig') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             ORGAINZATION_DICT[row["Original ID"]] = row["Override ID"]
