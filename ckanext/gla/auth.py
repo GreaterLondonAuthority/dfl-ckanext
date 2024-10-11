@@ -33,7 +33,6 @@ def user_list(context, data_dict=None):
         "success": _requester_is_sysadmin(context) or _requester_is_manager(context)
     }
 
-
 def user_show(context, data_dict=None):
     """sysadmins can view all user profiles.
     If not a sysadmin, a user can only view their own profile.

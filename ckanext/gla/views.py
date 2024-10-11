@@ -15,9 +15,7 @@ from ckan.types import Context
 from flask import Blueprint, send_file
 from itsdangerous.exc import SignatureExpired, BadData
 from . import auth, email
-
 log = logging.getLogger(__name__)
-
 
 favourites = Blueprint("favourites_blueprint", __name__)
 users = Blueprint("users_blueprint", __name__)
