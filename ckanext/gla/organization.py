@@ -14,18 +14,17 @@ from ckan.common import _
 
 log = logging.getLogger(__name__)
 
-ORGAINZATION_DICT = {}
+ORGANIZATION_DICT = {}
 try:
     with open("organisation_mappings.csv", mode='r',encoding='utf-8-sig') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            ORGAINZATION_DICT[row["Original ID"]] = row["Override ID"]
+            ORGANIZATION_DICT[row["Original ID"]] = row["Override ID"]
 except:
     log.debug("Opening CSV failed")
 
 @toolkit.auth_disallow_anonymous_access
-def migrate(context, data_dict={}): 
-
+def migrate(context, data_dict={}):     
     requester = context.get("user", None)
     
     if not authz.is_sysadmin(requester):
@@ -41,7 +40,7 @@ def migrate(context, data_dict={}):
 
     for organization in organizations:
 
-        org_mapping = ORGAINZATION_DICT.get(organization, "")
+        org_mapping = ORGANIZATION_DICT.get(organization, "")
 
         if org_mapping != "":
 
