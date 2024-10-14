@@ -1,14 +1,14 @@
 {% set tags = h.get_facet_items_dict('tags', search_facets, limit=3) %}
-{% set placeholder = _('E.g. environment') %}
+{% set placeholder = _('Search the library') %}
 {% set dataset_type = h.default_package_type() %}
 <div role="main" class="main" style="padding-top: 0px;">
     <div class="hero" style="background-image: url(/london.jpeg);">
         <div class="container">
             <div class="hero__content">
                 <form class="search-form" method="get" action="{% url_for dataset_type ~ '.search' %}">
-                    <h1 class="heading">{{ _("Search London's data") }}</h1>
-                    <p>Whether you’re a citizen, business owner, researcher or developer, the site provides over a
-                        thousand datasets to help you understand the city and develop solutions to London’s problems.
+                    <h1 class="heading">{{ _("Welcome to the Data for London Library") }}</h1>
+                    <h3 class="heading">Search city data all in one place </h3>
+                    <p>Find data quickly and easily to build services and solutions, and improve life for Londoners. Search through thousands of datasets from all kinds of organisations. Type your search term to get going.
                     </p>
                     <div class="input-group search-input-group">
                         <input
@@ -24,10 +24,10 @@
                         </span>
                     </div>
 
-                    <p>For example,
-                        <a href={% url_for 'dataset_search', q='population' %}>Population</a>,
-                        <a href={% url_for 'dataset_search', q='economy' %}>Economy</a>, or
-                        <a href={% url_for 'dataset_search', q='state of london' %}>State of London</a>.
+                    <p>For example:
+                        <a href={% url_for 'dataset_search', q='census' %}>census</a>,
+                        <a href={% url_for 'dataset_search', q='air quality' %}>air quality</a>, or
+                        <a href={% url_for 'dataset_search', q='community safety' %}>community safety</a>.
                 </form>
             </div>
         </div>
@@ -35,23 +35,25 @@
 
     <div class="container">
     <div>
-            <h2 class="heading">{{ _("Using data to support London") }}</h1>
+            <h3 class="heading">{{ _("What data is available?") }}</h1>
             <p>
-                The London Datastore team is pleased to bring you the beta version of our new pan-London search, bringing together data from across London.
-            </p>
-            <p>
-                Over the coming months, we will be rolling out new features and data sources to help you find what you need.
-                Please <a href="mailto:datastore@london.gov.uk">let us know</a> if you have any questions or feedback, and read <a href="/about">more about the project</a>.
+            Data is sourced from the London Datastore, ONS, Redbridge and Camden boroughs.
+            <p><a href=/pages/how-to-contribute>Contribute to the library</a></p>
             </p>
 
+            <h3 class="heading">{{ _("About the Data for London Library") }}</h1>
             <p>
-                In November 2022, a new Data for London Advisory Board formed.
-                The board is made up of data and technology experts who support the Mayor and the Chief Digital Officer,
-                Theo Blackwell, to address key challenges in London.
-                For more information about the Board, see
-                <a href="https://www.london.gov.uk/programmes-strategies/business-and-economy/supporting-londons-sectors/supporting-tech-and-digital-sectors/data-london-advisory-board">
-                https://www.london.gov.uk/programmes-strategies/business-and-economy/supporting-londons-sectors/supporting-tech-and-digital-sectors/data-london-advisory-board</a>
+            Share, find and use city data to improve lives for Londoners. The Data for London Library makes crucial datasets simpler and easier to find for researchers, service providers and innovators. With better access to data, you can help improve services, address challenges like housing and journey delays, and spark new ideas to help Londoners. The Data for London Library is part of the Data for London programme. See how Data for London can support your work.
             </p>
+            <p><a href=/pages/frequently-asked-questions>Find out more about Data for London</a></p>
+             <h3 class="heading">{{ _("Tell us what you think") }}</h1>
+            <p>
+            We’re listening – share your views to improve this beta version of the website.
+            <p><a href=/pages/join-our-user-research-pool>Share feedback</a></p>
+            </p>
+
+
+
     </div>
     </div>
 </div>
