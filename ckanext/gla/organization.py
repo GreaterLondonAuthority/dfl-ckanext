@@ -16,16 +16,20 @@ from ckan.common import _
 log = logging.getLogger(__name__)
 
 ORGANIZATION_DICT = {}
-
 try:
-    with open("organisation_mappings.csv", mode='r',encoding='utf-8-sig') as csvfile:
+    with open("organisation_mappings.csv", mode='r', encoding='utf-8-sig') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            ORGANIZATION_DICT[row["Original ID"]] = row["Override ID"]
-    log.info("organisation_mappings.csv is loaded, run ckan_action_migrate_organization.sh to canonicalise organisation mappings")
+            original_id = row["Original ID"]
+            if original_id not in ORGANIZATION_DICT:
+                ORGANIZATION_DICT[original_id] = {}
+                
+            ORGANIZATION_DICT[original_id]['name'] = row["Override ID"]
+            ORGANIZATION_DICT[original_id]['title'] = row["Override Title"]
+            
+except FileNotFoundError as ex:    
+    log.info(f"No organisation_mappings.csv file was provided to canonicalise organisation names {ex}")
 
-except FileNotFoundError:
-    log.info("No organisation_mappings.csv are available")
 
 @toolkit.auth_disallow_anonymous_access
 def migrate(context, data_dict={}):     
@@ -44,22 +48,22 @@ def migrate(context, data_dict={}):
 
     for organization in organizations:
 
-        org_mapping = ORGANIZATION_DICT.get(organization, "")
+        org_mapping = ORGANIZATION_DICT.get(organization,{})
 
-        if org_mapping != "":
+        if org_mapping:
 
             new_org = None
-
             try:
-                new_org = toolkit.get_action('organization_show')(data_dict={'id': org_mapping})
+                new_org = toolkit.get_action('organization_show')(data_dict={'id': org_mapping['name']})
+                # skip over orgs that are already migrated (whos override id exists already)
             except toolkit.ObjectNotFound:
                 current_org = toolkit.get_action('organization_show')(data_dict={'id': organization, "include_users": True, "include_datasets": False})
 
                 # create new organization
                 new_org_dict = {
-                    'name': org_mapping,
-                    'title': org_mapping, 
-                    "id": org_mapping,
+                    'name': org_mapping['name'],
+                    'title': org_mapping['title'] or current_org['title'] or org_mapping['name'], 
+                    "id": org_mapping['name'],
                     'description': current_org["description"],
                     'image_url' : current_org["image_url"],
                     'is_organization': True,
