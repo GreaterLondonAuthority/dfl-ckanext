@@ -4,6 +4,7 @@ from os.path import exists
 from typing import Any, cast
 import ckan
 import ckan.model as model
+from ckan.logic import ActionError
 import ckan.plugins.toolkit as tk
 from . import auth, email
 import ckan.plugins.toolkit as toolkit
@@ -99,7 +100,7 @@ def migrate(context, data_dict={}):
                         }
                     )
                     log.info(f"dataset updated '{dataset['id']}'")
-                except BaseException as e:
+                except ActionError as e:
                     log.warning(f"FAILED to update dataset for org '{dataset['owner_org']}' for ID '{dataset['id']}'.")
 
             remaining_datasets = get_datasets_by_org(organization, base_context)
@@ -107,8 +108,9 @@ def migrate(context, data_dict={}):
                 try:
                     toolkit.get_action('organization_delete')(base_context, {'id': organization})
                     log.info(f"Old organization '{organization}' deleted.")
-                except:
-                    log.warning(f"FAILED to delete old organization '{organization}' as it still has datasets.")
+                except ActionError as ve:
+                    log.exception(f"FAILED to delete old organization '{organization}' as it still has datasets.")
+                    
             else:
                 log.warning(f"Old organization '{organization}' still has datasets and cannot be deleted.")
 
