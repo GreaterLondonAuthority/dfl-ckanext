@@ -74,6 +74,17 @@ def field_exists(field_name):
     else:
         raise Exception("An error occurred while checking the field.")
 
+def field_type_exists(field_type_name):
+    api_url = f"{solr_endpoint}/schema/fieldtypes/{field_type_name}"
+    response = requests.head(api_url)
+    if response.status_code == 200:
+        return True
+    elif response.status_code == 404:
+        return False
+    else:
+        raise Exception("An error occurred while checking the field.")
+    
+    
 def add_field(field_name, field_type):
     api_url = f"{solr_endpoint}/schema/fields"
     field_config = {
