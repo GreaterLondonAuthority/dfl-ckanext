@@ -19,6 +19,34 @@ dataset_boost_boost_factor = 1
 def _empty_or_none(string):
     return string == "" or string is None
 
+def query_fields(search_params):
+    if '"' in search_params.get('q',''):
+        # If the query contains any text inside quotes search the
+        # fields that are unstemmed, and have synonym expansion
+        # disabled.
+        #
+        # NOTE: This is a brute force approach as it essentially
+        #       disables synonyms and stemming across the whole query,
+        #       not just the phrase portion.
+        #
+        #       Unfortunately due to how query analysis happens in
+        #       SOLR and the dismax/edismax parsers we couldn't find a
+        #       way to implement this more precisely, such that the
+        #       phrase variants of fields were used only on the quoted
+        #       portions of the query; without significantly rewriting
+        #       how SOLR queries are generated.
+        #
+        #       Methods tried were with both dismax/edismax and using
+        #       the pf/ps/sow/qf parameters. Similarly constructing
+        #       queries targeting specific fields was tried too e.g.
+        #       title:hospitality (which unfortunately is synonym
+        #       expanded incorrectly by edismax to be an AND query not
+        #       a localised OR).
+        #
+        return "title_phrase^4 search_description_phrase^2 notes_phrase" # limit matching of text queries to agreed fields
+    else: 
+        return "title^4 search_description^2 notes" # limit matching of text queries to agreed fields
+
 def add_quality_to_search(search_params):
     return {**search_params
             # NOTE the bf parameter adds these additional boosts into
@@ -50,7 +78,7 @@ def add_quality_to_search(search_params):
             # metadata copied from other fields in a stemmed form.
             #
             #,"qf":"name^4 title^4 tags^2 groups^2 text" # CKAN Defaults
-            ,"qf":"title^4 search_description^2 notes" # limit matching of text queries to agreed fields
+            ,"qf":query_fields(search_params) # limit matching of text queries to agreed fields
             }
 
 @toolkit.side_effect_free

@@ -167,7 +167,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
         # Include showcases *and* datasets in the search results:
         # We only want Showcases to show up when there is a search query
         search_params = search.add_quality_to_search(search_params)
-
+        
         if is_multi_select_route(request):
             # If we're not an API request or a query running on the
             # harvester extension routes trigger the multi-select
@@ -202,7 +202,7 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
                 "hl.snippets": "1",
                 "hl.fragsize": "200",
                 "hl.bs.type": "SENTENCE",
-                "hl.fl": "title,notes,search_description",
+                "hl.fl": "title,title_phrase,notes,notes_phrase,search_description,search_description_phrase",
                 "hl.simple.pre": "[[",
                 "hl.simple.post": "]]",
                 "hl.maxAnalyzedChars": "250000",  # only highlight matches occuring in the first 250k characters of a field we increase this from SOLRs default of 51k because some datasets have long descriptions and highlighting wasn't displaying
@@ -294,10 +294,13 @@ class GlaPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm, DefaultPerm
         for result in search_results["results"]:
             index_id = result.get("index_id", False)
             if index_id and index_id in search_results["highlighting"]:
-                highlighted_title = _get_highlighted_field("title", index_id)
-                highlighted_notes = _get_highlighted_field("notes", index_id)
+                highlighted_title = _get_highlighted_field("title", index_id) or _get_highlighted_field("title_phrase", index_id)
+                
+                highlighted_notes = _get_highlighted_field("notes", index_id) or _get_highlighted_field("notes_phrase", index_id)
                 highlighted_search_description = _get_highlighted_field(
                     "search_description", index_id
+                ) or _get_highlighted_field(
+                    "search_description_phrase", index_id
                 )
                 highlighted_organization_title = _get_highlighted_field(
                     "organization", index_id
