@@ -60,7 +60,10 @@ custom_dataset_fields = {
 
 fields_to_copy = {
     "extras_data_quality": {"type": "int", "name": "copy_data_quality"},
-    "extras_dataset_boost": {"type": "double", "name": "copy_dataset_boost"}
+    "extras_dataset_boost": {"type": "double", "name": "copy_dataset_boost"},
+    "title": {"type": "text_phrase_query", "name": "title_phrase"},
+    "search_description": {"type": "text_phrase_query", "name": "search_description_phrase"},
+    "notes": {"type": "text_phrase_query", "name": "notes_phrase"}
 }
 
 
@@ -74,6 +77,17 @@ def field_exists(field_name):
     else:
         raise Exception("An error occurred while checking the field.")
 
+def field_type_exists(field_type_name):
+    api_url = f"{solr_endpoint}/schema/fieldtypes/{field_type_name}"
+    response = requests.head(api_url)
+    if response.status_code == 200:
+        return True
+    elif response.status_code == 404:
+        return False
+    else:
+        raise Exception("An error occurred while checking the field.")
+    
+    
 def add_field(field_name, field_type):
     api_url = f"{solr_endpoint}/schema/fields"
     field_config = {
@@ -127,7 +141,73 @@ def add_solr_config():
     # This can be done by running:
     #
     # docker exec -it ckan ckan search-index rebuild
-    # 
+    #
+
+    if not field_type_exists('text_phrase_query'):
+        # Like the text type but used for matching against phrase
+        # query parts so no synonyms, protwords or stemming.
+        add_schema({"add-field-type":
+                # This call replaces the default solr-ckan text field
+                # type with one that includes configuration changes
+                # that support query time synonym replacements via a
+                # synonyms.txt file that is defined here:
+                #
+                # https://github.com/GreaterLondonAuthority/Data_for_London/blob/develop/ckan-solr/synonyms.txt
+                #
+                {
+                    "name": "text_phrase_query",
+                    "class": "solr.TextField",
+                    "positionIncrementGap": 100,
+                    "indexAnalyzer": {
+                        "tokenizer": {
+                            "class": "solr.WhitespaceTokenizerFactory"
+                        },
+                        "filters": [
+                            {
+                                "class": "solr.WordDelimiterGraphFilterFactory",
+                                "generateWordParts": 1,
+                                "generateNumberParts": 1,
+                                "catenateWords": 1,
+                                "catenateNumbers": 1,
+                                "catenateAll": 0,
+                                "splitOnCaseChange": 1
+                            },
+                            {
+                                "class": "solr.FlattenGraphFilterFactory"
+                            },
+                            {
+                                "class": "solr.LowerCaseFilterFactory"
+                            },
+                            {
+                                "class": "solr.ASCIIFoldingFilterFactory"
+                            }
+                        ]
+                    },
+                    "queryAnalyzer": {
+                        "tokenizer": {
+                            "class": "solr.WhitespaceTokenizerFactory"
+                        },
+                        "filters": [
+                            {
+                                "class": "solr.WordDelimiterGraphFilterFactory",
+                                "generateWordParts": 1,
+                                "generateNumberParts": 1,
+                                "catenateWords": 0,
+                                "catenateNumbers": 0,
+                                "catenateAll": 0,
+                                "splitOnCaseChange": 1
+                            },
+                            {
+                                "class": "solr.LowerCaseFilterFactory"
+                            },
+                            {
+                                "class": "solr.ASCIIFoldingFilterFactory"
+                            }
+                        ]
+                    }
+                }
+                })
+
     add_schema({"replace-field-type":
                 # This call replaces the default solr-ckan text field
                 # type with one that includes configuration changes
