@@ -79,7 +79,7 @@ def user_password_validator(
         errors[("password",)].append(_("Passwords must be strings"))
     elif value == "":
         pass
-    if isinstance(value, str):
+    elif isinstance(value, str):
         if len(value) < 13:
             errors[("password",)].append(
                 _("Your password must be 13 characters or longer")
