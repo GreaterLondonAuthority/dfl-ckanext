@@ -110,10 +110,10 @@ the changes rather than using ckan_extends.
   <p class="form-actions">
     {% block delete_button %}
       {% if data.get('id', None) and h.check_access('harvest_source_delete', {'id': data.id}) and not data.get('state', 'none') == 'deleted' %}
-        {% set locale_delete = h.dump_json({'content': _('This will flag the source as deleted but keep all its datasets and previous jobs. If you wish to clear these use the clear button at the top of the page. Are you sure you want to delete this harvest source?')}) %}
+    {% set locale_delete = h.dump_json({'content': _('This will flag the source as deactivated and hide it from the listing, but keep all its datasets and previous jobs. If you wish to clear these use the clear button at the top of the page. Are you sure you want to deactivate this harvest source?')}) %}
   <div class="dropdown btn-group">
     <a href="{% url_for 'harvest_delete', id=data.name %}" data-module="confirm-action" data-module-i18n="{{ locale_delete }}" class="btn btn-danger" >
-      {{ _('Delete Source') }}
+      {{ _('Deactivate Source') }}
     </a>
 
   </div>
