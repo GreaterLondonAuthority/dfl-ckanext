@@ -11,10 +11,10 @@ import ckan.lib.mailer as Mailer
 import ckan.plugins as plugins
 from ckan.lib.plugins import DefaultPermissionLabels
 import ckan.plugins.toolkit as toolkit
-from ckan.common import _, request
+from ckan.common import _, request, ungettext
 from ckan.config.declaration import Declaration, Key
 from ckan.lib import signals
-from ckan.lib.helpers import dict_list_reduce, markdown_extract, ungettext
+from ckan.lib.helpers import dict_list_reduce, markdown_extract
 from ckan.model import User, AnonymousUser, Group
 from ckan.model.meta import Session
 from ckan.types import Schema, Validator
